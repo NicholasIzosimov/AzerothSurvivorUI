@@ -2,6 +2,8 @@
 
 A lightweight interface addon for **Azeroth Survivors**: flat, dark unit frames, a compact action bar and a set of run panels (damage meter, build, tally, timer, Lexicon) in place of the stock 1.12 look. Everything can be moved, resized and switched off.
 
+![Survivor UI in a run: build, run timer, Lexicon, damage meter and the options window](screenshots/showcase.png)
+
 ## Install
 
 1. Download the latest zip from [Releases](https://github.com/NicholasIzosimov/AzerothSurvivorUI/releases) (or **Code → Download ZIP**).
