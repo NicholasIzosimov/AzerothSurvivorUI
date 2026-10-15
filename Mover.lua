@@ -1,0 +1,481 @@
+-- Survivor UI: the middle of the screen moves as one.
+--
+-- The action buttons and the experience bar hang from one row (SurvivorUIRow).
+-- The player and target frames, the hero's buffs and the kills and gold box
+-- follow it too, until each is moved on its own. Holding Alt lays a handle over the whole block, outlined so
+-- it shows: drag it and everything goes along. The place is kept between
+-- sessions; /sui center puts the block back under the hero.
+--
+-- Every other movable piece registers here too (SurvivorUI_RegisterMover), so
+-- Alt outlines them all at once. /sui layout puts everything back.
+--
+-- With Alt held a grid lies over the screen, centered on its middle; with
+-- snapping on, a piece let go lands with its center on the nearest
+-- grid point. Both are switches in /sui opt.
+
+local FLAT = "Interface\\ChatFrame\\ChatFrameBackground"
+local FONT = SurvivorUI_FONT or "Fonts\\FRIZQT__.TTF"
+local FONT_BUMP = SurvivorUI_FONT_BUMP or 0
+local DEFAULT_Y = -150          -- the row's place under the screen's center
+local GRID = 16                 -- the grid's spacing
+local GRID_MAJOR = 4            -- every fourth line a little brighter
+
+local function GridSettings()
+	SurvivorUIDB = SurvivorUIDB or {}
+	if SurvivorUIDB.grid == nil then
+		SurvivorUIDB.grid = true
+	end
+	if SurvivorUIDB.gridSnap == nil then
+		SurvivorUIDB.gridSnap = false
+	end
+	return SurvivorUIDB
+end
+
+local row = getglobal("SurvivorUIRow")
+local player = getglobal("SurvivorUIPlayer")
+local target = getglobal("SurvivorUITarget")
+if not (row and player and target) then
+	return
+end
+
+local function Place(x, y)
+	row:ClearAllPoints()
+	row:SetPoint("CENTER", UIParent, "CENTER", x, y)
+end
+
+-- Keeps the row's offset from the screen's center.
+local function Save()
+	local x, y = row:GetCenter()
+	local cx, cy = UIParent:GetCenter()
+	if not (x and cx) then
+		return
+	end
+	SurvivorUIDB = SurvivorUIDB or {}
+	SurvivorUIDB.rowX = math.floor(x - cx + 0.5)
+	SurvivorUIDB.rowY = math.floor(y - cy + 0.5)
+	Place(SurvivorUIDB.rowX, SurvivorUIDB.rowY)
+end
+
+local function Restore()
+	if SurvivorUIDB and SurvivorUIDB.rowX then
+		Place(SurvivorUIDB.rowX, SurvivorUIDB.rowY)
+	end
+end
+
+function SurvivorUI_CenterRow()
+	SurvivorUIDB = SurvivorUIDB or {}
+	SurvivorUIDB.rowX, SurvivorUIDB.rowY = nil, nil
+	Place(0, DEFAULT_Y)
+	DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: the middle of the screen is back under the hero.")
+end
+
+------------------------------------------------------------------------------
+-- Handles: an outline over a movable piece, shown with Alt held, so holding
+-- Alt shows at once everything that can be moved. A handle takes the mouse
+-- only while shown, so clicks and spells go through untouched the rest of the
+-- time.
+
+local handles = {}
+local dragging                  -- the handle being dragged, until it is let go
+
+------------------------------------------------------------------------------
+-- The grid: lines across the whole screen from its middle outward, the middle
+-- ones in gold. Laid again when the screen's size changes.
+
+local grid = CreateFrame("Frame", "SurvivorUIGrid", UIParent)
+grid:SetAllPoints(UIParent)
+grid:SetFrameStrata("HIGH")
+grid:Hide()
+
+local gridLines = {}
+local gridSize                  -- "width:height" the lines were laid for
+
+local function GridLine(index)
+	local line = gridLines[index]
+	if not line then
+		line = grid:CreateTexture(nil, "BACKGROUND")
+		line:SetTexture(FLAT)
+		gridLines[index] = line
+	end
+	return line
+end
+
+local function LayGrid()
+	local width, height = UIParent:GetWidth(), UIParent:GetHeight()
+	local size = math.floor(width)..":"..math.floor(height)
+	if size == gridSize then
+		return
+	end
+	gridSize = size
+	local count = 0
+	local function Lay(vertical, offset, step)
+		count = count + 1
+		local line = GridLine(count)
+		line:ClearAllPoints()
+		if vertical then
+			line:SetWidth(1)
+			line:SetPoint("TOP", grid, "TOPLEFT", offset, 0)
+			line:SetPoint("BOTTOM", grid, "BOTTOMLEFT", offset, 0)
+		else
+			line:SetHeight(1)
+			line:SetPoint("LEFT", grid, "BOTTOMLEFT", 0, offset)
+			line:SetPoint("RIGHT", grid, "BOTTOMRIGHT", 0, offset)
+		end
+		if step == 0 then
+			line:SetVertexColor(1, 0.82, 0, 0.45)
+		elseif math.mod(step, GRID_MAJOR) == 0 then
+			line:SetVertexColor(1, 1, 1, 0.12)
+		else
+			line:SetVertexColor(1, 1, 1, 0.05)
+		end
+		line:Show()
+	end
+	for _, spec in pairs({ { true, width }, { false, height } }) do
+		local vertical, span = spec[1], spec[2]
+		local reach = math.floor(span / 2 / GRID)
+		for step = -reach, reach do
+			Lay(vertical, span / 2 + step * GRID, math.abs(step))
+		end
+	end
+	for index = count + 1, table.getn(gridLines) do
+		gridLines[index]:Hide()
+	end
+end
+
+-- With snapping on, a piece's center to the nearest grid point, counted from
+-- the screen's middle as the grid is. In UIParent's units, the piece's own
+-- scale taken into account.
+local function Snap(frame)
+	if not GridSettings().gridSnap then
+		return
+	end
+	local fx, fy = frame:GetCenter()
+	local cx, cy = UIParent:GetCenter()
+	if not (fx and cx) then
+		return
+	end
+	local scale = frame:GetEffectiveScale() / UIParent:GetEffectiveScale()
+	local x = cx + math.floor((fx * scale - cx) / GRID + 0.5) * GRID
+	local y = cy + math.floor((fy * scale - cy) / GRID + 0.5) * GRID
+	frame:ClearAllPoints()
+	frame:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x / scale, y / scale)
+end
+
+-- For pieces dragged by their own handles (the damage meter's title).
+SurvivorUI_SnapToGrid = Snap
+
+local function MakeHandle(label)
+	local handle = CreateFrame("Frame", nil, UIParent)
+	handle:SetFrameStrata("DIALOG")
+	handle:EnableMouse(false)
+	handle:RegisterForDrag("LeftButton")
+	handle:Hide()
+
+	handle.fill = handle:CreateTexture(nil, "BACKGROUND")
+	handle.fill:SetTexture(FLAT)
+	handle.fill:SetAllPoints(handle)
+	handle.fill:SetVertexColor(1, 0.82, 0, 0.08)
+
+	for _, side in pairs({ "TOP", "BOTTOM", "LEFT", "RIGHT" }) do
+		local line = handle:CreateTexture(nil, "BORDER")
+		line:SetTexture(FLAT)
+		line:SetVertexColor(1, 0.82, 0, 0.7)
+		if side == "TOP" or side == "BOTTOM" then
+			line:SetHeight(1)
+			line:SetPoint(side.."LEFT", handle, side.."LEFT", 0, 0)
+			line:SetPoint(side.."RIGHT", handle, side.."RIGHT", 0, 0)
+		else
+			line:SetWidth(1)
+			line:SetPoint("TOP"..side, handle, "TOP"..side, 0, 0)
+			line:SetPoint("BOTTOM"..side, handle, "BOTTOM"..side, 0, 0)
+		end
+	end
+
+	handle.label = handle:CreateFontString(nil, "OVERLAY")
+	handle.label:SetFont(FONT, 11 + FONT_BUMP, "OUTLINE")
+	handle.label:SetPoint("TOP", handle, "TOP", 0, -4)
+	handle.label:SetTextColor(1, 0.82, 0)
+	handle.label:SetText(label)
+
+	table.insert(handles, handle)
+	return handle
+end
+
+-- Any piece of the interface: the outline covers frame, the drag moves mover
+-- (frame itself unless given), which must be movable; save keeps its place,
+-- default puts it back in its first one (for /sui layout).
+function SurvivorUI_RegisterMover(frame, label, save, mover, default)
+	mover = mover or frame
+	local handle = MakeHandle(label)
+	handle.default = default
+	handle:SetAllPoints(frame)
+	handle:SetScript("OnDragStart", function()
+		dragging = this
+		mover:StartMoving()
+	end)
+	handle:SetScript("OnDragStop", function()
+		dragging = nil
+		mover:StopMovingOrSizing()
+		Snap(mover)
+		if save then
+			save()
+		end
+	end)
+	return handle
+end
+
+-- The middle block: the buttons and the experience bar under them. The unit
+-- frames, the buffs and the kills and gold box have handles of their own (and
+-- follow this one until moved).
+local middle = MakeHandle("Action bar  -  /sui center")
+middle:SetPoint("TOPLEFT", row, "TOPLEFT", -4, 4)
+middle:SetPoint("BOTTOMRIGHT", getglobal("SurvivorUIRowBlock") or row, "BOTTOMRIGHT", 4, -12)
+middle.label:ClearAllPoints()
+middle.label:SetPoint("BOTTOM", middle, "TOP", 0, 3)
+middle:SetScript("OnDragStart", function()
+	dragging = this
+	row:StartMoving()
+end)
+middle:SetScript("OnDragStop", function()
+	dragging = nil
+	row:StopMovingOrSizing()
+	Snap(row)
+	Save()
+end)
+
+-- Shown with Alt held, or while a drag that began with it is still going.
+local shown = false
+local watcher = CreateFrame("Frame")
+watcher:SetScript("OnUpdate", function()
+	local wanted = IsAltKeyDown() or dragging ~= nil
+	local wantGrid = wanted and GridSettings().grid
+	if wantGrid and not grid:IsShown() then
+		LayGrid()
+		grid:Show()
+	elseif not wantGrid and grid:IsShown() then
+		grid:Hide()
+	end
+	if wanted == shown then
+		return
+	end
+	shown = wanted
+	for index = 1, table.getn(handles) do
+		local handle = handles[index]
+		if wanted then
+			handle:Show()
+			handle:EnableMouse(true)
+		else
+			handle:EnableMouse(false)
+			handle:Hide()
+		end
+	end
+end)
+
+if SurvivorUI_RegisterOption then
+	SurvivorUI_RegisterOption({
+		section = "Interface",
+		label = "Grid while Alt is held",
+		tip = "A grid over the screen while you hold Alt to move things, centered on the screen's middle.",
+		get = function() return GridSettings().grid end,
+		toggle = function()
+			local settings = GridSettings()
+			settings.grid = not settings.grid
+		end,
+	})
+	SurvivorUI_RegisterOption({
+		section = "Interface",
+		label = "Snap to the grid",
+		parent = "Grid while Alt is held",
+		tip = "A piece you let go of lands with its center on the nearest grid point. Off, it stays exactly where you drop it.",
+		get = function() return GridSettings().gridSnap end,
+		toggle = function()
+			local settings = GridSettings()
+			settings.gridSnap = not settings.gridSnap
+		end,
+	})
+end
+
+------------------------------------------------------------------------------
+-- The game's own pieces: the chat window and the minimap (with its zone name).
+-- The run tracker hangs from the minimap, so the right column follows it.
+
+local function Keep(frame, leftKey, edgeKey, edge)
+	frame:SetMovable(true)
+	if frame.SetClampedToScreen then
+		frame:SetClampedToScreen(true)
+	end
+	local function SaveIt()
+		SurvivorUIDB = SurvivorUIDB or {}
+		SurvivorUIDB[leftKey] = math.floor((edge == "TOP" and frame:GetRight() or frame:GetLeft()) + 0.5)
+		SurvivorUIDB[edgeKey] = math.floor((edge == "TOP" and frame:GetTop() or frame:GetBottom()) + 0.5)
+	end
+	local function RestoreIt()
+		if not (SurvivorUIDB and SurvivorUIDB[leftKey]) then
+			return
+		end
+		frame:ClearAllPoints()
+		if edge == "TOP" then
+			frame:SetPoint("TOPRIGHT", UIParent, "BOTTOMLEFT", SurvivorUIDB[leftKey], SurvivorUIDB[edgeKey])
+		else
+			frame:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", SurvivorUIDB[leftKey], SurvivorUIDB[edgeKey])
+		end
+	end
+	return SaveIt, RestoreIt
+end
+
+local gameRestores = {}
+if ChatFrame1 then
+	local save, restore = Keep(ChatFrame1, "chatLeft", "chatBottom", "BOTTOM")
+	SurvivorUI_RegisterMover(ChatFrame1, "Chat", save, nil, function()
+		-- The stock chat's first place.
+		ChatFrame1:ClearAllPoints()
+		ChatFrame1:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", 32, 95)
+	end)
+	table.insert(gameRestores, restore)
+end
+if MinimapCluster then
+	local save, restore = Keep(MinimapCluster, "mapRight", "mapTop", "TOP")
+	SurvivorUI_RegisterMover(Minimap or MinimapCluster, "Minimap", save, MinimapCluster, function()
+		MinimapCluster:ClearAllPoints()
+		MinimapCluster:SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", 0, 0)
+	end)
+	table.insert(gameRestores, restore)
+end
+
+-- The stock interface can seat them again as the world loads: put them back
+-- then, and once more a moment later.
+local restoreAt
+local gameLoader = CreateFrame("Frame")
+gameLoader:RegisterEvent("PLAYER_ENTERING_WORLD")
+gameLoader:SetScript("OnEvent", function()
+	for index = 1, table.getn(gameRestores) do
+		gameRestores[index]()
+	end
+	restoreAt = GetTime() + 1
+end)
+gameLoader:SetScript("OnUpdate", function()
+	if restoreAt and GetTime() >= restoreAt then
+		restoreAt = nil
+		for index = 1, table.getn(gameRestores) do
+			gameRestores[index]()
+		end
+	end
+end)
+
+------------------------------------------------------------------------------
+-- /sui scale: the size of the addon's panels, for screens where they crowd
+-- each other (a small resolution, or a large interface scale).
+
+local SCALED = {
+	"SurvivorUITracker", "SurvivorUIMeter", "SurvivorUIBosses",
+	"SurvivorUILoot", "SurvivorUICritTip", "SurvivorUIBuild",
+}
+
+-- A moved panel keeps its place as a point in its own scale's units: the same
+-- numbers under another scale would put it elsewhere, off the screen even.
+-- So a change of scale converts each saved place, keeping the panel where it
+-- stands, and no panel may leave the screen.
+local SAVED = {
+	SurvivorUITracker = { "trackerRight", "trackerTop", "TOPRIGHT" },
+	SurvivorUIMeter = { "meterRight", "meterBottom", "BOTTOMRIGHT" },
+	SurvivorUIBosses = { "bossLeft", "bossTop", "TOPLEFT" },
+	SurvivorUILoot = { "lootLeft", "lootTop", "TOPLEFT" },
+	SurvivorUIBuild = { "buildLeft", "buildTop", "TOPLEFT" },
+}
+
+local function ApplyScale(from)
+	SurvivorUIDB = SurvivorUIDB or {}
+	local scale = SurvivorUIDB.panelScale or 1
+	from = from or scale
+	for index = 1, table.getn(SCALED) do
+		local name = SCALED[index]
+		local frame = getglobal(name)
+		if frame then
+			if frame.SetClampedToScreen then
+				frame:SetClampedToScreen(true)
+			end
+			frame:SetScale(scale)
+			local spec = SAVED[name]
+			local x, y = spec and SurvivorUIDB[spec[1]], spec and SurvivorUIDB[spec[2]]
+			if x and y then
+				if from ~= scale then
+					x = math.floor(x * from / scale + 0.5)
+					y = math.floor(y * from / scale + 0.5)
+					SurvivorUIDB[spec[1]], SurvivorUIDB[spec[2]] = x, y
+				end
+				frame:ClearAllPoints()
+				frame:SetPoint(spec[3], UIParent, "BOTTOMLEFT", x, y)
+			end
+		end
+	end
+end
+
+function SurvivorUI_SetScale(value)
+	SurvivorUIDB = SurvivorUIDB or {}
+	value = tonumber(value)
+	if not value then
+		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: panels at "..((SurvivorUIDB.panelScale) or 1).."; /sui scale 0.85 sets it, 0.6 to 1.4.")
+		return
+	end
+	local from = SurvivorUIDB.panelScale or 1
+	SurvivorUIDB.panelScale = math.max(0.6, math.min(1.4, value))
+	ApplyScale(from)
+	DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: panels at "..SurvivorUIDB.panelScale..".")
+end
+local scaler = CreateFrame("Frame")
+scaler:RegisterEvent("PLAYER_ENTERING_WORLD")
+scaler:SetScript("OnEvent", function() ApplyScale() end)
+
+------------------------------------------------------------------------------
+-- /sui layout: every piece back in its first place.
+
+local PLACES = {
+	"rowX", "rowY", "trackerRight", "trackerTop",
+	"meterRight", "meterBottom", "bossLeft", "bossTop", "lootLeft", "lootTop",
+	"chatLeft", "chatBottom", "mapRight", "mapTop", "tipRight", "tipBottom", "buildLeft", "buildTop",
+	"buffX", "buffBottom", "tallyX", "tallyY", "tallyBottom", "playerX", "playerY", "targetX", "targetY", "xpX", "xpY", "cacheX", "cacheY",
+}
+
+-- A new layout starts everyone from the first places once: the pieces moved
+-- around in v2.0, and an old saved place would leave one stranded. Runs when
+-- the saved settings arrive, before any piece puts itself back.
+local LAYOUT_VERSION = 3          -- 3: the build list joins the right column
+local migrator = CreateFrame("Frame")
+migrator:RegisterEvent("ADDON_LOADED")
+migrator:SetScript("OnEvent", function()
+	if arg1 ~= "SurvivorUI" then
+		return
+	end
+	SurvivorUIDB = SurvivorUIDB or {}
+	if SurvivorUIDB.layoutVersion ~= LAYOUT_VERSION then
+		for index = 1, table.getn(PLACES) do
+			SurvivorUIDB[PLACES[index]] = nil
+		end
+		SurvivorUIDB.layoutVersion = LAYOUT_VERSION
+	end
+end)
+
+-- Puts everything back at once, no reload: the saved places go, and each piece
+-- takes its first place again. The minimap goes first, as the right column
+-- hangs from it.
+function SurvivorUI_ResetLayout()
+	SurvivorUIDB = SurvivorUIDB or {}
+	for index = 1, table.getn(PLACES) do
+		SurvivorUIDB[PLACES[index]] = nil
+	end
+	Place(0, DEFAULT_Y)
+	for pass = 1, 2 do
+		for index = 1, table.getn(handles) do
+			local default = handles[index].default
+			if default then
+				default()
+			end
+		end
+	end
+	DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: every piece is back in its first place.")
+end
+
+-- The saved place comes back once the saved settings have.
+local loader = CreateFrame("Frame")
+loader:RegisterEvent("PLAYER_ENTERING_WORLD")
+loader:SetScript("OnEvent", Restore)
