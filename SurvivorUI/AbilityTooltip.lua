@@ -9,6 +9,10 @@
 -- build's card lists a spell's upgrades). The tooltip stays where the game
 -- placed it.
 --
+-- On the action bar every spell also says its chance to cast twice (the
+-- hero's Echo, AZS_STATS.echo), as the game itself writes on some of them;
+-- where the game already wrote it, its own line stands.
+--
 -- The game rewrites the tooltip a few times a second while the mouse stays,
 -- so the layout is redone whenever its text changes. A tooltip it cannot read
 -- is left as the game wrote it.
@@ -264,6 +268,64 @@ local function Write(ability)
 end
 
 ------------------------------------------------------------------------------
+-- The chance to cast twice, for the action bar's tooltips.
+
+local ECHO_COLOR = { 1, 0.82, 0 }
+local TIMES = { "once", "twice" }
+
+-- The action button whose tooltip is up, from the game's own opener.
+local actionOwner
+local stockSetTooltip = ActionButton_SetTooltip
+if stockSetTooltip then
+	function ActionButton_SetTooltip()
+		actionOwner = this
+		stockSetTooltip()
+	end
+end
+
+local function FromActionBar()
+	return actionOwner and GameTooltip:IsOwned(actionOwner)
+end
+
+local function GameWroteEcho(ability)
+	for index = 1, table.getn(ability.other) do
+		local text = ability.other[index].text
+		if string.find(text, "chance to cast", 1, true) or string.find(text, "^Casts ") then
+			return true
+		end
+	end
+end
+
+-- "52% chance to cast twice"; past 100%, "Casts twice, 30% chance to cast
+-- more", as the game words it.
+local function EchoLine()
+	local echo = AZS_STATS and tonumber(AZS_STATS.echo) or 0
+	if echo <= 0 then
+		return nil
+	end
+	local sure = math.floor(echo)
+	local chance = math.floor((echo - sure) * 100 + 0.5)
+	if sure == 0 then
+		return chance.."% chance to cast twice"
+	end
+	local times = TIMES[sure + 1] or (sure + 1).." times"
+	if chance == 0 then
+		return "Casts "..times
+	end
+	return "Casts "..times..", "..chance.."% chance to cast more"
+end
+
+local function AddEcho(ability)
+	if ability.cast == "Passive" or not FromActionBar() or GameWroteEcho(ability) then
+		return
+	end
+	local line = EchoLine()
+	if line then
+		table.insert(ability.other, { text = line, color = ECHO_COLOR })
+	end
+end
+
+------------------------------------------------------------------------------
 -- Watching for the game's text.
 
 local written                   -- the signature of the last layout written
@@ -281,6 +343,7 @@ watcher:SetScript("OnUpdate", function()
 	written = nil
 	local ok, ability = pcall(Read)
 	if ok and ability then
+		pcall(AddEcho, ability)
 		if pcall(Write, ability) then
 			written = Signature()
 		end
