@@ -2015,10 +2015,13 @@ local function ApplyTakenText()
 			end
 		end
 	end
+	-- The hits taken float in the stock text only while neither the quick
+	-- numbers nor hidden numbers take them over.
+	local stock = not (on or Settings().damageHidden)
 	for kind in pairs(TAKEN_TYPES) do
 		local info = COMBAT_TEXT_TYPE_INFO[kind]
 		if info then
-			info.show = not on and 1 or nil
+			info.show = stock and 1 or nil
 		end
 	end
 end
@@ -2032,8 +2035,11 @@ takenWatch:SetScript("OnEvent", function()
 end)
 
 -- The engine's numbers are on when the addon's are off, and the other way round.
+-- Hidden, neither shows: the game's CombatDamage masters every number that
+-- floats over a unit, and the stock text leaves the hits taken alone.
 local function ApplyDamageText()
-	local on = Settings().damageText
+	local hidden = Settings().damageHidden
+	local on = Settings().damageText and not hidden
 	for _, event in pairs(DAMAGE_EVENTS) do
 		if on then
 			damageEvents:RegisterEvent(event)
@@ -2041,8 +2047,17 @@ local function ApplyDamageText()
 			damageEvents:UnregisterEvent(event)
 		end
 	end
-	SetCVar("CombatDamage", on and "0" or "1")
+	SetCVar("CombatDamage", (on or hidden) and "0" or "1")
 	ApplyTakenText()
+end
+
+function SurvivorUI_ToggleDamageHidden()
+	local settings = Settings()
+	settings.damageHidden = not settings.damageHidden
+	ApplyDamageText()
+	DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: damage numbers "..(settings.damageHidden
+		and "hidden, the game's and the addon's alike."
+		or "shown again."))
 end
 
 function SurvivorUI_ToggleDamageText()
@@ -2061,6 +2076,15 @@ SurvivorUI_RegisterOption({
 	command = "/sui combattext",
 	get = function() return Settings().damageText end,
 	toggle = SurvivorUI_ToggleDamageText,
+})
+
+SurvivorUI_RegisterOption({
+	section = "Combat",
+	label = "Hide damage numbers",
+	tip = "No damage numbers at all: neither the quick ones nor the game's floating ones, over enemies or over you. Overrides Quick damage numbers while on.",
+	command = "/sui nodamage",
+	get = function() return Settings().damageHidden == true end,
+	toggle = SurvivorUI_ToggleDamageHidden,
 })
 
 ------------------------------------------------------------------------------
@@ -2190,6 +2214,8 @@ SlashCmdList["SURVIVORUI"] = function(msg)
 		if SurvivorUI_CenterRow then
 			SurvivorUI_CenterRow()
 		end
+	elseif msg == "nodamage" then
+		SurvivorUI_ToggleDamageHidden()
 	elseif msg == "combattext" or msg == "damage" then
 		SurvivorUI_ToggleDamageText()
 	elseif msg == "sweep" then

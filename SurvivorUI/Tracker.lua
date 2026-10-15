@@ -14,6 +14,11 @@
 -- shows. Hold Alt and drag it to move it; the place is kept. /sui timer
 -- hides it and brings the game's clock back; /sui timer compact leaves out
 -- the list of bosses, keeping the timeline with its ticks and countdowns.
+--
+-- Best times, as a speedrun timer keeps them: how long each boss took from the
+-- moment it came to the moment it fell, kept per class (SurvivorUIDB.bossBests).
+-- A boss alive shows its fight's time against the best; a slain one its time,
+-- green when it beat the best ("best!"), with the best beside it.
 
 local FLAT = "Interface\\ChatFrame\\ChatFrameBackground"
 local FONT = SurvivorUI_FONT or "Fonts\\FRIZQT__.TTF"
@@ -167,6 +172,42 @@ end
 local lastSeconds
 local bossSeenUp = {}             -- [boss] = true once seen alive
 local bossKilled = {}             -- [boss] = the run second it was seen to fall
+local bossSeenDue = {}            -- [boss] = true once seen still to come
+local bossUpAt = {}               -- [boss] = the run second it was first seen alive
+local bossFight = {}              -- [boss] = { time, best before it, beat }, once it fell
+
+-- Best times are kept per class and boss name: { [class] = { [boss] = seconds } }.
+local function BestsShown()
+	return Settings().trackerBests ~= false
+end
+
+local function ClassBests()
+	local settings = Settings()
+	settings.bossBests = settings.bossBests or {}
+	local _, class = UnitClass("player")
+	class = class or "UNKNOWN"
+	settings.bossBests[class] = settings.bossBests[class] or {}
+	return settings.bossBests[class]
+end
+
+-- A fight is counted only when the boss was seen coming, so a reload in the
+-- middle of one cannot pass a short time off as the best.
+local function RecordFight(key, name)
+	if bossFight[key] or not (bossSeenDue[key] and bossUpAt[key] and bossKilled[key]) then
+		return
+	end
+	local time = bossKilled[key] - bossUpAt[key]
+	if time <= 0 then
+		return
+	end
+	local bests = ClassBests()
+	local best = bests[name]
+	local beat = not best or time < best
+	if beat then
+		bests[name] = time
+	end
+	bossFight[key] = { time = time, best = best, beat = beat }
+end
 
 -- The boss alive under this name, for its health.
 local function LiveBoss(name)
@@ -209,18 +250,33 @@ local function FillBossLine(line, entry, index, seconds, isNext)
 	local at = Num(Field(entry, "at", 2))
 	local state = Field(entry, "state", 5) or "due"
 	local key = index..name
-	if state == "up" then
+	if state == "due" then
+		bossSeenDue[key] = true
+	elseif state == "up" then
 		bossSeenUp[key] = true
+		bossUpAt[key] = bossUpAt[key] or seconds
 	elseif state == "dead" and bossSeenUp[key] and not bossKilled[key] then
 		bossKilled[key] = seconds
+		RecordFight(key, name)
 	end
+	local best = ClassBests()[name]
+	local bests = BestsShown()
 
 	line.name:SetText(name)
 	if state == "dead" then
 		local color = STATE_COLORS.dead
 		line.name:SetTextColor(color[1], color[2], color[3])
-		-- The second it came, and the second it fell when that was seen.
-		if bossKilled[key] then
+		-- With best times: how long the fight took, green when it beat the
+		-- best, and the best beside it. Otherwise the second it came, and the
+		-- second it fell when that was seen.
+		local fight = bossFight[key]
+		if bests and fight then
+			if fight.beat then
+				line.time:SetText("|cff4dff4dbest!|r  "..Clock(fight.time)..(fight.best and "  |cff8a8a8a"..Clock(fight.best).."|r" or ""))
+			else
+				line.time:SetText("|cffffffff"..Clock(fight.time).."|r  |cff8a8a8abest "..Clock(fight.best).."|r")
+			end
+		elseif bossKilled[key] then
 			line.time:SetText("|cff8a8a8a"..Clock(at).."  /|r  "..Clock(bossKilled[key]))
 		else
 			line.time:SetText(Clock(at))
@@ -240,7 +296,15 @@ local function FillBossLine(line, entry, index, seconds, isNext)
 				share = "|cffff4040enraged|r  "..share
 			end
 		end
-		line.time:SetText("|cffff8c40"..share.."|r"..Clock(at))
+		if bests and bossUpAt[key] then
+			-- The fight's time so far, red once it is behind the best.
+			local time = seconds - bossUpAt[key]
+			local behind = best and time > best
+			line.time:SetText("|cffff8c40"..share.."|r"..(behind and "|cffff5050" or "|cffffffff")..Clock(time).."|r"
+				..(best and "  |cff8a8a8a"..Clock(best).."|r" or ""))
+		else
+			line.time:SetText("|cffff8c40"..share.."|r"..Clock(at))
+		end
 		line.time:SetTextColor(1, 1, 1)
 	else
 		local color = isNext and STATE_COLORS.next or WAITING
@@ -264,6 +328,7 @@ local function Draw(game, phase)
 	-- The clock going back means a new run: forget the last one's bosses.
 	if lastSeconds and seconds + 3 < lastSeconds then
 		bossSeenUp, bossKilled = {}, {}
+		bossSeenDue, bossUpAt, bossFight = {}, {}, {}
 	end
 	lastSeconds = seconds
 
@@ -512,6 +577,20 @@ head:SetScript("OnEnter", function()
 	end
 	Pair("Bosses so far", Num(game.bs).." / "..Num(game.bt))
 	Pair("Lairs on the map", Num(game.lairs))
+	-- This class's best fight against each of the zone's bosses.
+	if BestsShown() and AZS_SCHEDULE and table.getn(AZS_SCHEDULE) > 0 then
+		local bests = ClassBests()
+		local className = UnitClass("player") or "this class"
+		GameTooltip:AddLine("Best times ("..className..")", 1, 0.82, 0)
+		local listed = {}
+		for index = 1, table.getn(AZS_SCHEDULE) do
+			local name = Field(AZS_SCHEDULE[index], "name", 3)
+			if name and not listed[name] then
+				listed[name] = true
+				Pair(name, bests[name] and Clock(bests[name]) or "-")
+			end
+		end
+	end
 	if tonumber(zone.diff) and tonumber(zone.diff) ~= 1 then
 		Pair("Zone difficulty", "x"..zone.diff)
 	end
@@ -576,6 +655,16 @@ if SurvivorUI_RegisterOption then
 		command = "/sui timer",
 		get = function() return Settings().tracker end,
 		toggle = SurvivorUI_ToggleTracker,
+	})
+	SurvivorUI_RegisterOption({
+		section = "Panels",
+		label = "Best boss times",
+		parent = "Run timer",
+		tip = "Like a speedrun timer: each boss's fight, from the moment it comes to the moment it falls, timed against your best on that boss with this class. Green \"best!\" when you beat it. Hover the timer for every best in the zone.",
+		get = BestsShown,
+		toggle = function()
+			Settings().trackerBests = not BestsShown()
+		end,
 	})
 	SurvivorUI_RegisterOption({
 		section = "Panels",

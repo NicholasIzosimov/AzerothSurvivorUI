@@ -17,7 +17,7 @@ A lightweight interface addon for **Azeroth Survivors**: flat, dark unit frames,
 - **Damage meter**: muted bars, spell icons and a hover card per line with the average cast and the targets hit.
 - **Build**: your spells colored by the rarity their upgrades add up to, your jewelry, and hover cards with upgrades and gear stats.
 - **Lexicon**: a book of every amulet, ring and trinket you have worn, across runs.
-- **Tally**: kills, gold, gold per second and gold needed; **Tracker**: run timer; **XP bar** with a next-level estimate; **Boss bars**; **Loot log**.
+- **Tally**: kills, gold, gold per second and gold needed; **Tracker**: run timer with per-class best boss times, speedrun style; **XP bar** with a next-level estimate; **Boss bars**; **Loot log**.
 - **Caches**: a reminder and an arrow to the nearest cache, plus cache pins on the minimap.
 
 ## Commands
@@ -36,6 +36,7 @@ A lightweight interface addon for **Azeroth Survivors**: flat, dark unit frames,
 | `/sui caches` | Cache reminder and minimap pins |
 | `/sui events` | The game's event banners on/off |
 | `/sui sweep` | Buff sweep on/off |
+| `/sui nodamage` | Hide all damage numbers (the game's and the addon's) |
 
 Hold **Alt** and drag to move any panel; positions snap to a grid.
 
