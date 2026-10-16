@@ -26,7 +26,7 @@ local FLAT = "Interface\\ChatFrame\\ChatFrameBackground"
 local FONT = SurvivorUI_FONT or "Fonts\\FRIZQT__.TTF"
 local FONT_BUMP = SurvivorUI_FONT_BUMP or 0
 
-local WIDTH = 540
+local WIDTH = 600
 local PAD = 14
 local TITLE_HEIGHT = 34
 local TAB_HEIGHT = 26
@@ -111,6 +111,75 @@ end)
 close:SetScript("OnClick", function() window:Hide() end)
 
 ------------------------------------------------------------------------------
+-- The search box, left of the x: typing opens a Search tab at the front with
+-- every option, from every tab, whose name or description holds the words
+-- typed (any case), an option's sub-options with it. Clearing it, or picking
+-- another tab, ends the search.
+
+local SEARCH = "Search"
+local SEARCH_WIDTH = 180
+local query = ""
+local Draw
+
+local searchBox = CreateFrame("EditBox", nil, window)
+searchBox:SetWidth(SEARCH_WIDTH)
+searchBox:SetHeight(22)
+searchBox:SetPoint("RIGHT", close, "LEFT", -8, 0)
+searchBox:SetAutoFocus(false)
+searchBox:SetFont(FONT, 12 + FONT_BUMP)
+searchBox:SetTextColor(1, 1, 1)
+searchBox:SetTextInsets(7, 7, 0, 0)
+searchBox:SetBackdrop({
+	bgFile = FLAT, edgeFile = FLAT, tile = false, edgeSize = 1,
+	insets = { left = 1, right = 1, top = 1, bottom = 1 },
+})
+searchBox:SetBackdropColor(0.09, 0.09, 0.12, 1)
+searchBox:SetBackdropBorderColor(0.45, 0.45, 0.5, 1)
+
+searchBox.hint = searchBox:CreateFontString(nil, "OVERLAY")
+searchBox.hint:SetFont(FONT, 12 + FONT_BUMP)
+searchBox.hint:SetPoint("LEFT", searchBox, "LEFT", 7, 0)
+searchBox.hint:SetTextColor(0.5, 0.5, 0.5)
+searchBox.hint:SetText("Search options")
+
+local function PaintSearch()
+	if searchBox:GetText() == "" and not searchBox.focused then
+		searchBox.hint:Show()
+	else
+		searchBox.hint:Hide()
+	end
+	local gold = searchBox.focused or query ~= ""
+	searchBox:SetBackdropBorderColor(gold and GOLD[1] or 0.45, gold and GOLD[2] or 0.45, gold and GOLD[3] or 0.5, 1)
+end
+
+searchBox:SetScript("OnEditFocusGained", function()
+	this.focused = true
+	PaintSearch()
+end)
+searchBox:SetScript("OnEditFocusLost", function()
+	this.focused = nil
+	PaintSearch()
+end)
+searchBox:SetScript("OnTextChanged", function()
+	query = string.lower(this:GetText() or "")
+	PaintSearch()
+	if Draw then
+		Draw()
+	end
+end)
+searchBox:SetScript("OnEnterPressed", function() this:ClearFocus() end)
+searchBox:SetScript("OnEscapePressed", function()
+	this:SetText("")
+	this:ClearFocus()
+end)
+
+-- Said in the options' place when a search matches nothing.
+window.noMatch = window:CreateFontString(nil, "OVERLAY")
+window.noMatch:SetFont(FONT, TEXT_SIZE + FONT_BUMP)
+window.noMatch:SetPoint("TOPLEFT", window, "TOPLEFT", PAD + 4, -TITLE_HEIGHT - TAB_HEIGHT - 16)
+window.noMatch:SetTextColor(0.6, 0.6, 0.6)
+
+------------------------------------------------------------------------------
 -- The footer: a standing hint on moving things, and a button that reloads the
 -- interface (/sui reload), styled as the game's own menu buttons: a deep red
 -- gradient, a thin gold edge, gold words.
@@ -163,7 +232,6 @@ hint:SetText("Hold ALT to edit layout")
 -- gold line under it. The open tab is kept between sessions.
 
 local tabs = {}
-local Draw
 
 -- A closed tab's look between rest (0) and hovered (1): grey to white words,
 -- the fill a shade lighter. The open tab keeps its own.
@@ -213,8 +281,15 @@ local function Tab(index)
 		end
 	end)
 	tab:SetScript("OnClick", function()
-		SurvivorUIDB = SurvivorUIDB or {}
-		SurvivorUIDB.optionsTab = this.section
+		-- Another tab ends the search; the Search tab itself stays.
+		if this.section ~= SEARCH then
+			SurvivorUIDB = SurvivorUIDB or {}
+			SurvivorUIDB.optionsTab = this.section
+			if query ~= "" then
+				searchBox:SetText("")
+				searchBox:ClearFocus()
+			end
+		end
 		Draw()
 	end)
 	tabs[index] = tab
@@ -676,12 +751,44 @@ local function Seat(frame, y, parent)
 	frame:Show()
 end
 
+-- The options matching the search, from every tab in tab order: those whose
+-- name or description holds the words, each followed by its sub-options.
+local function Matches(bySection, order)
+	local found = {}
+	for _, name in ipairs(order) do
+		local list = bySection[name]
+		local hit = {}
+		for index = 1, table.getn(list) do
+			local option = list[index]
+			local words = string.lower((option.label or "").." "..(option.tip or ""))
+			if string.find(words, query, 1, true) then
+				hit[option.label] = true
+			end
+		end
+		for index = 1, table.getn(list) do
+			local option = list[index]
+			if hit[option.label] or (option.parent and hit[option.parent]) then
+				table.insert(found, option)
+			end
+		end
+	end
+	return found
+end
+
 Draw = function()
 	local bySection, order = Sections()
 	local open = OpenTab()
 	if not bySection[open] or table.getn(bySection[open]) == 0 then
 		open = order[1]
 	end
+	-- Searching: a Search tab at the front, open, with what matches.
+	local searching = query ~= ""
+	if searching then
+		bySection[SEARCH] = Matches(bySection, order)
+		table.insert(order, 1, SEARCH)
+		open = SEARCH
+	end
+	window.noMatch:SetText(searching and table.getn(bySection[SEARCH]) == 0 and "No option matches \""..query.."\"." or "")
 
 	-- The tabs, sharing the width.
 	local count = table.getn(order)
@@ -711,7 +818,8 @@ Draw = function()
 			hasChildren[entry.parent.label] = true
 		end
 	end
-	local unfolded = OpenGroups()
+	-- A search shows every match's sub-options, folded or not.
+	local unfolded = searching and setmetatable({}, { __index = function() return true end }) or OpenGroups()
 	local ruleCount = 0
 	for _, entry in ipairs(entries) do
 		local option = entry.option
@@ -752,7 +860,7 @@ Draw = function()
 			Seat(row, y, entry.parent)
 			row.label:SetText(option.label)
 			Paint(row)
-			if hasChildren[option.label] then
+			if hasChildren[option.label] and not searching then
 				SurvivorUI_SetPlus(row.expand, not unfolded[option.label])
 				row.expand:Show()
 			else

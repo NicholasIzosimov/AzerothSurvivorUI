@@ -851,7 +851,8 @@ local function Row(index)
 	-- The classes that wore a piece, small, left of its rank.
 	row.classes = row:CreateFontString(nil, "OVERLAY")
 	row.classes:SetFont(FONT, 9 + FONT_BUMP, "OUTLINE")
-	row.classes:SetPoint("RIGHT", row, "RIGHT", -62, 0)
+	-- Left of the rank or average text, a gap between, however wide that runs.
+	row.classes:SetPoint("RIGHT", row.rank, "LEFT", -12, 0)
 	row.classes:SetJustifyH("RIGHT")
 	row.hover = row:CreateTexture(nil, "HIGHLIGHT")
 	row.hover:SetTexture(FLAT)
@@ -953,7 +954,7 @@ local function FillRow(row, entry)
 	-- The name runs up to the tags on its right.
 	row.name:ClearAllPoints()
 	row.name:SetPoint("LEFT", row, "LEFT", ROW_HEIGHT + 4, 0)
-	row.name:SetPoint("RIGHT", row, "RIGHT", entry.ability and -130 or -132, 0)
+	row.name:SetPoint("RIGHT", row, "RIGHT", entry.ability and -160 or -132, 0)
 	if entry.ability then
 		FillAbility(row, entry)
 	else
