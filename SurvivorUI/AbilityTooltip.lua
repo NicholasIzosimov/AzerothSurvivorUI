@@ -294,7 +294,8 @@ local function TargetsText(count)
 end
 
 -- A rule may give a line's words in full as its fifth value, the number in
--- white in it, in place of value and label.
+-- white in it, in place of value and label; a rule giving no place drops what
+-- it reads from the list (the full description, with Shift, still has it).
 local FACTS = {
 	-- "Stacks up to 3 times on one enemy" is "Stacks up to 3 times".
 	{ "stacks up to (%d+) times?[^,;:]*", function(n) return EFFECT, n, "", nil, "Stacks up to "..n.." times" end },
@@ -317,12 +318,12 @@ local FACTS = {
 		return DAMAGE, n, Capital(school).." Damage over "..t.." sec", school end },
 	{ NUMBER.." (%a+) damage", function(n, school) return DAMAGE, n, Capital(school).." Damage", school end },
 	{ NUMBER.." damage", function(n) return DAMAGE, n, "Damage" end },
-	-- "doubled to 1506 against an enemy below 30% health": under the damage,
-	-- "2x damage on targets below 30%".
+	-- "doubled to 1506 against an enemy below 30% health": near the bottom,
+	-- over the crit, "2x damage on targets below 30%".
 	{ "doubled to [%d%.]+ against an? enem%a* below (%d+)%%[%a ]*",
-		function(p) return DAMAGE, nil, nil, nil, "2x damage on targets below "..p.."%" end },
+		function(p) return OTHER, nil, nil, nil, "2x damage on targets below "..p.."%" end },
 	{ "tripled to [%d%.]+ against an? enem%a* below (%d+)%%[%a ]*",
-		function(p) return DAMAGE, nil, nil, nil, "3x damage on targets below "..p.."%" end },
+		function(p) return OTHER, nil, nil, nil, "3x damage on targets below "..p.."%" end },
 	{ "within "..NUMBER.." yds?", function(n) return REACH, n.." yd", "" end },
 	{ NUMBER.." yds? radius", function(n) return REACH, n.." yd", "radius" end },
 	{ NUMBER.." yds? range", function(n) return REACH, n.." yd", "range" end },
@@ -338,6 +339,10 @@ local FACTS = {
 	{ "for "..NUMBER.." sec", function(t) return EFFECT, t.." sec", "Duration" end },
 	{ "lasts? "..NUMBER.." sec", function(t) return EFFECT, t.." sec", "Duration" end },
 	{ "every "..NUMBER.." sec", function(t) return EFFECT, t.." sec", "Interval" end },
+	-- "Bosses and elites are targeted first, then the most wounded below 30%
+	-- health": how it picks its targets, left to the full description. Last,
+	-- as it takes the rest of its sentence.
+	{ "[%a ,]*targeted first.*", function() return nil end },
 }
 
 local function Trim(text)
@@ -362,7 +367,9 @@ local function ReadFacts(lines)
 				end
 				matched = true
 				local place, value, label, school, text = rule[2](found[3], found[4], found[5])
-				table.insert(facts, { place = place, value = value, label = label, school = school, text = text })
+				if place then
+					table.insert(facts, { place = place, value = value, label = label, school = school, text = text })
+				end
 				-- Cut from both, so the next rules read only what is left.
 				lower = string.sub(lower, 1, found[1] - 1).." "..string.sub(lower, found[2] + 1)
 				original = string.sub(original, 1, found[1] - 1).." "..string.sub(original, found[2] + 1)
