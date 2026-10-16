@@ -10,8 +10,11 @@
 -- for its tooltip. The book learns a piece the moment it is worn and keeps it
 -- in SurvivorUIDB.lexicon, across runs, its tooltip's lines with it: a piece
 -- no longer in the game's item cache still shows its description. The names
--- the build remembered before the book existed (seenGear) are read too, their
--- icon and tooltip found among the game's jewelry items. A button in the
+-- the build remembered before the book existed (seenGear) are read too; they
+-- get their icon and tooltip once worn again. The book never asks the game
+-- about items it is not holding: each such ask goes to the server, and a
+-- flood of them pushed the worn jewelry out of the game's item cache, its
+-- icons gone from the character pane and the build. A button in the
 -- corner keeps the page to the jewelry your class has worn.
 --
 -- Abilities: every spell of the hero's class (from the spellbook, the ones
@@ -49,11 +52,6 @@ local KINDS = {
 	{ kind = "Trinket", title = "Trinkets",  slots = { 13, 14 }, always = true },
 	{ kind = ABILITY,   title = "Abilities", always = true },
 }
-
--- The game's run jewelry sits in one block of item numbers, read through for
--- the icons and tooltips of pieces remembered by name only.
-local JEWELRY_FIRST = 900000
-local JEWELRY_LAST = 900999
 
 -- An average cast counts from this many casts on, so one lucky blow early in
 -- a run does not stand as the best.
@@ -224,44 +222,6 @@ local function Learn()
 				end
 				piece.link = item
 			end
-		end
-	end
-end
-
--- The pieces known by name only (seenGear, from before the book) given
--- their icon and item from the game's jewelry items, once a session.
-local filled = false
-
-local function FillFromItems()
-	if filled or not GetItemInfo then
-		return
-	end
-	filled = true
-	local seen = Settings().seenGear
-	if not seen then
-		return
-	end
-	local book = Book()
-	local wanted, any = {}, false
-	for index = 1, table.getn(KINDS) do
-		local kind = KINDS[index].kind
-		for name, hex in pairs(seen[kind] or {}) do
-			if not (book[kind] and book[kind][name]) then
-				wanted[name] = { kind = kind, hex = hex }
-				any = true
-			end
-		end
-	end
-	if not any then
-		return
-	end
-	for id = JEWELRY_FIRST, JEWELRY_LAST do
-		local name, item, _, _, _, _, _, _, icon = GetItemInfo(id)
-		local want = name and wanted[name]
-		if want then
-			book[want.kind] = book[want.kind] or {}
-			book[want.kind][name] = { hex = want.hex, link = item, icon = icon }
-			wanted[name] = nil
 		end
 	end
 end
@@ -648,11 +608,8 @@ end
 local function PieceTooltip(owner, piece)
 	GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
 	local slot = WornSlot(piece)
-	local cached = piece.link and GetItemInfo and GetItemInfo(piece.link)
 	if slot then
 		GameTooltip:SetInventoryItem("player", slot)
-	elseif cached then
-		GameTooltip:SetHyperlink(piece.link)
 	elseif piece.lines and table.getn(piece.lines) > 0 then
 		for index = 1, table.getn(piece.lines) do
 			local line = piece.lines[index]
@@ -664,6 +621,8 @@ local function PieceTooltip(owner, piece)
 				GameTooltip:AddLine(line[1], line[2], line[3], line[4], 1)
 			end
 		end
+	elseif piece.link then
+		GameTooltip:SetHyperlink(piece.link)
 	else
 		local color = HexColor(piece.hex)
 		GameTooltip:SetText(piece.name, color[1], color[2], color[3])
@@ -951,7 +910,6 @@ end
 
 book:SetScript("OnShow", function()
 	Learn()
-	FillFromItems()
 	ReadSpellbook()
 	LearnRun()
 	Draw()
