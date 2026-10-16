@@ -600,11 +600,23 @@ end
 local player = UnitFrame("player", "SurvivorUIPlayer", playerAnchor, "LEFT", "PlayerFrameDropDown")
 local target = UnitFrame("target", "SurvivorUITarget", targetAnchor, "RIGHT", "TargetFrameDropDown")
 
--- The target's debuffs, in a row above its frame.
+-- The target's debuffs, in a row above its frame. Hover one for the game's
+-- own tooltip of it: what it does, a damage over time's damage and ticks.
 local DEBUFFS = 8
 local debuffs = {}
+
+local function DebuffEnter()
+	GameTooltip:SetOwner(this, "ANCHOR_BOTTOMRIGHT")
+	GameTooltip:SetUnitDebuff("target", this.index)
+	GameTooltip:Show()
+end
+
 for index = 1, DEBUFFS do
 	local icon = CreateFrame("Frame", nil, target)
+	icon.index = index
+	icon:EnableMouse(true)
+	icon:SetScript("OnEnter", DebuffEnter)
+	icon:SetScript("OnLeave", function() GameTooltip:Hide() end)
 	icon:SetWidth(18)
 	icon:SetHeight(18)
 	icon:SetPoint("BOTTOMLEFT", target, "TOPLEFT", (index - 1) * 21, 4)
