@@ -244,6 +244,12 @@ local function Simplified()
 	return SurvivorUIDB.simpleTips ~= false
 end
 
+-- Holding Shift shows the full description in place of the simplified list,
+-- for a closer look; letting go brings the list back.
+local function ShowSimplified()
+	return Simplified() and not IsShiftKeyDown()
+end
+
 -- The simplified description: the numbers a description gives, one fact to a
 -- line, the value first ("3 Targets", "7 yd", "826 Physical Damage", "50%
 -- Leech"), read from the description's wording, clause by clause. A rule
@@ -463,7 +469,7 @@ local function Compose(ability)
 	Double(ability.cast, cooldown, MUTED, MUTED)
 
 	local others = ability.other
-	if Simplified() then
+	if ShowSimplified() then
 		local facts = AllFacts(ability)
 		if table.getn(facts) > 0 then
 			Spacer(tint)
@@ -544,6 +550,10 @@ end
 -- Watching for the game's text.
 
 local written                   -- the signature of the last layout written
+-- The game's tooltip as last read, and whether Shift was down when it was
+-- laid out: Shift changes nothing the game writes, so a press is caught here
+-- and the same tooltip laid out again.
+local lastAbility, lastShift
 
 -- Other cards on the game's tooltip (the build's) draw rules the same way:
 -- SurvivorUI_TooltipRules({ { line, color }, ... }) once the card is shown,
@@ -563,13 +573,23 @@ watcher:SetScript("OnUpdate", function()
 		return
 	end
 	local signature = Signature()
+	local shift = IsShiftKeyDown() and true or false
 	if signature == written then
+		if lastAbility and shift ~= lastShift then
+			lastShift = shift
+			HideRules()
+			local wrote, done = pcall(Write, lastAbility)
+			if wrote and done then
+				written = Signature()
+			end
+		end
 		return
 	end
 	HideRules()
 	written = nil
 	local ok, ability = pcall(Read)
 	if ok and ability then
+		lastAbility, lastShift = ability, shift
 		local wrote, done = pcall(Write, ability)
 		if wrote and done then
 			written = Signature()
@@ -582,6 +602,7 @@ local stockHide = GameTooltip:GetScript("OnHide")
 GameTooltip:SetScript("OnHide", function()
 	HideRules()
 	written = nil
+	lastAbility = nil
 	if stockHide then
 		stockHide()
 	end
@@ -592,7 +613,7 @@ if SurvivorUI_RegisterOption then
 		section = "Ability Bar",
 		order = 1,
 		label = "Simplified Ability Description",
-		tip = "Ability tooltips as a list: under the name, rank, cast and cooldown, every number on a line of its own, value first (\"3 Targets\", \"7 yd\", \"26% crit · 219% crit damage\", \"826 Physical Damage\", \"50% Leech\"). Off, the description reads as the game writes it, its numbers in white.",
+		tip = "Ability tooltips as a list: under the name, rank, cast and cooldown, every number on a line of its own, value first (\"7 yd\", \"826 Physical Damage\", \"+3 Targets\", \"26% crit\"). Hold Shift over an ability for the full description. Off, the description always reads as the game writes it, its numbers in white.",
 		get = Simplified,
 		toggle = function()
 			SurvivorUIDB = SurvivorUIDB or {}
