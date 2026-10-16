@@ -1,7 +1,8 @@
 -- Survivor UI: the options window, /sui opt.
 --
--- Every switch the addon has, in one flat window, a tab per kind (Combat,
--- Panels, Interface) along its top: click a tab to show its switches. Each
+-- Every switch the addon has, in one flat window, a tab per kind (General,
+-- Ability Bar, Text & Numbers, Unit frames, Interface) along its top: click a
+-- tab to show its switches. Each
 -- file adds its own switch (SurvivorUI_RegisterOption, in SurvivorUI.lua), so
 -- a new one shows here by itself. A click flips it just as its /sui command
 -- does; hover a switch for what it does. Escape or the x closes the window;
@@ -11,6 +12,9 @@
 -- returns it and set takes it, as the slider is dragged. One with kind =
 -- "color" is a swatch opening the game's color wheel: get returns r, g, b and
 -- set takes them.
+--
+-- An option with order = a number comes before those without one (1 first);
+-- the rest keep the order they were added in.
 --
 -- An option with parent = another's label belongs to it: it is listed right
 -- under it, indented on a thin guide line, and dimmed while the parent is off.
@@ -22,7 +26,7 @@ local FLAT = "Interface\\ChatFrame\\ChatFrameBackground"
 local FONT = SurvivorUI_FONT or "Fonts\\FRIZQT__.TTF"
 local FONT_BUMP = SurvivorUI_FONT_BUMP or 0
 
-local WIDTH = 460
+local WIDTH = 540
 local PAD = 14
 local TITLE_HEIGHT = 34
 local TAB_HEIGHT = 26
@@ -34,12 +38,13 @@ local INDENT = 22               -- how far an option's children sit in
 local RULE_GAP = 4              -- the space above and below a rule between options
 local DIMMED = 0.45             -- a child's alpha while its parent is off
 local TEXT_SIZE = 13            -- the switches' and sliders' names
+local TAB_TEXT_SIZE = 12        -- the tabs' names, five to a row
 local BUTTON_HEIGHT = 30
 local FOOTER_HEIGHT = BUTTON_HEIGHT + 30   -- the hint line and the button under the options
 local GOLD = { 1, 0.82, 0 }
 
 -- Tabs in this order; one not named here comes after them.
-local SECTION_ORDER = { "Combat", "Panels", "Unit frames", "Interface" }
+local SECTION_ORDER = { "General", "Ability Bar", "Text & Numbers", "Unit frames", "Interface" }
 
 ------------------------------------------------------------------------------
 -- The window.
@@ -160,6 +165,18 @@ hint:SetText("Hold ALT to edit layout")
 local tabs = {}
 local Draw
 
+-- A closed tab's look between rest (0) and hovered (1): grey to white words,
+-- the fill a shade lighter. The open tab keeps its own.
+local function PaintTabHover(tab, fade)
+	if tab.open then
+		return
+	end
+	local grey = 0.6 + 0.4 * fade
+	tab.text:SetTextColor(grey, grey, grey)
+	local fill = 0.08 + 0.04 * fade
+	tab.fill:SetVertexColor(fill, fill, fill + 0.02, 1)
+end
+
 local function OpenTab()
 	SurvivorUIDB = SurvivorUIDB or {}
 	return SurvivorUIDB.optionsTab
@@ -182,16 +199,17 @@ local function Tab(index)
 	tab.mark:SetPoint("BOTTOMLEFT", tab, "BOTTOMLEFT", 0, 0)
 	tab.mark:SetPoint("BOTTOMRIGHT", tab, "BOTTOMRIGHT", 0, 0)
 	tab.text = tab:CreateFontString(nil, "OVERLAY")
-	tab.text:SetFont(FONT, TEXT_SIZE + FONT_BUMP, "OUTLINE")
+	tab.text:SetFont(FONT, TAB_TEXT_SIZE + FONT_BUMP, "OUTLINE")
 	tab.text:SetPoint("CENTER", tab, "CENTER", 0, 1)
+	-- Hovered, a closed tab fades to white and its fill lifts a little.
 	tab:SetScript("OnEnter", function()
-		if not this.open then
-			this.text:SetTextColor(1, 1, 1)
+		if SurvivorUI_Fade then
+			SurvivorUI_Fade(this, 1, PaintTabHover)
 		end
 	end)
 	tab:SetScript("OnLeave", function()
-		if not this.open then
-			this.text:SetTextColor(0.6, 0.6, 0.6)
+		if SurvivorUI_Fade then
+			SurvivorUI_Fade(this, 0, PaintTabHover)
 		end
 	end)
 	tab:SetScript("OnClick", function()
@@ -210,9 +228,8 @@ local function PaintTab(tab, open)
 		tab.text:SetTextColor(GOLD[1], GOLD[2], GOLD[3])
 		tab.mark:Show()
 	else
-		tab.fill:SetVertexColor(0.08, 0.08, 0.10, 1)
-		tab.text:SetTextColor(0.6, 0.6, 0.6)
 		tab.mark:Hide()
+		PaintTabHover(tab, tab.fade or 0)
 	end
 end
 
@@ -361,17 +378,15 @@ local function Row(index)
 	row.expand.fill:SetTexture(FLAT)
 	row.expand.fill:SetVertexColor(0.08, 0.08, 0.11, 1)
 	row.expand.fill:SetAllPoints(row.expand)
-	row.expand.text = row.expand:CreateFontString(nil, "OVERLAY")
-	row.expand.text:SetFont(FONT, 13 + FONT_BUMP, "OUTLINE")
-	row.expand.text:SetPoint("CENTER", row.expand, "CENTER", 1, 1)
-	row.expand.text:SetTextColor(0.75, 0.75, 0.75)
+	SurvivorUI_PlusMinus(row.expand, 8)
+	SurvivorUI_TintPlus(row.expand, 0.75, 0.75, 0.75)
 	row.expand:SetScript("OnEnter", function()
 		this.edge:SetVertexColor(GOLD[1], GOLD[2], GOLD[3], 1)
-		this.text:SetTextColor(1, 1, 1)
+		SurvivorUI_TintPlus(this, 1, 1, 1)
 	end)
 	row.expand:SetScript("OnLeave", function()
 		this.edge:SetVertexColor(0.45, 0.45, 0.5, 1)
-		this.text:SetTextColor(0.75, 0.75, 0.75)
+		SurvivorUI_TintPlus(this, 0.75, 0.75, 0.75)
 	end)
 	row.expand:SetScript("OnClick", function()
 		local label = this:GetParent().option.label
@@ -601,6 +616,19 @@ local function Sections()
 		end
 		table.insert(bySection[name], option)
 	end
+	-- Options with an order first, by it; the rest as they were added.
+	for _, list in pairs(bySection) do
+		for index = 1, table.getn(list) do
+			list[index].added = list[index].added or index
+		end
+		table.sort(list, function(a, b)
+			local ao, bo = a.order or 1000, b.order or 1000
+			if ao ~= bo then
+				return ao < bo
+			end
+			return a.added < b.added
+		end)
+	end
 	for index = 1, table.getn(SECTION_ORDER) do
 		if table.getn(bySection[SECTION_ORDER[index]]) > 0 then
 			table.insert(order, SECTION_ORDER[index])
@@ -725,7 +753,7 @@ Draw = function()
 			row.label:SetText(option.label)
 			Paint(row)
 			if hasChildren[option.label] then
-				row.expand.text:SetText(unfolded[option.label] and "-" or "+")
+				SurvivorUI_SetPlus(row.expand, not unfolded[option.label])
 				row.expand:Show()
 			else
 				row.expand:Hide()

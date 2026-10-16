@@ -294,7 +294,7 @@ end
 
 if SurvivorUI_RegisterOption then
 	SurvivorUI_RegisterOption({
-		section = "Panels",
+		section = "General",
 		label = "Boss bars",
 		tip = "A bar at the top of the screen for every boss alive and every lair guardian awake, in place of the game's own.",
 		command = "/sui bosses",
@@ -302,7 +302,7 @@ if SurvivorUI_RegisterOption then
 		toggle = function() SurvivorUI_BossBars() end,
 	})
 	SurvivorUI_RegisterOption({
-		section = "Panels",
+		section = "General",
 		label = "Elites on the boss bars",
 		parent = "Boss bars",
 		tip = "The boss bars list every elite too.",

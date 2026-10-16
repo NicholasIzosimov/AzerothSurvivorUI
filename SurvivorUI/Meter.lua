@@ -256,10 +256,19 @@ reset:SetScript("OnLeave", function()
 end)
 ------------------------------------------------------------------------------
 -- Reset: the game's numbers cover the whole run, so the meter keeps what each
--- source stood at when Reset was pressed, and shows what came after.
+-- source stood at when Reset was pressed, and shows what came after. That
+-- and each line's color are kept in the run's memory (SurvivorUI_RunMemory),
+-- so a reload in the middle of a run changes neither.
 
 local base = nil                -- { at = run second, total = damage, [source] = damage }
 local lastSeconds
+
+local function Memory()
+	local memory = SurvivorUI_RunMemory and SurvivorUI_RunMemory("meter") or {}
+	memory.colors = memory.colors or {}
+	memory.given = memory.given or 0
+	return memory
+end
 
 local function RunSeconds()
 	return (AZS_GetRunTime and AZS_GetRunTime()) or 0
@@ -274,6 +283,7 @@ local function TakeBase()
 	for index = 1, table.getn(lines or {}) do
 		base.sources[lines[index].name or "?"] = Num(lines[index].dmg)
 	end
+	Memory().base = base
 end
 
 reset:SetScript("OnClick", function()
@@ -286,16 +296,16 @@ end)
 ------------------------------------------------------------------------------
 -- The bars.
 
-local colors = {}               -- [source] = palette entry
-local colorsGiven = 0
 local bars = {}
 
+-- The run's memory keeps each source's place in the palette.
 local function ColorOf(name)
-	if not colors[name] then
-		colorsGiven = colorsGiven + 1
-		colors[name] = PALETTE[math.mod(colorsGiven - 1, table.getn(PALETTE)) + 1]
+	local memory = Memory()
+	if not memory.colors[name] then
+		memory.given = memory.given + 1
+		memory.colors[name] = math.mod(memory.given - 1, table.getn(PALETTE)) + 1
 	end
-	return colors[name]
+	return PALETTE[memory.colors[name]] or PALETTE[1]
 end
 
 -- A spell's rank, from the game's list (AZS_SPELLS names it by key: "holy_wrath"
@@ -546,9 +556,12 @@ local function Lines()
 	local lines, total, dps = AZS_GetMeter()
 	lines = lines or {}
 	local seconds = RunSeconds()
+	local memory = Memory()
+	base = memory.base
 	-- The clock going back means a new run: the reset goes with the old one.
 	if base and lastSeconds and seconds + 3 < lastSeconds then
 		base = nil
+		memory.base = nil
 	end
 	lastSeconds = seconds
 	if not base then
@@ -846,7 +859,7 @@ end
 
 if SurvivorUI_RegisterOption then
 	SurvivorUI_RegisterOption({
-		section = "Panels",
+		section = "General",
 		label = "Distinguishing Colors",
 		parent = "Damage meter",
 		tip = "Every line in a color of its own, picked so neighbours never look alike, instead of its spell's rarity color from the build. Muted either way.",
@@ -857,7 +870,7 @@ if SurvivorUI_RegisterOption then
 		end,
 	})
 	SurvivorUI_RegisterOption({
-		section = "Panels",
+		section = "General",
 		label = "Damage meter",
 		tip = "The addon's damage meter, with the crits on hover, in place of the game's own. Off, the game's meter is back, with its healing and boss damage.",
 		command = "/sui meter",

@@ -454,9 +454,18 @@ local function Build()
 	------------------------------------------------------------------------------
 	-- Putting the stock pieces away, and keeping everything current while open.
 
-	-- The game's own side box would sit on top of the numbers.
+	-- The game's own side box would sit on top of the numbers. Its update still
+	-- runs, in case it does more than draw the box (a reload left the stats
+	-- short when it was cut off whole); the box is put away after it.
 	if AZS_UpdateMore then
-		AZS_UpdateMore = function() end
+		local stockUpdateMore = AZS_UpdateMore
+		AZS_UpdateMore = function(a1, a2, a3, a4)
+			pcall(stockUpdateMore, a1, a2, a3, a4)
+			local box = getglobal("AZSMoreStats")
+			if box then
+				box:Hide()
+			end
+		end
 	end
 
 	local function HideStock()
@@ -548,6 +557,9 @@ if SurvivorUI_RegisterOption then
 		toggle = function()
 			Settings().characterPane = not PaneOn()
 			DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: character pane "..(PaneOn() and "on" or "off").." after a reload (/sui reload).")
+			if SurvivorUI_AskReload then
+				SurvivorUI_AskReload("the character pane changes after a reload.")
+			end
 		end,
 	})
 end

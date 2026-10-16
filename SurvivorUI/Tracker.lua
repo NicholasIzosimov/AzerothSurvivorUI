@@ -19,6 +19,10 @@
 -- moment it came to the moment it fell, kept per class (SurvivorUIDB.bossBests).
 -- A boss alive shows its fight's time against the best; a slain one its time,
 -- green when it beat the best ("best!"), with the best beside it.
+--
+-- What it has seen of the bosses (when each came and fell) is kept in the
+-- run's memory (SurvivorUI_RunMemory), so a reload in the middle of a run
+-- keeps every fight's time instead of starting the bosses over.
 
 local FLAT = "Interface\\ChatFrame\\ChatFrameBackground"
 local FONT = SurvivorUI_FONT or "Fonts\\FRIZQT__.TTF"
@@ -176,6 +180,21 @@ local bossSeenDue = {}            -- [boss] = true once seen still to come
 local bossUpAt = {}               -- [boss] = the run second it was first seen alive
 local bossFight = {}              -- [boss] = { time, best before it, beat }, once it fell
 
+-- The tables above, from the run's memory as it stands.
+local function Remember()
+	if not SurvivorUI_RunMemory then
+		return
+	end
+	local memory = SurvivorUI_RunMemory("tracker")
+	memory.seenUp = memory.seenUp or {}
+	memory.killed = memory.killed or {}
+	memory.seenDue = memory.seenDue or {}
+	memory.upAt = memory.upAt or {}
+	memory.fight = memory.fight or {}
+	bossSeenUp, bossKilled, bossSeenDue = memory.seenUp, memory.killed, memory.seenDue
+	bossUpAt, bossFight = memory.upAt, memory.fight
+end
+
 -- Best times are kept per class and boss name: { [class] = { [boss] = seconds } }.
 local function BestsShown()
 	return Settings().trackerBests ~= false
@@ -325,11 +344,8 @@ end
 local function Draw(game, phase)
 	local zone = AZS_ZONE or {}
 	local seconds = (AZS_GetRunTime and AZS_GetRunTime()) or Num(game.t)
-	-- The clock going back means a new run: forget the last one's bosses.
-	if lastSeconds and seconds + 3 < lastSeconds then
-		bossSeenUp, bossKilled = {}, {}
-		bossSeenDue, bossUpAt, bossFight = {}, {}, {}
-	end
+	-- The run's memory lets the last run's bosses go when a new one starts.
+	Remember()
 	lastSeconds = seconds
 
 	-- The zone's facts come once a run, and can be missed (a restart mid-run):
@@ -649,7 +665,7 @@ end
 
 if SurvivorUI_RegisterOption then
 	SurvivorUI_RegisterOption({
-		section = "Panels",
+		section = "General",
 		label = "Run timer",
 		tip = "The clock and the bosses' timeline under the minimap, in place of the game's own clock.",
 		command = "/sui timer",
@@ -657,7 +673,7 @@ if SurvivorUI_RegisterOption then
 		toggle = SurvivorUI_ToggleTracker,
 	})
 	SurvivorUI_RegisterOption({
-		section = "Panels",
+		section = "General",
 		label = "Best boss times",
 		parent = "Run timer",
 		tip = "Like a speedrun timer: each boss's fight, from the moment it comes to the moment it falls, timed against your best on that boss with this class. Green \"best!\" when you beat it. Hover the timer for every best in the zone.",
@@ -667,7 +683,7 @@ if SurvivorUI_RegisterOption then
 		end,
 	})
 	SurvivorUI_RegisterOption({
-		section = "Panels",
+		section = "General",
 		label = "Compact run timer",
 		parent = "Run timer",
 		tip = "The run timer leaves out the list of bosses: the zone, the clock, and the timeline with each boss's tick and countdown.",

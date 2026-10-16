@@ -3,7 +3,10 @@
 -- Hover a line of the damage meter (Meter.lua) for its card, kept short: what
 -- one cast of it deals on average, and the targets it has hit as small meter
 -- bars. Both counted here from the combat log. The meter's Reset clears it
--- (SurvivorUI_ResetRun); a new run does too.
+-- (SurvivorUI_ResetRun); a new run does too. The tally is kept in the run's
+-- memory (SurvivorUI_RunMemory), so a reload in the middle of a run keeps it.
+-- Each ability's average cast also goes to the Lexicon, which keeps the best
+-- one a run has reached (SurvivorUI_LexiconAverage).
 
 local FLAT = "Interface\\ChatFrame\\ChatFrameBackground"
 local FONT = SurvivorUI_FONT or "Fonts\\FRIZQT__.TTF"
@@ -20,6 +23,17 @@ local casts = {}                -- [ability] = { sum, count, at = when its last 
 local targetDamage = {}         -- [ability] = { [target name] = damage }
 local logNames = {}             -- [ability] = blows seen under that name, for /sui icons
 
+-- The tally from the run's memory, as it stands.
+local function Remember()
+	if not SurvivorUI_RunMemory then
+		return
+	end
+	local memory = SurvivorUI_RunMemory("crits")
+	memory.casts = memory.casts or {}
+	memory.targets = memory.targets or {}
+	casts, targetDamage = memory.casts, memory.targets
+end
+
 -- Every ability name the combat log has given a blow, with how many: a meter
 -- line whose name is missing here has no blows in the log to build a card from.
 function SurvivorUI_LogNames()
@@ -28,6 +42,10 @@ end
 
 local function ResetCrits()
 	casts, targetDamage = {}, {}
+	if SurvivorUI_RunMemory then
+		local memory = SurvivorUI_RunMemory("crits")
+		memory.casts, memory.targets = casts, targetDamage
+	end
 end
 
 local function Num(value)
@@ -196,8 +214,17 @@ local function CritTooltip(row)
 	end
 	local color = row.color or { 0.8, 0.8, 0.8 }
 
+	-- A proc goes by "The Reaper's Amulet: Eviscerate": the card is titled by
+	-- the ability, as any other line's, and names its source in a row.
+	local title, source = ability, nil
+	if fromMeter then
+		local _, _, from, name = string.find(ability, "^(.-): (.+)$")
+		if from then
+			title, source = name, from
+		end
+	end
 	critTip.edge:SetVertexColor(color[1], color[2], color[3], 0.8)
-	critTip.title:SetText(ability)
+	critTip.title:SetText(title)
 	critTip.title:SetTextColor(color[1], color[2], color[3])
 
 	local count = 0
@@ -208,8 +235,21 @@ local function CritTooltip(row)
 	if casts[ability] then
 		Add("row", "Avg cast", Average(casts[ability]))
 	else
+		if source then
+			Add("row", "Proc of", source)
+		end
 		Add("row", "Damage", Short(Num(row.damage)))
 		Add("row", "Share", math.floor(Num(row.share) * 100 + 0.5).."%")
+	end
+	-- As wide as its words need, never narrower than the bars.
+	local wide = math.max(critTip.title:GetStringWidth() + 4, TIP_WIDTH)
+	for index = 1, count do
+		local line = critTip.lines[index]
+		wide = math.max(wide, line.label:GetStringWidth() + line.value:GetStringWidth() + 16)
+	end
+	critTip:SetWidth(wide + 16)
+	for index = 1, count do
+		critTip.lines[index]:SetWidth(wide)
 	end
 
 	local shownTargets = math.min(TARGETS_SHOWN, table.getn(targets))
@@ -255,6 +295,7 @@ end
 -- The card, for the damage meter's lines. frame.ability is the source's name;
 -- frame.color and frame.cardFrame (the window to sit beside) are optional.
 function SurvivorUI_CritCardShow(frame)
+	Remember()
 	critHovered = frame
 	CritTooltip(frame)
 end
@@ -332,6 +373,7 @@ local function Add(list, ability, amount)
 end
 
 local function Record(message)
+	Remember()
 	for index = 1, table.getn(BLOWS) do
 		local shape = BLOWS[index]
 		local found = { string.find(message, shape[1]) }
@@ -352,6 +394,9 @@ local function Record(message)
 				cast = Add(casts, ability, amount)
 			end
 			cast.at = now
+			if SurvivorUI_LexiconAverage then
+				SurvivorUI_LexiconAverage(ability, cast.sum / cast.count, cast.count)
+			end
 			targetDamage[ability] = targetDamage[ability] or {}
 			targetDamage[ability][target] = (targetDamage[ability][target] or 0) + amount
 			if critHovered and critHovered:IsVisible() and critHovered.ability == ability then

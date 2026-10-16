@@ -168,6 +168,14 @@ local lastLevel, lastXp, lastNeeded, lastClock
 local function Track(game)
 	local clock = (AZS_GetRunTime and AZS_GetRunTime()) or Num(game.t)
 	local level, xp, needed = Num(game.lvl), Num(game.xp), Num(game.xpn)
+	-- The count lives in the run's memory, so a reload keeps the estimate.
+	local memory = SurvivorUI_RunMemory and SurvivorUI_RunMemory("xp") or {}
+	if memory.samples then
+		samples, gained = memory.samples, memory.gained or 0
+		lastLevel, lastXp, lastNeeded = memory.level, memory.xp, memory.needed
+	else
+		samples, gained, lastLevel = {}, 0, nil
+	end
 	-- The clock going back means a new run: count afresh.
 	if lastClock and clock + 3 < lastClock then
 		samples, gained, lastLevel = {}, 0, nil
@@ -180,6 +188,8 @@ local function Track(game)
 		end
 	end
 	lastLevel, lastXp, lastNeeded, lastClock = level, xp, needed, clock
+	memory.samples, memory.gained = samples, gained
+	memory.level, memory.xp, memory.needed = level, xp, needed
 
 	local newest = samples[table.getn(samples)]
 	if not newest or clock - newest.t >= 1 then
@@ -267,7 +277,7 @@ end
 
 if SurvivorUI_RegisterOption then
 	SurvivorUI_RegisterOption({
-		section = "Panels",
+		section = "Interface",
 		label = "Level bar",
 		tip = "The run's level and its experience, in a bar of its own that moves with Alt.",
 		command = "/sui xp",
@@ -275,7 +285,7 @@ if SurvivorUI_RegisterOption then
 		toggle = SurvivorUI_ToggleXP,
 	})
 	SurvivorUI_RegisterOption({
-		section = "Panels",
+		section = "Interface",
 		label = "Next level estimate",
 		parent = "Level bar",
 		tip = "\"Next level in 1:24 min\" under the level bar, from the experience you gained over the last minute of the run.",
@@ -286,7 +296,7 @@ if SurvivorUI_RegisterOption then
 		end,
 	})
 	SurvivorUI_RegisterOption({
-		section = "Panels",
+		section = "Interface",
 		kind = "slider",
 		label = "Next level text size",
 		parent = "Level bar",
