@@ -2571,6 +2571,8 @@ SlashCmdList["SURVIVORUI"] = function(msg)
 		if SurvivorUI_ToggleBuild then
 			SurvivorUI_ToggleBuild()
 		end
+	elseif msg == "gear" then
+		SurvivorUI_GearReport()
 	elseif command == "logwatch" and argument ~= "" then
 		SurvivorUI_LogWatch(argument)
 	elseif msg == "spells" then
@@ -2678,6 +2680,56 @@ local function RedrawGearSlots()
 	this = saved
 end
 
+-- A log of the worn slots, for /sui gear: every time a slot's piece goes
+-- from named to unnamed or back, or changes, with the last event before it.
+-- Kept in the saved variables (the last GEAR_LOG_KEPT), so a loss at a
+-- reload is in it too.
+local GEAR_LOG_KEPT = 30
+local lastGearEvent = "start"
+
+-- Each slot's link at the last look (false for none), kept in the run's
+-- memory: after a reload the first look compares with the run's last one,
+-- so a piece lost at the reload is logged too.
+local function GearLinks()
+	if SurvivorUI_RunMemory then
+		local memory = SurvivorUI_RunMemory("gear")
+		memory.links = memory.links or {}
+		return memory.links
+	end
+	return {}
+end
+
+local function GearLog()
+	SurvivorUIDB = SurvivorUIDB or {}
+	SurvivorUIDB.gearLog = SurvivorUIDB.gearLog or {}
+	return SurvivorUIDB.gearLog
+end
+
+local function ItemName(link)
+	local _, _, name = string.find(link or "", "%[(.-)%]")
+	return name
+end
+
+local function NoteGear(slot, link)
+	local gearLinks = GearLinks()
+	local before = gearLinks[slot]
+	gearLinks[slot] = link or false
+	if before == nil or before == (link or false) then
+		return
+	end
+	local log = GearLog()
+	table.insert(log, {
+		at = date and date("%H:%M:%S") or "?",
+		slot = slot,
+		from = before and ItemName(before) or "-",
+		to = link and ItemName(link) or "-",
+		after = lastGearEvent,
+	})
+	while table.getn(log) > GEAR_LOG_KEPT do
+		table.remove(log, 1)
+	end
+end
+
 -- A change of gear or a new world is looked at right away.
 gearWatch:RegisterEvent("PLAYER_ENTERING_WORLD")
 gearWatch:RegisterEvent("UNIT_INVENTORY_CHANGED")
@@ -2685,6 +2737,8 @@ gearWatch:SetScript("OnEvent", function()
 	if event == "UNIT_INVENTORY_CHANGED" and arg1 ~= "player" then
 		return
 	end
+	lastGearEvent = (event == "PLAYER_ENTERING_WORLD" and "entering the world (a reload)" or "a gear change")
+		.." at "..(date and date("%H:%M:%S") or "?")
 	gearElapsed = GEAR_CHECK
 end)
 gearWatch:SetScript("OnUpdate", function()
@@ -2695,6 +2749,7 @@ gearWatch:SetScript("OnUpdate", function()
 	gearElapsed = 0
 	local cameBack = false
 	for slot = 1, table.getn(GEAR_SLOTS) do
+		NoteGear(slot, GetInventoryItemLink("player", slot))
 		if GetInventoryItemLink("player", slot) then
 			if gearMissing[slot] then
 				gearMissing[slot] = nil
@@ -2716,6 +2771,41 @@ gearWatch:SetScript("OnUpdate", function()
 		RedrawGearSlots()
 	end
 end)
+
+-- /sui gear: how the game sees each jewelry slot now (the piece's name, its
+-- icon, whether the slot holds something), and the log of slots that lost or
+-- regained their piece, the newest last.
+local JEWELRY_SLOTS = { 2, 11, 12, 13, 14 }
+
+function SurvivorUI_GearReport()
+	local say = function(text) DEFAULT_CHAT_FRAME:AddMessage("|cffffd100Survivor UI gear:|r "..text) end
+	for index = 1, table.getn(JEWELRY_SLOTS) do
+		local slot = JEWELRY_SLOTS[index]
+		local link = GetInventoryItemLink("player", slot)
+		local texture = GetInventoryItemTexture("player", slot)
+		gearScan:SetOwner(WorldFrame, "ANCHOR_NONE")
+		gearScan:ClearLines()
+		local holds = gearScan:SetInventoryItem("player", slot)
+		local first = getglobal("SurvivorUIGearScanTextLeft1")
+		first = first and first:GetText()
+		say(GEAR_SLOTS[slot].." ("..slot.."): name "..(ItemName(link) or "|cffff6060none|r")
+			..", icon "..(texture and "yes" or "|cffff6060no|r")
+			..", holds "..(holds and "yes" or "|cffff6060no|r")
+			..", tooltip "..(first or "|cffff6060empty|r")
+			..(gearMissing[slot] and ", |cffffd24dasked for again|r" or ""))
+	end
+	local log = GearLog()
+	if table.getn(log) == 0 then
+		say("no slot has lost or regained its piece yet.")
+		return
+	end
+	say("changes, newest last:")
+	for index = math.max(1, table.getn(log) - 11), table.getn(log) do
+		local entry = log[index]
+		say("  "..entry.at.."  "..(GEAR_SLOTS[entry.slot] or entry.slot)..": "..entry.from.." -> "..entry.to
+			.."  (after "..entry.after..")")
+	end
+end
 
 ------------------------------------------------------------------------------
 -- /sui logwatch words: for a minute, every message the game sends the

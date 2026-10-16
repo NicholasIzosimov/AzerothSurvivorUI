@@ -45,6 +45,7 @@ If Windows warns about the file the first time, choose **More info → Run anywa
 | `/sui build` | Build panel on/off |
 | `/sui lexicon` | Open the Lexicon |
 | `/sui spells` | Each of your spells: whether its tooltip says it casts twice or crits, and every upgrade seen on it |
+| `/sui gear` | Your jewelry slots as the game sees them, and a log of when any slot lost or regained its piece |
 | `/sui meter` | Damage meter on/off |
 | `/sui tally` | Tally on/off |
 | `/sui timer` | Run timer on/off (`/sui timer compact` for the small one) |
