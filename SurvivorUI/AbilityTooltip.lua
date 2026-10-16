@@ -55,6 +55,8 @@ local CRIT_HEX = "|cffffc214"       -- the gold of a critical strike's number
 local MUTED = { 0.62, 0.62, 0.62 }
 local ECHO_COLOR = { 1, 0.82, 0 }   -- the game's own gold for "chance to cast twice"
 local ECHO_HEX = "|cffffd100"       -- the same, for its percentage within a line
+local GEAR_GREEN = { 0.12, 1, 0 }   -- the game's item green, for the gear's effects
+local GEAR_HEX = "|cff1eff00"
 
 ------------------------------------------------------------------------------
 -- Rules: thin lines drawn across the tooltip, each over a blank line.
@@ -594,6 +596,18 @@ local function Compose(ability, simple)
 
 	-- The upgrades, bonuses and talents are left out: the card stays short,
 	-- and the build's own card lists a spell's upgrades.
+
+	-- What the worn gear adds beyond numbers (a neck's "Whirlwind's hits stun
+	-- for 1.5 sec"), under a rule in the game's item green; its numbers in
+	-- that green, its words muted. Left off the build's card, which lists the
+	-- gear itself.
+	local effects = not simple and SurvivorUI_GearEffects and SurvivorUI_GearEffects(ability.title) or {}
+	if table.getn(effects) > 0 then
+		Spacer(GEAR_GREEN)
+		for index = 1, table.getn(effects) do
+			Line((string.gsub(effects[index], "(%d[%d%.]*%%?)", GEAR_HEX.."%1|r")), MUTED)
+		end
+	end
 
 	if table.getn(others) > 0 then
 		Spacer(MUTED)

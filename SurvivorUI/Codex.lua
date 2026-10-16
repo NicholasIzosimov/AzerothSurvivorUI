@@ -287,14 +287,22 @@ local function ClassOnly()
 	return Settings().codexClassOnly == true
 end
 
--- Whether a piece belongs on the page with the class filter as it stands.
--- The kinds whose pieces belong to classes: amulets. Rings and trinkets
--- suit every class alike, so their pages always show every piece and name
--- no classes.
+-- The kinds that hold class pieces: amulets. Rings and trinkets suit every
+-- class alike, so their pages always show every piece and name no classes.
 local CLASS_KINDS = { Neck = true }
 
+-- A class piece: an amulet that names an ability ("Heart of the
+-- Earthshaker: Whirlwind"), which only a class with that ability can use.
+-- Any amulet that names none ("Onyxia Tooth Pendant") suits every class.
+-- Read off the name, so new ones count without a list.
+local function ClassBound(piece)
+	return CLASS_KINDS[piece.kind] and string.find(piece.base or piece.name or "", ": .+$") ~= nil
+end
+
+-- Whether a piece belongs on the page with the class filter as it stands:
+-- a class piece only where this class wore it or is kept to it.
 local function ForThisClass(piece)
-	if not (ClassOnly() and CLASS_KINDS[piece.kind]) then
+	if not (ClassOnly() and ClassBound(piece)) then
 		return true
 	end
 	local class = ClassToken()
@@ -413,10 +421,24 @@ local function ScanTexts()
 	return texts
 end
 
--- An upgrade kept by its kind, its numbers as #: "+35% damage" is "+#%
--- damage", with the biggest number seen.
+-- An upgrade's kind, its numbers as #: "+35% damage" is "+#% damage". A
+-- count's word is kept singular, so "+1 target" and "+12 targets" are one
+-- kind ("+# target"); UpgradeText says it again in the plural where it is.
+-- Also whether the text had the plural.
+local function UpgradeKind(text)
+	local kind = string.gsub(text, "[%d%.]+", "#")
+	local singular, plural = string.gsub(kind, "(# %a+)s$", "%1")
+	return singular, plural > 0
+end
+
+-- An upgrade kept by its kind, with the biggest number seen; ability.plurals
+-- holds the kinds a count was seen in the plural for.
 local function NoteUpgrade(ability, item)
-	local kind = string.gsub(item, "[%d%.]+", "#")
+	local kind, plural = UpgradeKind(item)
+	if plural then
+		ability.plurals = ability.plurals or {}
+		ability.plurals[kind] = true
+	end
 	local _, _, number = string.find(item, "([%d%.]+)")
 	number = tonumber(number) or 0
 	ability.upgrades = ability.upgrades or {}
@@ -534,10 +556,21 @@ local function RankNow(name)
 	end
 end
 
+-- One of the class's own abilities: in its spellbook, or among a run's spells.
+-- The meter also sees what talents and jewelry cast on their own (a proc's
+-- Blast Wave for a Warlock); those are not the class's.
+local function ClassAbility(info)
+	return info and (info.inBook or (info.runs or 0) > 0 or (info.rank or 0) > 0)
+end
+
 -- From the damage meter's cards (CritCard.lua): an ability's average cast so
--- far this run, over this many casts.
+-- far this run, over this many casts. Kept for the class's own abilities
+-- only.
 function SurvivorUI_CodexAverage(name, average, casts)
 	if not (name and average and casts and casts >= MIN_CASTS) then
+		return
+	end
+	if not (ClassAbility(Abilities()[name]) or RankNow(name)) then
 		return
 	end
 	local ability = Ability(name)
@@ -548,14 +581,17 @@ function SurvivorUI_CodexAverage(name, average, casts)
 end
 
 -- This class's abilities for the page: the best averages first, the most
--- first, then the rest by name.
+-- first, then the rest by name. What a proc cast before the Codex kept to the
+-- class's own is left out.
 local function AbilityList()
 	local found = {}
 	for name, info in pairs(Abilities()) do
-		table.insert(found, {
-			base = name, name = name, icon = info.icon, best = info.best, bestRank = info.bestRank,
-			rank = info.rank, runs = info.runs or 0, ability = true,
-		})
+		if ClassAbility(info) then
+			table.insert(found, {
+				base = name, name = name, icon = info.icon, best = info.best, bestRank = info.bestRank,
+				rank = info.rank, runs = info.runs or 0, ability = true,
+			})
+		end
 	end
 	table.sort(found, function(a, b)
 		if (a.best ~= nil) ~= (b.best ~= nil) then
@@ -833,7 +869,7 @@ local function PieceTooltip(owner, piece)
 		GameTooltip:AddLine("Seen before the Codex kept details. Wear it again for its tooltip.", 0.6, 0.6, 0.6, 1)
 	end
 	local worn = {}
-	for class in pairs(CLASS_KINDS[piece.kind] and piece.classes or {}) do
+	for class in pairs(ClassBound(piece) and piece.classes or {}) do
 		table.insert(worn, ClassText(class))
 	end
 	if table.getn(worn) > 0 then
@@ -844,11 +880,31 @@ local function PieceTooltip(owner, piece)
 end
 
 -- An ability's upgrades seen, each with its best number: "+160% damage".
+-- Kinds kept before counts were singular ("+# targets") join their singular
+-- kind here, the biggest number of the two.
 local function UpgradeKinds(info)
-	local kinds = {}
+	local merged, plurals = {}, {}
+	for kind in pairs(info.plurals or {}) do
+		plurals[kind] = true
+	end
 	for kind, best in pairs(info.upgrades or {}) do
+		local key, plural = UpgradeKind(kind)
+		if plural then
+			plurals[key] = true
+		end
+		if not merged[key] or best > merged[key] then
+			merged[key] = best
+		end
+	end
+	local kinds = {}
+	for kind, best in pairs(merged) do
 		local shown = math.floor(best) == best and tostring(best) or string.format("%.1f", best)
-		table.insert(kinds, (string.gsub(kind, "#", shown, 1)))
+		local text = string.gsub(kind, "#", shown, 1)
+		-- A count of more than one in the plural: "+12 targets".
+		if best ~= 1 and plurals[kind] then
+			text = text.."s"
+		end
+		table.insert(kinds, text)
 	end
 	table.sort(kinds)
 	return kinds
@@ -942,7 +998,7 @@ local function Row(index)
 	return row
 end
 
--- The classes as tags: one or two by name, more as a count.
+-- The classes that wore a piece, as tokens, in order.
 local function ClassTags(piece)
 	local tokens = {}
 	if piece.only then
@@ -959,14 +1015,57 @@ local function ClassTags(piece)
 		end
 	end
 	table.sort(tokens)
-	if table.getn(tokens) > 2 then
-		return "|cffb0b0b0"..table.getn(tokens).." classes|r"
-	end
-	local texts = {}
+	return tokens
+end
+
+local TAG_GAP = 10              -- between a row's name and its tags
+local RIGHT_PAD = 6             -- between a row's right edge and its rightmost tag
+
+-- The classes as the game's class icons, small, at the row's right end, in
+-- the order of ClassTags; their tooltip names them. row.iconsWidth is how
+-- much of the row they take. The icons are the character screen's, which the
+-- game's own hero picker shows too (CLASS_ICON_TCOORDS where the client has
+-- it, else the same grid's coordinates here).
+local CLASS_ICON_FILE = "Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes"
+local CLASS_ICON_SIZE = 16
+local CLASS_ICON_GAP = 2
+local CLASS_ICON_COORDS = {
+	WARRIOR = { 0, 0.25, 0, 0.25 }, MAGE = { 0.25, 0.5, 0, 0.25 },
+	ROGUE = { 0.5, 0.75, 0, 0.25 }, DRUID = { 0.75, 1, 0, 0.25 },
+	HUNTER = { 0, 0.25, 0.25, 0.5 }, SHAMAN = { 0.25, 0.5, 0.25, 0.5 },
+	PRIEST = { 0.5, 0.75, 0.25, 0.5 }, WARLOCK = { 0.75, 1, 0.25, 0.5 },
+	PALADIN = { 0, 0.25, 0.5, 0.75 },
+}
+
+local function ShowClassIcons(row, tokens)
+	row.classIcons = row.classIcons or {}
+	local shown = {}
 	for index = 1, table.getn(tokens) do
-		table.insert(texts, ClassText(tokens[index]))
+		local coords = (CLASS_ICON_TCOORDS and CLASS_ICON_TCOORDS[tokens[index]]) or CLASS_ICON_COORDS[tokens[index]]
+		if coords then
+			table.insert(shown, coords)
+		end
 	end
-	return table.concat(texts, " ")
+	local count = table.getn(shown)
+	for index = 1, count do
+		local icon = row.classIcons[index]
+		if not icon then
+			icon = row:CreateTexture(nil, "OVERLAY")
+			icon:SetTexture(CLASS_ICON_FILE)
+			icon:SetWidth(CLASS_ICON_SIZE)
+			icon:SetHeight(CLASS_ICON_SIZE)
+			row.classIcons[index] = icon
+		end
+		local coords = shown[index]
+		icon:SetTexCoord(coords[1], coords[2], coords[3], coords[4])
+		icon:ClearAllPoints()
+		icon:SetPoint("RIGHT", row, "RIGHT", -(RIGHT_PAD + (count - index) * (CLASS_ICON_SIZE + CLASS_ICON_GAP)), 0)
+		icon:Show()
+	end
+	for index = count + 1, table.getn(row.classIcons) do
+		row.classIcons[index]:Hide()
+	end
+	row.iconsWidth = count > 0 and count * (CLASS_ICON_SIZE + CLASS_ICON_GAP) - CLASS_ICON_GAP or 0
 end
 
 local function FillPiece(row, piece)
@@ -976,7 +1075,8 @@ local function FillPiece(row, piece)
 	row.name:SetTextColor(color[1], color[2], color[3])
 	-- Each piece once, whatever its rank.
 	row.rank:SetText("")
-	row.classes:SetText(CLASS_KINDS[piece.kind] and ClassTags(piece) or "")
+	row.classes:SetText("")
+	ShowClassIcons(row, ClassBound(piece) and ClassTags(piece) or {})
 	if piece.icon then
 		row.icon:SetTexture(piece.icon)
 		row.icon:SetVertexColor(1, 1, 1)
@@ -989,6 +1089,7 @@ end
 -- An ability: white once a run has taken it, grey before; its best average
 -- cast on the right in gold.
 local function FillAbility(row, ability)
+	ShowClassIcons(row, {})
 	local used = (ability.runs or 0) > 0 or ability.best
 	row:SetBackdropColor(0.12, 0.10, 0.08, 0.9)
 	row.name:SetText(ability.name)
@@ -1016,8 +1117,7 @@ local function FillAbility(row, ability)
 	end
 end
 
-local TAG_GAP = 10              -- between a row's name and its tags
-local RIGHT_PAD = 6             -- between a row's right edge and its rightmost tag
+local RANK_COLUMN = 80          -- the room kept for a row's rank text ("112.6k avg")
 
 local function FillRow(row, entry)
 	row.entry = entry
@@ -1026,12 +1126,15 @@ local function FillRow(row, entry)
 	else
 		FillPiece(row, entry)
 	end
-	-- The class tags sit left of the rank, or at the row's right edge where
-	-- there is none (an empty rank's width is not to be trusted).
+	-- The class tags (an ability's "rank 17") sit in a column of their own,
+	-- right of a fixed space for the rank's text ("112.6k avg"), so they line
+	-- up from row to row; at the row's right edge where there is no rank (an
+	-- empty rank's width is not to be trusted).
 	local hasRank = (row.rank:GetText() or "") ~= ""
+	local column = hasRank and math.max(RANK_COLUMN, row.rank:GetStringWidth()) or 0
 	row.classes:ClearAllPoints()
 	if hasRank then
-		row.classes:SetPoint("RIGHT", row.rank, "LEFT", -12, 0)
+		row.classes:SetPoint("RIGHT", row, "RIGHT", -(RIGHT_PAD + column + 12), 0)
 	else
 		row.classes:SetPoint("RIGHT", row, "RIGHT", -RIGHT_PAD, 0)
 	end
@@ -1039,11 +1142,12 @@ local function FillRow(row, entry)
 	-- is cut short ("...") before them; its tooltip has it whole.
 	local tags = 0
 	if hasRank then
-		tags = tags + row.rank:GetStringWidth() + 12
+		tags = tags + column + 12
 	end
 	if (row.classes:GetText() or "") ~= "" then
 		tags = tags + row.classes:GetStringWidth()
 	end
+	tags = tags + (row.iconsWidth or 0)
 	row.name:ClearAllPoints()
 	row.name:SetPoint("LEFT", row, "LEFT", ROW_HEIGHT + 4, 0)
 	row.name:SetPoint("RIGHT", row, "RIGHT", tags > 0 and -(RIGHT_PAD + tags + TAG_GAP) or -RIGHT_PAD, 0)

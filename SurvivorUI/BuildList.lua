@@ -424,6 +424,12 @@ local function GearForSpell(spell)
 	return gear
 end
 
+-- What the worn gear does to a spell beyond its numbers ("Whirlwind's hits
+-- stun for 1.5 sec"), for the spell's tooltip (AbilityTooltip.lua).
+function SurvivorUI_GearEffects(spell)
+	return GearForSpell(spell).effects
+end
+
 -- +50%, -10%
 -- unit: "%" (the default) or "" for a count ("+6").
 local function Signed(value, unit)
