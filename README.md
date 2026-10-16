@@ -4,26 +4,15 @@ A lightweight interface addon for **Azeroth Survivors**: flat, dark unit frames,
 
 ![Survivor UI in a run: build, run timer, Lexicon, damage meter and the options window](screenshots/showcase.png)
 
-## Install
+## Install and update
 
-### With the installer app (Windows)
+1. Download **[SurvivorUI-Updater.cmd](https://github.com/NicholasIzosimov/AzerothSurvivorUI/raw/main/SurvivorUI-Updater.cmd)** and keep it anywhere.
+2. Double-click it. A small window shows what you have and the latest version.
+3. Press **Update** (it says **Install** the first time).
 
-Double-click **`Install Survivor UI.cmd`** in the repository folder. A small window opens with the AddOns folder filled in (`C:\Git\wenilla\benilla-config\AddOns`, or the last one you used; **Browse...** picks another) and what is installed there now. Pick how to install and press **Install**:
+It downloads the latest Survivor UI from GitHub and brings `AddOns\SurvivorUI` up to date file by file: changed files replaced, new ones added, old code files removed. Your settings are not touched, and neither is anything else in the folder (such as a font you dropped in). The AddOns folder starts as `C:\Git\wenilla\benilla-config\AddOns`; **Change...** picks another, and it is remembered. Then `/reload` in the game, or restart it when the window says so.
 
-- **Copy the files**: copies `SurvivorUI` into the AddOns folder.
-- **Link to this repository**: makes `AddOns\SurvivorUI` a link to this folder, so every `git pull` is in the game after `/reload`.
-
-With **Pull the latest changes first** ticked (in a git checkout), it runs `git pull` before installing. It runs on the PowerShell that comes with Windows; nothing to install. Without the window: `powershell -ExecutionPolicy Bypass -File installer\SurvivorUIInstaller.ps1 -Quiet` (add `-Link`, `-NoPull` or `-AddOns "D:\Path"`).
-
-### From the command line (Windows)
-
-Run **`install.bat`** from the repository folder. It pulls the latest changes when the folder is a git checkout, then copies `SurvivorUI` into `C:\Git\wenilla\benilla-config\AddOns`.
-
-| Command | What it does |
-| --- | --- |
-| `install.bat` | Copy the addon into the AddOns folder |
-| `install.bat link` | Link the AddOns folder to this repository instead: every `git pull` is in the game after `/reload`, with nothing to copy |
-| `install.bat copy "D:\Path\To\AddOns"` | Use another AddOns folder (works with `link` too) |
+If Windows warns about the file the first time, choose **More info → Run anyway** (or right-click it, **Properties**, tick **Unblock**). It needs nothing installed: it runs on the PowerShell that comes with Windows.
 
 ### By hand
 
