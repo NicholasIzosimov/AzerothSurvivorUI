@@ -568,13 +568,23 @@ local function UpdateUnitFrame(frame)
 		frame.name:SetWidth(frame.nameRoom)
 	end
 
+	-- The health on the bar's right, as the two switches under Unit frames
+	-- have it: the value, the percentage, both ("524 | 100%") or neither.
+	local showValue = Settings().unitHealthValue ~= false
+	local showPercent = Settings().unitHealthPercent ~= false
 	if UnitIsDead(unit) or UnitIsGhost(unit) then
 		frame.value:SetText("Dead")
 	elseif unit ~= "player" then
 		-- An enemy's frame keeps to the percentage; its nameplate has the numbers.
+		frame.value:SetText(showPercent and percent.."%" or "")
+	elseif showValue and showPercent then
+		frame.value:SetText(HealthText(health).." | "..percent.."%")
+	elseif showValue then
+		frame.value:SetText(HealthText(health))
+	elseif showPercent then
 		frame.value:SetText(percent.."%")
 	else
-		frame.value:SetText(HealthText(health).." | "..percent.."%")
+		frame.value:SetText("")
 	end
 
 	local power, powerMax = UnitMana(unit), UnitManaMax(unit)
@@ -817,6 +827,30 @@ SurvivorUI_RegisterOption({
 	set = function(value)
 		Settings().unitHeight = value
 		ApplyUnitSize()
+	end,
+})
+
+SurvivorUI_RegisterOption({
+	section = "Unit frames",
+	label = "Show Health Value",
+	parent = "Unit frames",
+	tip = "Your health as a number on the right of your health bar (\"882\"). With Show Health % on too, both: \"882 | 100%\".",
+	get = function() return Settings().unitHealthValue ~= false end,
+	toggle = function()
+		local settings = Settings()
+		settings.unitHealthValue = settings.unitHealthValue == false
+	end,
+})
+
+SurvivorUI_RegisterOption({
+	section = "Unit frames",
+	label = "Show Health %",
+	parent = "Unit frames",
+	tip = "Health as a percentage on the right of the health bar (\"100%\"), on your frame and your target's.",
+	get = function() return Settings().unitHealthPercent ~= false end,
+	toggle = function()
+		local settings = Settings()
+		settings.unitHealthPercent = settings.unitHealthPercent == false
 	end,
 })
 

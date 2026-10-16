@@ -267,14 +267,14 @@ end
 -- label.
 local REACH, DAMAGE, TARGETS, ECHO, EFFECT, OTHER, CRIT = 1, 2, 3, 4, 5, 6, 7
 
--- How many targets a spell hits, in the colors of gear rarity, each mixed
--- halfway to white so they sit quietly among the other lines: 1 white, 2 to
--- 4 green, 5 to 9 blue, 10 to 14 purple, and orange from 15.
+-- How many targets a spell hits, in the colors of gear rarity, each mixed a
+-- quarter of the way to white, softened but still plainly colored: 1 white,
+-- 2 to 4 green, 5 to 9 blue, 10 to 14 purple, and orange from 15.
 local TARGET_TIERS = {          -- from the top: targets reached, color
-	{ 15, "ffc080" },           -- legendary
-	{ 10, "d19af7" },           -- epic
-	{ 5,  "80b8ee" },           -- rare
-	{ 2,  "8fff80" },           -- uncommon
+	{ 15, "ffa040" },           -- legendary
+	{ 10, "ba68f2" },           -- epic
+	{ 5,  "4094e5" },           -- rare
+	{ 2,  "56ff40" },           -- uncommon
 	{ 0,  "ffffff" },           -- common
 }
 
@@ -385,7 +385,8 @@ local function FactText(fact, school, tint)
 	if fact.label == "" then
 		return value
 	end
-	return value.." "..fact.label
+	-- A number in the label is white too: "over 11 sec" on a damage over time.
+	return value.." "..Highlight(fact.label)
 end
 
 -- The facts in their places: the line under the name's (range, radius) with
