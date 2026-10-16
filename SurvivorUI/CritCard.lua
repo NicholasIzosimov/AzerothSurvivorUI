@@ -253,12 +253,12 @@ local function CritTooltip(row)
 	local color = row.color or { 0.8, 0.8, 0.8 }
 
 	-- A proc goes by "The Reaper's Amulet: Eviscerate": the card is titled by
-	-- the ability, as any other line's, and names its source in a row.
-	local title, source = ability, nil
+	-- the ability, as any other line's.
+	local title = ability
 	if fromMeter and view ~= "taken" then
 		local _, _, from, name = string.find(ability, "^(.-): (.+)$")
 		if from then
-			title, source = name, from
+			title = name
 		end
 	end
 	critTip.edge:SetVertexColor(color[1], color[2], color[3], 0.8)
@@ -271,10 +271,8 @@ local function CritTooltip(row)
 		TipLine(count, kind, label, value, color)
 	end
 	-- The line's own rate, from the meter (since Reset, or the whole run),
-	-- first; a proc's card has its source over it and its damage under it.
-	if not casts[ability] and source then
-		Add("row", "Proc of", source)
-	end
+	-- first; a proc's card has its damage under it. Its source is on the
+	-- meter's own line, so the card leaves it out.
 	Add("row", RATE_LABEL[view] or "DPS", Short(Num(row.rate)))
 	if not casts[ability] then
 		Add("row", TOTAL_LABEL[view] or "Damage", Short(Num(row.damage)))
