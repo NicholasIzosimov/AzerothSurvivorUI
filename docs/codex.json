@@ -1,0 +1,2179 @@
+{
+  "jewelry": {
+    "Neck": [
+      {
+        "name": "Amulet of the Inferno: Consecration",
+        "quality": "Legendary",
+        "icon": null,
+        "classes": [],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Amulet of the Inferno: Consecration",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Amulet of the Inferno: Consecration II",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Amulet of the Inferno: Consecration III",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Amulet of the Inferno: Consecration IV",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "V",
+            "rank": 5,
+            "name": "Amulet of the Inferno: Consecration V",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "tooltip": false,
+            "lines": []
+          }
+        ]
+      },
+      {
+        "name": "Choker of the Fire Lord",
+        "quality": "Legendary",
+        "icon": null,
+        "classes": [],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Choker of the Fire Lord",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Choker of the Fire Lord II",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Choker of the Fire Lord III",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Choker of the Fire Lord IV",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "V",
+            "rank": 5,
+            "name": "Choker of the Fire Lord V",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "VI",
+            "rank": 6,
+            "name": "Choker of the Fire Lord VI",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "VII",
+            "rank": 7,
+            "name": "Choker of the Fire Lord VII",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "VIII",
+            "rank": 8,
+            "name": "Choker of the Fire Lord VIII",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "tooltip": false,
+            "lines": []
+          }
+        ]
+      },
+      {
+        "name": "Heart of the Earthshaker: Whirlwind",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_03",
+        "classes": [],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Heart of the Earthshaker: Whirlwind",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_03",
+            "link": "item:900021:0:0:0",
+            "tooltip": false,
+            "lines": []
+          }
+        ]
+      },
+      {
+        "name": "Malice Stone Pendant",
+        "quality": "Epic",
+        "icon": null,
+        "classes": [],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Malice Stone Pendant",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Malice Stone Pendant II",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Malice Stone Pendant III",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Malice Stone Pendant IV",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "tooltip": false,
+            "lines": []
+          }
+        ]
+      },
+      {
+        "name": "Mark of Fordring",
+        "quality": "Common",
+        "icon": "Interface\\Icons\\INV_Jewelry_Talisman_07",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Mark of Fordring",
+            "quality": "Common",
+            "hex": "ffffffff",
+            "icon": "Interface\\Icons\\INV_Jewelry_Talisman_07",
+            "link": "item:900005:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Mark of Fordring",
+                "color": "ffffff"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Medallion of the Bladestorm: Sinister Strike",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_18",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Medallion of the Bladestorm: Sinister Strike",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_18",
+            "link": "item:900009:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Medallion of the Bladestorm: Sinister Strike",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Medallion of the Bladestorm: Sinister Strike II",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_18",
+            "link": "item:900012:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Medallion of the Bladestorm: Sinister Strike II",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Medallion of the Bladestorm: Sinister Strike III",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_18",
+            "link": "item:900016:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Medallion of the Bladestorm: Sinister Strike III",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Medallion of the Bladestorm: Sinister Strike IV",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_18",
+            "link": "item:900017:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Medallion of the Bladestorm: Sinister Strike IV",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "V",
+            "rank": 5,
+            "name": "Medallion of the Bladestorm: Sinister Strike V",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_18",
+            "link": "item:900018:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Medallion of the Bladestorm: Sinister Strike V",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "VI",
+            "rank": 6,
+            "name": "Medallion of the Bladestorm: Sinister Strike VI",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_18",
+            "link": "item:900019:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Medallion of the Bladestorm: Sinister Strike VI",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "VII",
+            "rank": 7,
+            "name": "Medallion of the Bladestorm: Sinister Strike VII",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_18",
+            "link": "item:900020:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Medallion of the Bladestorm: Sinister Strike VII",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "VIII",
+            "rank": 8,
+            "name": "Medallion of the Bladestorm: Sinister Strike VIII",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_18",
+            "link": "item:900022:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Medallion of the Bladestorm: Sinister Strike VIII",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "IX",
+            "rank": 9,
+            "name": "Medallion of the Bladestorm: Sinister Strike IX",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_18",
+            "link": "item:900024:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Medallion of the Bladestorm: Sinister Strike IX",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "X",
+            "rank": 10,
+            "name": "Medallion of the Bladestorm: Sinister Strike X",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_18",
+            "link": "item:900026:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Medallion of the Bladestorm: Sinister Strike X",
+                "color": "ff8000"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Onyxia Tooth Pendant",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_09",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Onyxia Tooth Pendant",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_09",
+            "link": "item:900012:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Onyxia Tooth Pendant",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Onyxia Tooth Pendant II",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_09",
+            "link": "item:900013:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Onyxia Tooth Pendant II",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Onyxia Tooth Pendant III",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_09",
+            "link": "item:900020:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Onyxia Tooth Pendant III",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Onyxia Tooth Pendant IV",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_09",
+            "link": "item:900021:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Onyxia Tooth Pendant IV",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "V",
+            "rank": 5,
+            "name": "Onyxia Tooth Pendant V",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "VI",
+            "rank": 6,
+            "name": "Onyxia Tooth Pendant VI",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "VII",
+            "rank": 7,
+            "name": "Onyxia Tooth Pendant VII",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "VIII",
+            "rank": 8,
+            "name": "Onyxia Tooth Pendant VIII",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_09",
+            "link": "item:900017:0:0:0",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "IX",
+            "rank": 9,
+            "name": "Onyxia Tooth Pendant IX",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_09",
+            "link": "item:900019:0:0:0",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "X",
+            "rank": 10,
+            "name": "Onyxia Tooth Pendant X",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_09",
+            "link": "item:900020:0:0:0",
+            "tooltip": false,
+            "lines": []
+          }
+        ]
+      },
+      {
+        "name": "Pendant of the Fallen Dragon",
+        "quality": "Epic",
+        "icon": null,
+        "classes": [],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Pendant of the Fallen Dragon",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Pendant of the Fallen Dragon II",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Pendant of the Fallen Dragon III",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Pendant of the Fallen Dragon IV",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "tooltip": false,
+            "lines": []
+          }
+        ]
+      },
+      {
+        "name": "Pristine Enchanted South Seas Kelp",
+        "quality": "Common",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_26",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Pristine Enchanted South Seas Kelp",
+            "quality": "Common",
+            "hex": "ffffffff",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_26",
+            "link": "item:900002:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Pristine Enchanted South Seas Kelp",
+                "color": "ffffff"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Pristine Enchanted South Seas Kelp II",
+            "quality": "Common",
+            "hex": "ffffffff",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_26",
+            "link": "item:900005:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Pristine Enchanted South Seas Kelp II",
+                "color": "ffffff"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Pristine Enchanted South Seas Kelp III",
+            "quality": "Common",
+            "hex": "ffffffff",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_26",
+            "link": "item:900004:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Pristine Enchanted South Seas Kelp III",
+                "color": "ffffff"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Pristine Enchanted South Seas Kelp IV",
+            "quality": "Common",
+            "hex": "ffffffff",
+            "tooltip": false,
+            "lines": []
+          }
+        ]
+      },
+      {
+        "name": "The Reaper's Amulet: Eviscerate",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_27Naxxramas",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "The Reaper's Amulet: Eviscerate",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_27Naxxramas",
+            "link": "item:900005:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "The Reaper's Amulet: Eviscerate",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "The Reaper's Amulet: Eviscerate II",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_27Naxxramas",
+            "link": "item:900007:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "The Reaper's Amulet: Eviscerate II",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "The Reaper's Amulet: Eviscerate III",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_27Naxxramas",
+            "link": "item:900008:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "The Reaper's Amulet: Eviscerate III",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "The Reaper's Amulet: Eviscerate IV",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_27Naxxramas",
+            "link": "item:900013:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "The Reaper's Amulet: Eviscerate IV",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "V",
+            "rank": 5,
+            "name": "The Reaper's Amulet: Eviscerate V",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_27Naxxramas",
+            "link": "item:900015:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "The Reaper's Amulet: Eviscerate V",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "VI",
+            "rank": 6,
+            "name": "The Reaper's Amulet: Eviscerate VI",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_27Naxxramas",
+            "link": "item:900017:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "The Reaper's Amulet: Eviscerate VI",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "VII",
+            "rank": 7,
+            "name": "The Reaper's Amulet: Eviscerate VII",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_27Naxxramas",
+            "link": "item:900018:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "The Reaper's Amulet: Eviscerate VII",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "VIII",
+            "rank": 8,
+            "name": "The Reaper's Amulet: Eviscerate VIII",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_27Naxxramas",
+            "link": "item:900019:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "The Reaper's Amulet: Eviscerate VIII",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "IX",
+            "rank": 9,
+            "name": "The Reaper's Amulet: Eviscerate IX",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_27Naxxramas",
+            "link": "item:900020:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "The Reaper's Amulet: Eviscerate IX",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "X+",
+            "rank": 10,
+            "name": "The Reaper's Amulet: Eviscerate X+",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "plus": true,
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_27Naxxramas",
+            "link": "item:900031:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "The Reaper's Amulet: Eviscerate X+",
+                "color": "ff8000"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Ring": [
+      {
+        "name": "Archimtiros' Ring of Reckoning",
+        "quality": "Epic",
+        "icon": "Interface\\Icons\\INV_Jewelry_Ring_40",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Archimtiros' Ring of Reckoning",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_40",
+            "link": "item:900019:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Archimtiros' Ring of Reckoning",
+                "color": "a335ee"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Band of Accuria",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Ring_15",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Band of Accuria",
+            "quality": "Rare",
+            "hex": "ff0070dd",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_15",
+            "link": "item:900000:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Band of Accuria",
+                "color": "0070dd"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases all damage you deal by 46%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Band of Accuria II",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_15",
+            "link": "item:900011:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Band of Accuria II",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Band of Accuria III",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_15",
+            "link": "item:900013:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Band of Accuria III",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "VI",
+            "rank": 6,
+            "name": "Band of Accuria VI",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_15",
+            "link": "item:900023:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Band of Accuria VI",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "VII",
+            "rank": 7,
+            "name": "Band of Accuria VII",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_15",
+            "link": "item:900025:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Band of Accuria VII",
+                "color": "ff8000"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Blooddrinker's Band",
+        "quality": "Epic",
+        "icon": "Interface\\Icons\\INV_Jewelry_Ring_49Naxxramas",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Blooddrinker's Band",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_49Naxxramas",
+            "link": "item:900006:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Blooddrinker's Band",
+                "color": "a335ee"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Heavy Dark Iron Ring",
+        "quality": "Uncommon",
+        "icon": "Interface\\Icons\\INV_Jewelry_Ring_14",
+        "classes": [],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Heavy Dark Iron Ring",
+            "quality": "Uncommon",
+            "hex": "ff1eff00",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_14",
+            "link": "item:900001:0:0:0",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Heavy Dark Iron Ring II",
+            "quality": "Uncommon",
+            "hex": "ff1eff00",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_14",
+            "link": "item:900014:0:0:0",
+            "tooltip": false,
+            "lines": []
+          }
+        ]
+      },
+      {
+        "name": "Quick Strike Ring",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Ring_07",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Quick Strike Ring",
+            "quality": "Common",
+            "hex": "ffffffff",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_07",
+            "link": "item:900009:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Quick Strike Ring",
+                "color": "ffffff"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Quick Strike Ring II",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_07",
+            "link": "item:900011:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Quick Strike Ring II",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Quick Strike Ring III",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_07",
+            "link": "item:900014:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Quick Strike Ring III",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Quick Strike Ring IV",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_07",
+            "link": "item:900024:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Quick Strike Ring IV",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "V",
+            "rank": 5,
+            "name": "Quick Strike Ring V",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_07",
+            "link": "item:900026:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Quick Strike Ring V",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "VI",
+            "rank": 6,
+            "name": "Quick Strike Ring VI",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_07",
+            "link": "item:900027:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Quick Strike Ring VI",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "VII",
+            "rank": 7,
+            "name": "Quick Strike Ring VII",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "VIII",
+            "rank": 8,
+            "name": "Quick Strike Ring VIII",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "tooltip": false,
+            "lines": []
+          }
+        ]
+      },
+      {
+        "name": "Ring of Spell Power",
+        "quality": "Rare",
+        "icon": "Interface\\Icons\\INV_Jewelry_Ring_38",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Ring of Spell Power",
+            "quality": "Rare",
+            "hex": "ff0070dd",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_38",
+            "link": "item:900001:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Ring of Spell Power",
+                "color": "0070dd"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the area of effect of your spells by 38%.",
+                "color": "00ff00"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Ring of the Devoured",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Ring_AhnQiraj_05",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Ring of the Devoured",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_AhnQiraj_05",
+            "link": "item:900002:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Ring of the Devoured",
+                "color": "ff8000"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Seal of the Damned",
+        "quality": "Rare",
+        "icon": "Interface\\Icons\\INV_Jewelry_Ring_51Naxxramas",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Seal of the Damned",
+            "quality": "Rare",
+            "hex": "ff0070dd",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_51Naxxramas",
+            "link": "item:900014:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Seal of the Damned",
+                "color": "0070dd"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Seal of the Damned II",
+            "quality": "Rare",
+            "hex": "ff0070dd",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_51Naxxramas",
+            "link": "item:900015:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Seal of the Damned II",
+                "color": "0070dd"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "Trinket": [
+      {
+        "name": "Earthstrike",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\Spell_Nature_AbolishMagic",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Earthstrike",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\Spell_Nature_AbolishMagic",
+            "link": "item:900004:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Earthstrike",
+                "color": "ff8000"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Hand of Justice",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Talisman_01",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Hand of Justice",
+            "quality": "Uncommon",
+            "hex": "ff1eff00",
+            "icon": "Interface\\Icons\\INV_Jewelry_Talisman_01",
+            "link": "item:900000:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Hand of Justice",
+                "color": "1eff00"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Hand of Justice II",
+            "quality": "Uncommon",
+            "hex": "ff1eff00",
+            "icon": "Interface\\Icons\\INV_Jewelry_Talisman_01",
+            "link": "item:900002:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Hand of Justice II",
+                "color": "1eff00"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Hand of Justice III",
+            "quality": "Uncommon",
+            "hex": "ff1eff00",
+            "icon": "Interface\\Icons\\INV_Jewelry_Talisman_01",
+            "link": "item:900006:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Hand of Justice III",
+                "color": "1eff00"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Hand of Justice IV",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Talisman_01",
+            "link": "item:900008:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Hand of Justice IV",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "V",
+            "rank": 5,
+            "name": "Hand of Justice V",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "VI",
+            "rank": 6,
+            "name": "Hand of Justice VI",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Talisman_01",
+            "link": "item:900016:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Hand of Justice VI",
+                "color": "ff8000"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Insignia of the Horde",
+        "quality": "Epic",
+        "icon": "Interface\\Icons\\INV_Jewelry_TrinketPVP_02",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Insignia of the Horde",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_TrinketPVP_02",
+            "link": "item:900008:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Insignia of the Horde",
+                "color": "a335ee"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Insignia of the Horde II",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_TrinketPVP_02",
+            "link": "item:900009:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Insignia of the Horde II",
+                "color": "a335ee"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Insignia of the Horde III",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_TrinketPVP_02",
+            "link": "item:900011:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Insignia of the Horde III",
+                "color": "a335ee"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Lifegiving Gem",
+        "quality": "Common",
+        "icon": "Interface\\Icons\\INV_Misc_Gem_Pearl_05",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Lifegiving Gem",
+            "quality": "Common",
+            "hex": "ffffffff",
+            "icon": "Interface\\Icons\\INV_Misc_Gem_Pearl_05",
+            "link": "item:900000:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Lifegiving Gem",
+                "color": "ffffff"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Lifegiving Gem II",
+            "quality": "Common",
+            "hex": "ffffffff",
+            "icon": "Interface\\Icons\\INV_Misc_Gem_Pearl_05",
+            "link": "item:900001:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Lifegiving Gem II",
+                "color": "ffffff"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Lifegiving Gem III",
+            "quality": "Common",
+            "hex": "ffffffff",
+            "icon": "Interface\\Icons\\INV_Misc_Gem_Pearl_05",
+            "link": "item:900003:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Lifegiving Gem III",
+                "color": "ffffff"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Lifegiving Gem IV",
+            "quality": "Common",
+            "hex": "ffffffff",
+            "icon": "Interface\\Icons\\INV_Misc_Gem_Pearl_05",
+            "link": "item:900012:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Lifegiving Gem IV",
+                "color": "ffffff"
+              }
+            ]
+          },
+          {
+            "numeral": "V",
+            "rank": 5,
+            "name": "Lifegiving Gem V",
+            "quality": "Common",
+            "hex": "ffffffff",
+            "icon": "Interface\\Icons\\INV_Misc_Gem_Pearl_05",
+            "link": "item:900016:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Lifegiving Gem V",
+                "color": "ffffff"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Mark of the Chosen",
+        "quality": "Epic",
+        "icon": "Interface\\Icons\\INV_Jewelry_Talisman_08",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Mark of the Chosen",
+            "quality": "Uncommon",
+            "hex": "ff1eff00",
+            "icon": "Interface\\Icons\\INV_Jewelry_Talisman_08",
+            "link": "item:900000:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Mark of the Chosen",
+                "color": "1eff00"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Mark of the Chosen II",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_Talisman_08",
+            "link": "item:900001:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Mark of the Chosen II",
+                "color": "a335ee"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Mark of the Chosen III",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_Talisman_08",
+            "link": "item:900007:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Mark of the Chosen III",
+                "color": "a335ee"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Mark of the Chosen IV",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Talisman_08",
+            "link": "item:900008:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Mark of the Chosen IV",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "V",
+            "rank": 5,
+            "name": "Mark of the Chosen V",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_Talisman_08",
+            "link": "item:900015:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Mark of the Chosen V",
+                "color": "a335ee"
+              }
+            ]
+          },
+          {
+            "numeral": "VI",
+            "rank": 6,
+            "name": "Mark of the Chosen VI",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_Talisman_08",
+            "link": "item:900017:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Mark of the Chosen VI",
+                "color": "a335ee"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Royal Seal of Eldre'Thalas",
+        "quality": "Epic",
+        "icon": "Interface\\Icons\\INV_Jewelry_Talisman_10",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Royal Seal of Eldre'Thalas",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_Talisman_10",
+            "link": "item:900004:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Royal Seal of Eldre'Thalas",
+                "color": "a335ee"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Royal Seal of Eldre'Thalas II",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_Talisman_10",
+            "link": "item:900006:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Royal Seal of Eldre'Thalas II",
+                "color": "a335ee"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Royal Seal of Eldre'Thalas III",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_Talisman_10",
+            "link": "item:900010:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Royal Seal of Eldre'Thalas III",
+                "color": "a335ee"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Royal Seal of Eldre'Thalas IV",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_Talisman_10",
+            "link": "item:900018:0:0:0",
+            "tooltip": false,
+            "lines": []
+          }
+        ]
+      },
+      {
+        "name": "Talisman of Ephemeral Power",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Misc_StoneTablet_11",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Talisman of Ephemeral Power",
+            "quality": "Uncommon",
+            "hex": "ff1eff00",
+            "icon": "Interface\\Icons\\INV_Misc_StoneTablet_11",
+            "link": "item:900003:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Talisman of Ephemeral Power",
+                "color": "1eff00"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 15%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Talisman of Ephemeral Power II",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Misc_StoneTablet_11",
+            "link": "item:900005:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Talisman of Ephemeral Power II",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Talisman of Ephemeral Power III",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Misc_StoneTablet_11",
+            "link": "item:900006:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Talisman of Ephemeral Power III",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Talisman of Ephemeral Power IV",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Misc_StoneTablet_11",
+            "link": "item:900007:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Talisman of Ephemeral Power IV",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "V",
+            "rank": 5,
+            "name": "Talisman of Ephemeral Power V",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Misc_StoneTablet_11",
+            "link": "item:900009:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Talisman of Ephemeral Power V",
+                "color": "ff8000"
+              }
+            ]
+          },
+          {
+            "numeral": "VI",
+            "rank": 6,
+            "name": "Talisman of Ephemeral Power VI",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Misc_StoneTablet_11",
+            "link": "item:900011:0:0:0",
+            "tooltip": false,
+            "lines": [
+              {
+                "text": "Talisman of Ephemeral Power VI",
+                "color": "ff8000"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "abilities": {
+    "ROGUE": [
+      {
+        "name": "Adrenaline Rush",
+        "icon": "Interface\\Icons\\Spell_Shadow_ShadowWordDominate",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": false,
+        "highestRank": 4,
+        "runs": 38,
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 32,
+            "text": "-32% cooldown"
+          },
+          {
+            "kind": "+#% duration",
+            "best": 60,
+            "text": "+60% duration"
+          }
+        ]
+      },
+      {
+        "name": "Backstab",
+        "icon": "Interface\\Icons\\Ability_BackStab",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 16,
+        "runs": 38,
+        "bestAverageCast": 29157,
+        "bestAverageCastRank": 16,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 67,
+            "text": "-67% cooldown"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 618,
+            "text": "+618% damage"
+          }
+        ]
+      },
+      {
+        "name": "Blade Flurry",
+        "icon": "Interface\\Icons\\Ability_Warrior_PunishingBlow",
+        "inBook": true,
+        "castsTwice": null,
+        "crits": null,
+        "highestRank": null,
+        "runs": 0,
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": []
+      },
+      {
+        "name": "Deadly Poison",
+        "icon": null,
+        "inBook": false,
+        "castsTwice": null,
+        "crits": null,
+        "highestRank": null,
+        "runs": 0,
+        "bestAverageCast": 15424.8,
+        "bestAverageCastRank": null,
+        "upgrades": []
+      },
+      {
+        "name": "Deep Wound",
+        "icon": null,
+        "inBook": false,
+        "castsTwice": null,
+        "crits": null,
+        "highestRank": null,
+        "runs": 0,
+        "bestAverageCast": 3674.478260869565,
+        "bestAverageCastRank": null,
+        "upgrades": []
+      },
+      {
+        "name": "Escape Artist",
+        "icon": "Interface\\Icons\\Ability_Rogue_Trip",
+        "inBook": true,
+        "castsTwice": false,
+        "crits": true,
+        "highestRank": 1,
+        "runs": 39,
+        "bestAverageCast": 238,
+        "bestAverageCastRank": 1,
+        "upgrades": []
+      },
+      {
+        "name": "Eviscerate",
+        "icon": "Interface\\Icons\\Ability_Rogue_Eviscerate",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 18,
+        "runs": 37,
+        "bestAverageCast": 222320.8,
+        "bestAverageCastRank": 16,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 62,
+            "text": "-62% cooldown"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 493,
+            "text": "+493% damage"
+          }
+        ]
+      },
+      {
+        "name": "Ghostly Strike",
+        "icon": "Interface\\Icons\\Spell_Shadow_Curse",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 10,
+        "runs": 35,
+        "bestAverageCast": 8214.6,
+        "bestAverageCastRank": 10,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 60,
+            "text": "-60% cooldown"
+          },
+          {
+            "kind": "+# target",
+            "best": 1,
+            "text": "+1 target"
+          },
+          {
+            "kind": "+# targets",
+            "best": 6,
+            "text": "+6 targets"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 522,
+            "text": "+522% damage"
+          }
+        ]
+      },
+      {
+        "name": "Gouge",
+        "icon": "Interface\\Icons\\Ability_Gouge",
+        "inBook": true,
+        "castsTwice": null,
+        "crits": null,
+        "highestRank": null,
+        "runs": 0,
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": []
+      },
+      {
+        "name": "Kidney Shot",
+        "icon": "Interface\\Icons\\Ability_Rogue_KidneyShot",
+        "inBook": true,
+        "castsTwice": null,
+        "crits": null,
+        "highestRank": 1,
+        "runs": 1,
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": []
+      },
+      {
+        "name": "Melee",
+        "icon": null,
+        "inBook": false,
+        "castsTwice": null,
+        "crits": null,
+        "highestRank": null,
+        "runs": 0,
+        "bestAverageCast": 215.4,
+        "bestAverageCastRank": null,
+        "upgrades": []
+      },
+      {
+        "name": "Rupture",
+        "icon": "Interface\\Icons\\Ability_Rogue_Rupture",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": false,
+        "highestRank": 11,
+        "runs": 37,
+        "bestAverageCast": 222165,
+        "bestAverageCastRank": 9,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 42,
+            "text": "-42% cooldown"
+          },
+          {
+            "kind": "+# targets",
+            "best": 4,
+            "text": "+4 targets"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 358,
+            "text": "+358% damage"
+          },
+          {
+            "kind": "+#% duration",
+            "best": 95,
+            "text": "+95% duration"
+          }
+        ]
+      },
+      {
+        "name": "Seal Fate",
+        "icon": null,
+        "inBook": false,
+        "castsTwice": null,
+        "crits": null,
+        "highestRank": 3,
+        "runs": 2,
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": []
+      },
+      {
+        "name": "Sinister Strike",
+        "icon": "Interface\\Icons\\Spell_Shadow_RitualOfSacrifice",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 21,
+        "runs": 39,
+        "bestAverageCast": 28807.166666666668,
+        "bestAverageCastRank": 17,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 62,
+            "text": "-62% cooldown"
+          },
+          {
+            "kind": "+# targets",
+            "best": 11,
+            "text": "+11 targets"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 633,
+            "text": "+633% damage"
+          }
+        ]
+      },
+      {
+        "name": "Slice and Dice",
+        "icon": "Interface\\Icons\\Ability_Rogue_SliceDice",
+        "inBook": true,
+        "castsTwice": null,
+        "crits": null,
+        "highestRank": null,
+        "runs": 0,
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": []
+      }
+    ]
+  },
+  "bossBests": {
+    "ROGUE": [
+      {
+        "boss": "Doomguard Commander",
+        "seconds": 21.263960899710668,
+        "time": "0:21"
+      },
+      {
+        "boss": "Edwin VanCleef",
+        "seconds": 25.172718998976052,
+        "time": "0:25"
+      },
+      {
+        "boss": "High Priest Venoxis",
+        "seconds": 14.457513399869185,
+        "time": "0:14"
+      },
+      {
+        "boss": "High Priestess Jeklik",
+        "seconds": 16.764795899689233,
+        "time": "0:16"
+      },
+      {
+        "boss": "Hogger",
+        "seconds": 21.434280999973424,
+        "time": "0:21"
+      },
+      {
+        "boss": "Mor'Ladim",
+        "seconds": 26.826313999891283,
+        "time": "0:26"
+      },
+      {
+        "boss": "Morbent Fel",
+        "seconds": 79.61636609844857,
+        "time": "1:19"
+      },
+      {
+        "boss": "Mother Fang",
+        "seconds": 16.615526598952727,
+        "time": "0:16"
+      },
+      {
+        "boss": "Mr. Smite",
+        "seconds": 21.660786799751236,
+        "time": "0:21"
+      },
+      {
+        "boss": "Naraxis",
+        "seconds": 16.40153860069813,
+        "time": "0:16"
+      },
+      {
+        "boss": "Patchwerk",
+        "seconds": 7.691620199941099,
+        "time": "0:07"
+      },
+      {
+        "boss": "Rhahk'Zor",
+        "seconds": 20.93747740220283,
+        "time": "0:20"
+      }
+    ],
+    "WARRIOR": [
+      {
+        "boss": "Ivus the Forest Lord",
+        "seconds": 26.077995600625854,
+        "time": "0:26"
+      },
+      {
+        "boss": "Korrak the Bloodrager",
+        "seconds": 43.60741139981894,
+        "time": "0:43"
+      },
+      {
+        "boss": "Lokholar the Ice Lord",
+        "seconds": 151.04230739869183,
+        "time": "2:31"
+      }
+    ]
+  }
+}
