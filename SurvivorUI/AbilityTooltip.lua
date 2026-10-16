@@ -268,10 +268,10 @@ local function Thing(text)
 	return Capital((string.gsub(string.gsub(text, "^your ", ""), "^the ", "")))
 end
 
--- Each fact: its place in the list (reach, damage, targets, the chance to
--- cast twice, everything else, and the crit chance last), its value and its
--- label.
-local REACH, DAMAGE, TARGETS, ECHO, EFFECT, OTHER, CRIT = 1, 2, 3, 4, 5, 6, 7
+-- Each fact: its place in the list (reach, damage, targets, everything
+-- else, then the two that hold for every spell together at the foot: the
+-- chance to cast twice and the crit chance), its value and its label.
+local REACH, DAMAGE, TARGETS, EFFECT, OTHER, ECHO, CRIT = 1, 2, 3, 4, 5, 6, 7
 
 -- How many targets a spell hits, in the colors of gear rarity, each mixed a
 -- quarter of the way to white, softened but still plainly colored: 1 white,
@@ -297,6 +297,16 @@ end
 -- white in it, in place of value and label; a rule giving no place drops what
 -- it reads from the list (the full description, with Shift, still has it).
 local FACTS = {
+	-- What a hit gives back, by the spot of the x2 damage line, ahead of the
+	-- damage and heal rules that would take its numbers: "Shields you against
+	-- 58 damage for every enemy hit, up to 292" is "58 Shield on hit, max
+	-- 292"; "Heals you for 50, plus 10 for every enemy hit" is "50 Heal, +10
+	-- per enemy hit"; "Each hit heals you for 20" is "20 Heal on hit".
+	{ "shields you against (%d+) damage for every enemy hit, up to (%d+)[^%.;]*",
+		function(n, most) return OTHER, n, "Shield on hit, max "..most end },
+	{ "heals you for (%d+), plus (%d+) for every enemy hit",
+		function(n, more) return OTHER, n, "Heal, +"..more.." per enemy hit" end },
+	{ "each hit heals you for (%d+)", function(n) return OTHER, n, "Heal on hit" end },
 	-- "Stacks up to 3 times on one enemy" is "Stacks up to 3 times".
 	{ "stacks up to (%d+) times?[^,;:]*", function(n) return EFFECT, n, "", nil, "Stacks up to "..n.." times" end },
 	-- "Afflicts the 4 healthiest enemies", "the 3 nearest enemies", "the
@@ -319,11 +329,12 @@ local FACTS = {
 	{ NUMBER.." (%a+) damage", function(n, school) return DAMAGE, n, Capital(school).." Damage", school end },
 	{ NUMBER.." damage", function(n) return DAMAGE, n, "Damage" end },
 	-- "doubled to 1506 against an enemy below 30% health": near the bottom,
-	-- over the crit, "2x damage on targets below 30%".
+	-- over the chance to cast twice, "x2 damage on targets below 30%", the x2
+	-- in white as a value, as "+2 Targets" is.
 	{ "doubled to [%d%.]+ against an? enem%a* below (%d+)%%[%a ]*",
-		function(p) return OTHER, nil, nil, nil, "2x damage on targets below "..p.."%" end },
+		function(p) return OTHER, "x2", "damage on targets below "..p.."%" end },
 	{ "tripled to [%d%.]+ against an? enem%a* below (%d+)%%[%a ]*",
-		function(p) return OTHER, nil, nil, nil, "3x damage on targets below "..p.."%" end },
+		function(p) return OTHER, "x3", "damage on targets below "..p.."%" end },
 	{ "within "..NUMBER.." yds?", function(n) return REACH, n.." yd", "" end },
 	{ NUMBER.." yds? radius", function(n) return REACH, n.." yd", "radius" end },
 	{ NUMBER.." yds? range", function(n) return REACH, n.." yd", "range" end },
@@ -334,6 +345,11 @@ local FACTS = {
 	{ "(%a+)s them for "..NUMBER.." sec", function(verb, t) return EFFECT, t.." sec", Capital(verb) end },
 	{ "(%a+)s them by "..NUMBER.."%%", function(verb, n) return EFFECT, n.."%", Capital(verb) end },
 	{ NUMBER.."%% chance to (.+)", function(n, rest) return EFFECT, n.."%", "chance to "..rest end },
+	-- "Your cooldowns recover 60% faster": cooldowns that recover p% faster
+	-- take 1 / (1 + p/100) as long, so "-38% cooldown".
+	{ "cooldowns recover "..NUMBER.."%% faster", function(p)
+		local faster = tonumber(p) or 0
+		return EFFECT, "-"..math.floor(faster / (100 + faster) * 100 + 0.5).."%", "cooldown" end },
 	{ "increases? (.-) by "..NUMBER.."%%", function(what, n) return EFFECT, "+"..n.."%", Thing(what) end },
 	{ "reduces? (.-) by "..NUMBER.."%%", function(what, n) return EFFECT, "-"..n.."%", Thing(what) end },
 	{ "for "..NUMBER.." sec", function(t) return EFFECT, t.." sec", "Duration" end },
@@ -389,17 +405,32 @@ end
 
 -- A fact as a line: the value in white (a damage's in its school's color),
 -- the label muted.
+-- A plain amount (damage, healing, an absorb) from 1000 up in thousands, to
+-- the nearest hundred: 1789 is "1.8k", 1000 is "1k"; from a million, "2.4m".
+local function Thousands(value)
+	local number = tonumber(value)
+	if not (number and string.find(value, "^%d+$")) or number < 1000 then
+		return value
+	end
+	local short, suffix = number / 1000, "k"
+	if number >= 1000000 then
+		short, suffix = number / 1000000, "m"
+	end
+	return (string.gsub(string.format("%.1f", short), "%.0$", ""))..suffix
+end
+
 local function FactText(fact, school, tint)
 	if fact.text then
 		return Highlight(fact.text, school, tint)
 	end
-	local value = "|cffffffff"..fact.value.."|r"
+	local shown = fact.place == TARGETS and fact.value or Thousands(fact.value)
+	local value = "|cffffffff"..shown.."|r"
 	-- Targets as a count to add ("+3"), colored by how many.
 	local _, _, count = string.find(fact.place == TARGETS and fact.value or "", "^%+?(%d+)$")
 	if count then
 		value = TargetsText(tonumber(count))
 	elseif fact.place == DAMAGE and fact.school and SCHOOL_COLORS[Capital(fact.school)] then
-		value = Hex(SCHOOL_COLORS[Capital(fact.school)])..fact.value.."|r"
+		value = Hex(SCHOOL_COLORS[Capital(fact.school)])..shown.."|r"
 	end
 	if fact.label == "" then
 		return value
