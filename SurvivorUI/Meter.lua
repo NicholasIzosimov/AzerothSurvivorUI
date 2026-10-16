@@ -12,7 +12,7 @@
 --
 -- Reset starts the meter over from that moment and clears the crits. Its
 -- size holds through a run: ten lines unless the grip in its bottom right corner
--- sets another size, fewer on a small screen. Each line wears its spell's icon. Hold Alt
+-- sets another size, fewer on a small screen. Each line wears its spell's icon. In edit mode
 -- and drag to move. The game's own meter is put away while this one is on;
 -- /sui meter brings it back. Needs the API; without it nothing shows.
 
@@ -246,7 +246,7 @@ local function Fit()
 end
 
 local function StartMove()
-	if IsAltKeyDown() then
+	if SurvivorUI_EditMode and SurvivorUI_EditMode() then
 		meter:StartMoving()
 	end
 end
@@ -266,7 +266,7 @@ meter.title:SetTextColor(1, 0.82, 0)
 meter.title:SetText("Damage")
 
 -- The title row is the meter's handle: grab it anywhere left of Reset and
--- drag, no Alt needed (the grid's snap applies). Its tooltip says what the
+-- drag, no edit mode needed (the grid's snap applies). Its tooltip says what the
 -- meter leaves to the game's: healing and boss damage.
 local function TitleDragStart()
 	meter:StartMoving()
@@ -548,19 +548,7 @@ local function RankOf(name)
 	end
 end
 
-local ROMAN = { { 50, "L" }, { 40, "XL" }, { 10, "X" }, { 9, "IX" }, { 5, "V" }, { 4, "IV" }, { 1, "I" } }
-
-local function Roman(number)
-	local text = ""
-	for index = 1, table.getn(ROMAN) do
-		local value, letters = ROMAN[index][1], ROMAN[index][2]
-		while number >= value do
-			text = text..letters
-			number = number - value
-		end
-	end
-	return text
-end
+local Roman = SurvivorUI_Roman
 
 -- The same color for the same source anywhere in the interface (the build list).
 function SurvivorUI_MeterColor(name)
@@ -1088,7 +1076,7 @@ watcher:SetScript("OnUpdate", function()
 	end
 	elapsed = 0
 	Fit()
-	-- In preview (before the first step, or with Alt held) it shows anyway, so
+	-- In preview (before the first step, or in edit mode) it shows anyway, so
 	-- it can be placed and sized.
 	if Settings().meter and (Running() or (SurvivorUI_Preview and SurvivorUI_Preview())) then
 		Draw()
@@ -1152,7 +1140,7 @@ if SurvivorUI_RegisterOption then
 end
 
 -- The game's tooltip for units and the world: it opens at an anchor of its own
--- that Alt can move. Left where it is, the anchor sits beside the meter, on its
+-- that edit mode can move. Left where it is, the anchor sits beside the meter, on its
 -- left, bottoms together (the tooltip's stock corner is where the meter is), or
 -- in that corner when the meter is off.
 local tipAnchor = CreateFrame("Frame", "SurvivorUITooltipAnchor", UIParent)

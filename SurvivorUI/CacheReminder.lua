@@ -8,7 +8,7 @@
 -- the price puts it away. Its size never changes: the game draws a font only
 -- at whole sizes, so any swell visibly steps.
 --
--- A switch and its size in /sui opt ("Next Cache Reminder"); hold Alt and drag
+-- A switch and its size in /sui opt ("Next Cache Reminder"); in edit mode (tap Alt), drag
 -- it to move it, /sui layout puts it back.
 
 local FONT = SurvivorUI_FONT or "Fonts\\FRIZQT__.TTF"
@@ -47,7 +47,7 @@ local function TextSize()
 end
 
 ------------------------------------------------------------------------------
--- The text, in a frame sized to it so its Alt handle covers it.
+-- The text, in a frame sized to it so its edit-mode handle covers it.
 
 local holder = CreateFrame("Frame", "SurvivorUICacheReminder", UIParent)
 holder:SetFrameStrata("HIGH")
@@ -693,7 +693,7 @@ holder:SetScript("OnUpdate", function()
 	checked = checked + arg1
 	if checked >= 0.2 then
 		checked = 0
-		-- In preview (before the first step, or with Alt held) it shows anyway,
+		-- In preview (before the first step, or in edit mode) it shows anyway,
 		-- so it can be placed and sized.
 		local wanted = Settings().cacheReminder
 			and (Affordable() or (SurvivorUI_Preview and SurvivorUI_Preview()))

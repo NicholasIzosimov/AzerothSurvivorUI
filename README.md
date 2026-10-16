@@ -66,7 +66,7 @@ If Windows warns about the file the first time, choose **More info → Run anywa
 | `/sui find words` | Name the shown frames whose text holds those words |
 | `/sui logwatch words` | For a minute, print every game message holding those words (to see how the game words a proc's hits) |
 
-Hold **Alt** and drag to move any panel; positions snap to a grid.
+Tap **Alt** for edit mode (tap again to leave): drag any panel to move it, or click it for a small box with its options. A grid shows, and positions can snap to it.
 
 The options window has five tabs: **General** (the panels), **Ability Bar** (tooltips, cooldown numbers, buffs), **Text & Numbers** (damage numbers, event and error text), **Unit frames** and **Interface** (level bar, kills and gold, minimap, camera distance, grid).
 

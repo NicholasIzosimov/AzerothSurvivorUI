@@ -7,7 +7,7 @@
 -- addons for the whole map, so a bar stays live at any distance, unlike a
 -- nameplate.
 --
--- Click a bar to target that enemy. Hold Alt and drag a bar to move the column.
+-- Click a bar to target that enemy. In edit mode (tap Alt), drag a bar to move the column.
 -- The game's own boss bars are put away while these are on, and come back with
 -- /sui bosses. Needs the game's addon API (AZS_UNITS); without it nothing shows.
 
@@ -65,7 +65,7 @@ end
 
 local holder = CreateFrame("Frame", "SurvivorUIBosses", UIParent)
 holder:SetWidth(BAR_WIDTH)
--- Room for four bars: the area Alt outlines, though only the bars show.
+-- Room for four bars: the area edit mode outlines, though only the bars show.
 holder:SetHeight(4 * (BAR_HEIGHT + BAR_GAP))
 holder:SetPoint("TOP", UIParent, "TOP", 0, -90)
 holder:SetMovable(true)
@@ -142,7 +142,7 @@ local function Bar(index)
 	end)
 	bar:RegisterForDrag("LeftButton")
 	bar:SetScript("OnDragStart", function()
-		if IsAltKeyDown() then
+		if SurvivorUI_EditMode and SurvivorUI_EditMode() then
 			holder:StartMoving()
 		end
 	end)
@@ -157,7 +157,7 @@ local function Bar(index)
 			GameTooltip:AddLine(this.kindLabel, this.color[1], this.color[2], this.color[3])
 		end
 		GameTooltip:AddDoubleLine("Health", (this.hp or 0).." / "..(this.hpm or 0), 0.7, 0.7, 0.7, 1, 1, 1)
-		GameTooltip:AddLine("Click to target. Hold Alt and drag to move.", 0.7, 0.7, 0.7, 1)
+		GameTooltip:AddLine("Click to target. In edit mode (tap Alt), drag to move.", 0.7, 0.7, 0.7, 1)
 		GameTooltip:Show()
 	end)
 	bar:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -238,7 +238,7 @@ local function Update()
 			shown = index
 		end
 	end
-	-- In preview (before the first step, or with Alt held), with no boss up, a
+	-- In preview (before the first step, or in edit mode), with no boss up, a
 	-- sample bar stands in so the column can be placed.
 	if settings.bossBars and shown == 0 and SurvivorUI_Preview and SurvivorUI_Preview() then
 		Fill(Bar(1), { kind = "boss", name = "Boss bars", hp = 1, hpm = 1, state = 0 })

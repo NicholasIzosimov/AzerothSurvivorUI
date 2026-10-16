@@ -453,8 +453,13 @@ local function FactText(fact, school, tint)
 	if fact.label == "" then
 		return value
 	end
+	-- One is "1 Target".
+	local label = fact.label
+	if count and tonumber(count) == 1 and label == "Targets" then
+		label = "Target"
+	end
 	-- A number in the label is white too: "over 11 sec" on a damage over time.
-	return value.." "..Highlight(fact.label)
+	return value.." "..Highlight(label)
 end
 
 -- The facts in their places: the line under the name's (range, radius) with
@@ -632,7 +637,8 @@ local written                   -- the signature of the last layout written
 -- the rule under them. nil where the button cannot be read.
 local abilityScan = CreateFrame("GameTooltip", "SurvivorUIAbilityScan", nil, "GameTooltipTemplate")
 
-function SurvivorUI_SimplifiedLines(slot)
+-- An action button's ability as read off its tooltip, or nil.
+local function ScanAbility(slot)
 	if not (slot and HasAction and HasAction(slot)) then
 		return nil
 	end
@@ -640,7 +646,31 @@ function SurvivorUI_SimplifiedLines(slot)
 	abilityScan:ClearLines()
 	abilityScan:SetAction(slot)
 	local ok, ability = pcall(Read, abilityScan, "SurvivorUIAbilityScan")
-	if not (ok and ability) then
+	return ok and ability or nil
+end
+
+-- Whether the ability on an action button hits every enemy in reach (its
+-- targets read "AoE"), for the build's tiers; nil where it cannot be read.
+function SurvivorUI_HitsEveryEnemy(slot)
+	local ability = ScanAbility(slot)
+	if not ability then
+		return nil
+	end
+	local listed, facts = pcall(AllFacts, ability)
+	if not (listed and facts) then
+		return nil
+	end
+	for index = 1, table.getn(facts) do
+		if facts[index].place == TARGETS and facts[index].value == "AoE" then
+			return true
+		end
+	end
+	return false
+end
+
+function SurvivorUI_SimplifiedLines(slot)
+	local ability = ScanAbility(slot)
+	if not ability then
 		return nil
 	end
 	local composed, lines = pcall(Compose, ability, true)

@@ -221,6 +221,10 @@ local function Learn()
 	end
 	local book = Book()
 	local class = ClassToken()
+	-- What each slot last held, and as which class it was put on.
+	local settings = Settings()
+	settings.codexWorn = settings.codexWorn or {}
+	local worn = settings.codexWorn
 	for index = 1, table.getn(KINDS) do
 		local entry = KINDS[index]
 		for slotIndex = 1, table.getn(entry.slots or {}) do
@@ -236,7 +240,14 @@ local function Learn()
 				piece.hex = hex or "ffffffff"
 				piece.icon = GetInventoryItemTexture("player", slot) or piece.icon
 				piece.classes = piece.classes or {}
-				piece.classes[class] = true
+				-- The class that put it on: a piece still worn from the last
+				-- run when the class changes is that run's leftover, not worn
+				-- by the new class.
+				local before = worn[slot]
+				if not (before and before.name == name and before.class ~= class) then
+					piece.classes[class] = true
+					worn[slot] = { name = name, class = class }
+				end
 				-- Its tooltip is kept once the game has sent it in full (more
 				-- than the name: until then the slot shows only that), and read
 				-- again while it is worn until it is.
@@ -294,6 +305,25 @@ local function Whole(lines)
 	return lines and table.getn(lines) > 1
 end
 
+-- The classes whose ability a piece names ("Heart of the Earthshaker:
+-- Whirlwind" is a Warrior's), by the abilities the Codex has seen each class
+-- have; nil when its name holds none it knows. Only those classes can have
+-- worn it, whatever older records say.
+local function OwnerClasses(base)
+	local _, _, ability = string.find(base or "", ": (.+)$")
+	if not ability then
+		return nil
+	end
+	local owners
+	for class, abilities in pairs(Settings().abilityBook or {}) do
+		if abilities[ability] then
+			owners = owners or {}
+			owners[class] = true
+		end
+	end
+	return owners
+end
+
 local function Pieces(kind)
 	local best = {}
 	-- One entry per piece, whatever its rank: the plain name, the color and
@@ -304,13 +334,16 @@ local function Pieces(kind)
 		local base, rank = BaseName(name)
 		local entry = best[base]
 		if not entry then
-			entry = { base = base, name = base, rank = rank, hex = info.hex, link = info.link, classes = {} }
+			entry = { base = base, name = base, rank = rank, hex = info.hex, link = info.link, classes = {},
+				owners = OwnerClasses(base) }
 			best[base] = entry
 		elseif rank > entry.rank then
 			entry.rank, entry.hex, entry.link = rank, info.hex or entry.hex, info.link or entry.link
 		end
 		for class in pairs(info.classes or {}) do
-			entry.classes[class] = true
+			if not entry.owners or entry.owners[class] then
+				entry.classes[class] = true
+			end
 		end
 		entry.icon = entry.icon or info.icon
 		entry.only = entry.only or info.only
@@ -949,17 +982,21 @@ local function FillAbility(row, ability)
 	end
 end
 
+local TAG_GAP = 10              -- between a row's name and its tags
+
 local function FillRow(row, entry)
 	row.entry = entry
-	-- The name runs up to the tags on its right.
-	row.name:ClearAllPoints()
-	row.name:SetPoint("LEFT", row, "LEFT", ROW_HEIGHT + 4, 0)
-	row.name:SetPoint("RIGHT", row, "RIGHT", entry.ability and -160 or -132, 0)
 	if entry.ability then
 		FillAbility(row, entry)
 	else
 		FillPiece(row, entry)
 	end
+	-- The name runs up to the tags on its right, as wide as they are now, and
+	-- is cut short ("...") before them; its tooltip has it whole.
+	local tags = row.rank:GetStringWidth() + row.classes:GetStringWidth()
+	row.name:ClearAllPoints()
+	row.name:SetPoint("LEFT", row, "LEFT", ROW_HEIGHT + 4, 0)
+	row.name:SetPoint("RIGHT", row, "RIGHT", tags > 0 and -(6 + 12 + tags + TAG_GAP) or -6, 0)
 	row:Show()
 end
 

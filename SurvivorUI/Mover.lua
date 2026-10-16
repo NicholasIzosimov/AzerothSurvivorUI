@@ -2,14 +2,14 @@
 --
 -- The action buttons and the experience bar hang from one row (SurvivorUIRow).
 -- The player and target frames, the hero's buffs and the kills and gold box
--- follow it too, until each is moved on its own. Holding Alt lays a handle over the whole block, outlined so
+-- follow it too, until each is moved on its own. Edit mode (a tap of Alt) lays a handle over the whole block, outlined so
 -- it shows: drag it and everything goes along. The place is kept between
 -- sessions; /sui center puts the block back under the hero.
 --
 -- Every other movable piece registers here too (SurvivorUI_RegisterMover), so
--- Alt outlines them all at once. /sui layout puts everything back.
+-- edit mode outlines them all at once. /sui layout puts everything back.
 --
--- With Alt held a grid lies over the screen, centered on its middle; with
+-- In edit mode a grid lies over the screen, centered on its middle; with
 -- snapping on, a piece let go lands with its center on the nearest
 -- grid point. Both are switches in /sui opt.
 
@@ -70,8 +70,8 @@ function SurvivorUI_CenterRow()
 end
 
 ------------------------------------------------------------------------------
--- Handles: an outline over a movable piece, shown with Alt held, so holding
--- Alt shows at once everything that can be moved. A handle takes the mouse
+-- Handles: an outline over a movable piece, shown in edit mode, so edit mode
+-- shows at once everything that can be moved. A handle takes the mouse
 -- only while shown, so clicks and spells go through untouched the rest of the
 -- time.
 
@@ -197,6 +197,17 @@ local function MakeHandle(label)
 	handle.label:SetTextColor(1, 0.82, 0)
 	handle.label:SetText(label)
 
+	-- A click (no drag) opens the piece's own options at the mouse.
+	handle.elementLabel = label
+	handle:SetScript("OnMouseDown", function()
+		this.moved = nil
+	end)
+	handle:SetScript("OnMouseUp", function()
+		if arg1 == "LeftButton" and not this.moved and SurvivorUI_ShowElementOptions then
+			SurvivorUI_ShowElementOptions(this.elementLabel, this)
+		end
+	end)
+
 	table.insert(handles, handle)
 	return handle
 end
@@ -211,6 +222,7 @@ function SurvivorUI_RegisterMover(frame, label, save, mover, default)
 	handle:SetAllPoints(frame)
 	handle:SetScript("OnDragStart", function()
 		dragging = this
+		this.moved = true
 		mover:StartMoving()
 	end)
 	handle:SetScript("OnDragStop", function()
@@ -234,6 +246,7 @@ middle.label:ClearAllPoints()
 middle.label:SetPoint("BOTTOM", middle, "TOP", 0, 3)
 middle:SetScript("OnDragStart", function()
 	dragging = this
+	this.moved = true
 	row:StartMoving()
 end)
 middle:SetScript("OnDragStop", function()
@@ -243,11 +256,12 @@ middle:SetScript("OnDragStop", function()
 	Save()
 end)
 
--- Shown with Alt held, or while a drag that began with it is still going.
+-- Shown in edit mode (a tap of Alt), or while a drag that began in it is
+-- still going.
 local shown = false
 local watcher = CreateFrame("Frame")
 watcher:SetScript("OnUpdate", function()
-	local wanted = IsAltKeyDown() or dragging ~= nil
+	local wanted = SurvivorUI_EditMode() or dragging ~= nil
 	local wantGrid = wanted and GridSettings().grid
 	if wantGrid and not grid:IsShown() then
 		LayGrid()
@@ -274,8 +288,8 @@ end)
 if SurvivorUI_RegisterOption then
 	SurvivorUI_RegisterOption({
 		section = "Interface",
-		label = "Grid while Alt is held",
-		tip = "A grid over the screen while you hold Alt to move things, centered on the screen's middle.",
+		label = "Grid in edit mode",
+		tip = "A grid over the screen in edit mode (a tap of Alt), centered on the screen's middle.",
 		get = function() return GridSettings().grid end,
 		toggle = function()
 			local settings = GridSettings()
@@ -285,7 +299,7 @@ if SurvivorUI_RegisterOption then
 	SurvivorUI_RegisterOption({
 		section = "Interface",
 		label = "Snap to the grid",
-		parent = "Grid while Alt is held",
+		parent = "Grid in edit mode",
 		tip = "A piece you let go of lands with its center on the nearest grid point. Off, it stays exactly where you drop it.",
 		get = function() return GridSettings().gridSnap end,
 		toggle = function()

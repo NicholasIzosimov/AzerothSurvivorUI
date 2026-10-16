@@ -11,7 +11,7 @@
 -- (XPBar.lua).
 --
 -- Needs the game's addon API (AZS_RUN, AZS_SCHEDULE); without it nothing
--- shows. Hold Alt and drag it to move it; the place is kept. /sui timer
+-- shows. In edit mode (tap Alt), drag it to move it; the place is kept. /sui timer
 -- hides it and brings the game's clock back; /sui timer compact leaves out
 -- the list of bosses, keeping the timeline with its ticks and countdowns.
 --
@@ -117,7 +117,7 @@ local function RestorePlace()
 	end
 end
 
-head:SetScript("OnDragStart", function() if IsAltKeyDown() then head:StartMoving() end end)
+head:SetScript("OnDragStart", function() if SurvivorUI_EditMode and SurvivorUI_EditMode() then head:StartMoving() end end)
 head:SetScript("OnDragStop", function() head:StopMovingOrSizing() SavePlace() end)
 
 local function HeadText(size, flags, justify)
@@ -593,7 +593,7 @@ local function Draw(game, phase)
 	head:SetHeight(-y)
 end
 -- The run to draw: the game's, or in preview (before the first step, or with
--- Alt held) whatever it has shared so far, so the timer can be placed.
+-- in edit mode) whatever it has shared so far, so the timer can be placed.
 local function Shown()
 	local game, phase = Game()
 	if not game and SurvivorUI_Preview and SurvivorUI_Preview() then
@@ -683,7 +683,7 @@ head:SetScript("OnEnter", function()
 			end
 		end
 	end
-	GameTooltip:AddLine("Hold Alt and drag to move. /sui timer hides it.", 0.7, 0.7, 0.7, 1)
+	GameTooltip:AddLine("In edit mode (tap Alt), drag to move. /sui timer hides it.", 0.7, 0.7, 0.7, 1)
 	GameTooltip:Show()
 end)
 head:SetScript("OnLeave", function() GameTooltip:Hide() end)

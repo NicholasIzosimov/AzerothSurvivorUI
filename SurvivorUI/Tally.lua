@@ -7,7 +7,7 @@
 -- place, and the game's box is put away. /sui tally brings the game's box back.
 --
 -- It sits under the middle block and follows it until it is moved on its own:
--- hold Alt and drag it. /sui layout puts it back under the block.
+-- in edit mode (tap Alt), drag it. /sui layout puts it back under the block.
 
 local FLAT = "Interface\\ChatFrame\\ChatFrameBackground"
 local FONT = SurvivorUI_FONT or "Fonts\\FRIZQT__.TTF"
@@ -274,7 +274,7 @@ ticker:SetScript("OnUpdate", function()
 	end
 	elapsed = 0
 
-	-- In preview (before the first step, or with Alt held) it shows anyway, so
+	-- In preview (before the first step, or in edit mode) it shows anyway, so
 	-- it can be placed.
 	local preview = SurvivorUI_Preview and SurvivorUI_Preview()
 	if not (Settings().tally and (Running() or preview)) then

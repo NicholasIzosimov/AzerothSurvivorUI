@@ -5,7 +5,7 @@
 -- game's own experience bar, which is put away meanwhile.
 --
 -- It sits under the action bar and follows it until it is moved on its own:
--- hold Alt and drag it. /sui layout puts it back; /sui xp hides it.
+-- in edit mode (tap Alt), drag it. /sui layout puts it back; /sui xp hides it.
 
 local FLAT = "Interface\\ChatFrame\\ChatFrameBackground"
 local FONT = SurvivorUI_FONT or "Fonts\\FRIZQT__.TTF"
@@ -244,7 +244,7 @@ ticker:SetScript("OnUpdate", function()
 	end
 	elapsed = 0
 	local game = Game()
-	-- In preview (before the first step, or with Alt held) it shows anyway,
+	-- In preview (before the first step, or in edit mode) it shows anyway,
 	-- with whatever the game has shared so far, so it can be placed.
 	if not game and SurvivorUI_Preview and SurvivorUI_Preview() then
 		game = AZS_RUN or {}
@@ -280,7 +280,7 @@ if SurvivorUI_RegisterOption then
 	SurvivorUI_RegisterOption({
 		section = "Interface",
 		label = "Level bar",
-		tip = "The run's level and its experience, in a bar of its own that moves with Alt.",
+		tip = "The run's level and its experience, in a bar of its own that moves in edit mode (tap Alt).",
 		command = "/sui xp",
 		get = function() return Settings().xpBar end,
 		toggle = SurvivorUI_ToggleXP,

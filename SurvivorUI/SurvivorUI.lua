@@ -8,7 +8,7 @@
 --   backing with a thin black border, the name on the left, the health on the
 --   right ("439K | 100%"), a slim power bar underneath and the portrait on the
 --   outer end. The target's debuffs line up above its frame. They replace the
---   stock player and target frames. Each frame moves on its own with Alt
+--   stock player and target frames. Each frame moves on its own in edit mode
 --   (/sui layout puts both back beside the buttons); /sui opt sizes them.
 --
 --   Action bar: the game only uses the first bar. Buttons 1 to 6 and the last
@@ -102,14 +102,53 @@ end
 
 -- Preview: every piece shows, data or not, so the layout can be set before a
 -- run gets going. True while the game waits for the hero's first step ("Move
--- to begin.") and, anywhere, while Alt is held to move things. A piece the
+-- to begin.") and, anywhere, in edit mode (a tap of Alt). A piece the
 -- player switched off stays off.
 function SurvivorUI_Preview()
-	if IsAltKeyDown() then
+	if SurvivorUI_EditMode() then
 		return true
 	end
 	return AZS_GetPhase ~= nil and AZS_GetPhase() == "ready"
 end
+
+-- Edit mode: a quick tap of Alt (let go within ALT_TAP seconds) turns it on,
+-- another turns it off. While on, every movable piece shows its handle (drag
+-- to move it, click for its options) and every piece shows, data or not. A
+-- longer hold, as for Alt and a click or Alt and Tab, changes nothing.
+local ALT_TAP = 0.5
+local editMode = false
+local altDownAt
+
+function SurvivorUI_EditMode()
+	return editMode
+end
+
+function SurvivorUI_SetEditMode(on)
+	if on == editMode then
+		return
+	end
+	editMode = on
+	-- Leaving it closes any piece's options box still open.
+	if not on and SurvivorUI_CloseElementOptions then
+		SurvivorUI_CloseElementOptions()
+	end
+	DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: "..(on
+		and "edit mode on. Drag a piece to move it, click it for its options; tap Alt again to leave."
+		or "edit mode off."))
+end
+
+local altWatch = CreateFrame("Frame")
+altWatch:SetScript("OnUpdate", function()
+	if IsAltKeyDown() then
+		altDownAt = altDownAt or GetTime()
+	elseif altDownAt then
+		local held = GetTime() - altDownAt
+		altDownAt = nil
+		if held <= ALT_TAP then
+			SurvivorUI_SetEditMode(not editMode)
+		end
+	end
+end)
 
 -- Run memory: what the panels learn as a run goes (when each boss came and
 -- fell, the meter's casts and colors, the loot) is kept in the saved
@@ -205,6 +244,25 @@ function SurvivorUI_Fade(frame, target, paint)
 		fading[frame] = true
 		fader:Show()
 	end
+end
+
+-- A whole number as a Roman numeral, as the game writes ranks: 12 is XII.
+local ROMAN = {
+	{ 100, "C" }, { 90, "XC" }, { 50, "L" }, { 40, "XL" }, { 10, "X" }, { 9, "IX" },
+	{ 5, "V" }, { 4, "IV" }, { 1, "I" },
+}
+
+function SurvivorUI_Roman(number)
+	local text = ""
+	number = math.floor(number or 0)
+	for index = 1, table.getn(ROMAN) do
+		local value, letters = ROMAN[index][1], ROMAN[index][2]
+		while number >= value do
+			text = text..letters
+			number = number - value
+		end
+	end
+	return text
 end
 
 -- The + and - of a fold button, drawn as two flat bars rather than typed: a
@@ -428,7 +486,7 @@ end
 
 -- Each unit frame's place: an anchor of its own, which the addon's frame and the
 -- stock one (whichever style is on) both sit centered on. It is as large as the
--- frame showing, so its Alt handle covers it. Until moved, it sits beside the
+-- frame showing, so its edit-mode handle covers it. Until moved, it sits beside the
 -- buttons and follows the row; once moved, its center is kept.
 local function UnitAnchor(name, side, xKey, yKey)
 	local anchor = CreateFrame("Frame", name, UIParent)
@@ -510,7 +568,7 @@ local function UnitFrame(unit, name, anchor, side, dropdown)
 	frame.value = Text(frame.health, 10, "RIGHT", -5, 0)
 	frame.value:SetTextColor(1, 1, 1)
 
-	-- Left click targets, right click opens the stock menu. Alt shows the
+	-- Left click targets, right click opens the stock menu. Edit mode shows the
 	-- frame's own handle over it, to move it.
 	frame:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	frame:SetScript("OnClick", function()
@@ -710,7 +768,7 @@ end
 
 -- The unit frames' size, as a share of their own (100 is as drawn). The target's
 -- debuffs and the player's buffs follow them; each anchor is resized to the
--- scaled frame, so its Alt handle covers it.
+-- scaled frame, so its edit-mode handle covers it.
 local UNIT_SCALE = 100
 local UNIT_SCALE_MIN, UNIT_SCALE_MAX = 50, 200
 
@@ -720,7 +778,7 @@ local function UnitScale()
 end
 
 -- The size applies to whichever frames show, the addon's or the stock ones;
--- each anchor takes the shown frame's scaled size, for its Alt handle.
+-- each anchor takes the shown frame's scaled size, for its edit-mode handle.
 local function ApplyUnitScale()
 	local scale = UnitScale() / 100
 	local styled = Styled()
@@ -779,7 +837,7 @@ function SurvivorUI_ToggleUnitStyle()
 	ApplyUnitSize()
 	DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: "..(settings.unitStyle
 		and "the addon's flat unit frames."
-		or "the game's own unit frames, in the same places, still moved with Alt."))
+		or "the game's own unit frames, in the same places, still moved in edit mode (tap Alt)."))
 	-- The game's frames do not all come back by themselves until a reload.
 	SurvivorUI_AskReload(settings.unitStyle and "the addon's unit frames are on."
 		or "the game's own unit frames are back.")
@@ -788,7 +846,7 @@ end
 SurvivorUI_RegisterOption({
 	section = "Unit frames",
 	label = "Unit frames",
-	tip = "The addon's flat player and target frames. Off, the game's own frames show instead, in the same places, still moved with Alt and sized by the slider below.",
+	tip = "The addon's flat player and target frames. Off, the game's own frames show instead, in the same places, still moved in edit mode (tap Alt) and sized by the slider below.",
 	command = "/sui frames",
 	get = Styled,
 	toggle = SurvivorUI_ToggleUnitStyle,
@@ -1031,7 +1089,7 @@ SurvivorUI_RegisterOption({
 -- The hero's buffs and debuffs, in a row above the player frame, each with
 -- its time left and its stacks. Right click a buff to cancel it. The row grows
 -- from its center outward, and its icons take the size set in /sui opt. It
--- follows the player frame until it is moved on its own: hold Alt and drag it
+-- follows the player frame until it is moved on its own: in edit mode (tap Alt), drag it
 -- (/sui layout puts it back).
 
 local AURA_SIZE = 22            -- the size until one is chosen
@@ -1143,7 +1201,7 @@ for index = 1, AURA_MAX do
 end
 
 -- Every icon, its sweep and its type at the chosen size; the holder as wide
--- as a full row of them, so its Alt handle shows where the row can reach.
+-- as a full row of them, so its edit-mode handle shows where the row can reach.
 local auraLaidOut                -- "size:count" of the last layout
 local function ApplyAuraSize()
 	local size = AuraSize()
@@ -1454,8 +1512,44 @@ local function BuffAbsorb(buffIndex)
 	end
 end
 
--- The shields up now: a new one starts its count, a gone one is forgotten,
--- and with none up the log's tally starts over.
+-- What each shield has absorbed this run, by name, for the damage meter's
+-- healing view (Meter.lua). Kept in the run's memory, so a reload keeps it.
+local function AbsorbTotals()
+	if not SurvivorUI_RunMemory then
+		return {}
+	end
+	local memory = SurvivorUI_RunMemory("absorbs")
+	memory.totals = memory.totals or {}
+	return memory.totals
+end
+
+-- What one shield has absorbed, by whichever source says most: its share of
+-- the combat log's "(120 absorbed)", what its tooltip counted down, or, once
+-- it broke before its time ran out, all of it. Only the growth since last
+-- time is added to its total (shield.credited holds what was).
+local BROKEN_EARLY = 0.5        -- seconds it had left when it vanished; more counts as broken
+
+local function Absorbed(shield, broken)
+	if broken then
+		return shield.start
+	end
+	return math.max(shield.logged, shield.start - shield.now)
+end
+
+local function Credit(shield, broken)
+	local absorbed = Absorbed(shield, broken)
+	if absorbed <= shield.credited then
+		return
+	end
+	local totals = AbsorbTotals()
+	local name = shield.name or "Absorbs"
+	totals[name] = (totals[name] or 0) + absorbed - shield.credited
+	shield.credited = absorbed
+end
+
+-- The shields up now: a new one starts its count, a gone one is forgotten
+-- (counted whole if it broke early), and with none up the log's tally starts
+-- over.
 local function ReadShields()
 	local seen = {}
 	for slot = 0, 15 do
@@ -1468,17 +1562,25 @@ local function ReadShields()
 				local shield = shields[key]
 				if not shield or amount > shield.now then
 					-- New, or cast again: counted from its full amount.
-					shields[key] = { start = amount, now = amount, name = name }
+					shield = { start = amount, now = amount, name = name, logged = 0, credited = 0 }
+					shields[key] = shield
 				else
 					shield.now = amount
 					shield.name = shield.name or name
 				end
+				shield.left = GetPlayerBuffTimeLeft and GetPlayerBuffTimeLeft(buffIndex) or 0
+				Credit(shield)
 			end
 		end
 	end
 	local any = false
-	for key in pairs(shields) do
+	local alive = not UnitIsDeadOrGhost("player")
+	for key, shield in pairs(shields) do
 		if not seen[key] then
+			-- Gone with time left (or with no timer at all): used up.
+			if alive and (shield.left == 0 or shield.left > BROKEN_EARLY) then
+				Credit(shield, true)
+			end
 			shields[key] = nil
 		else
 			any = true
@@ -1549,37 +1651,25 @@ for _, event in pairs({
 }) do
 	absorbWatch:RegisterEvent(event)
 end
--- What each shield has absorbed this run, for the damage meter's healing
--- view: an absorbed amount goes to the shield up when it was absorbed, split
--- by the shields' sizes when several are, to "Absorbs" when none is known.
--- Kept in the run's memory, so a reload keeps it. A hit absorbed whole gives
--- no number in the log and cannot be counted.
-local function AbsorbTotals()
-	if not SurvivorUI_RunMemory then
-		return {}
-	end
-	local memory = SurvivorUI_RunMemory("absorbs")
-	memory.totals = memory.totals or {}
-	return memory.totals
-end
-
 function SurvivorUI_AbsorbTotals()
 	return AbsorbTotals()
 end
 
+-- A logged absorbed amount goes to the shields up when it was absorbed,
+-- split by their sizes when several are, to "Absorbs" when none is known.
 local function CountAbsorbed(amount)
-	local totals = AbsorbTotals()
 	local size = 0
 	for _, shield in pairs(shields) do
 		size = size + shield.start
 	end
 	if size <= 0 then
+		local totals = AbsorbTotals()
 		totals["Absorbs"] = (totals["Absorbs"] or 0) + amount
 		return
 	end
 	for _, shield in pairs(shields) do
-		local name = shield.name or "Absorbs"
-		totals[name] = (totals[name] or 0) + amount * shield.start / size
+		shield.logged = shield.logged + amount * shield.start / size
+		Credit(shield)
 	end
 end
 
@@ -2719,7 +2809,7 @@ SlashCmdList["SURVIVORUI"] = function(msg)
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui errors  shows or hides the game's red error text; /sui events  its event banners")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui reload  reloads the interface, picking up edited addon files")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui chat 12  sets the chat text size, 8 to 18")
-		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: hold Alt to see everything that moves, and drag; /sui center puts the middle back, /sui layout puts everything back")
+		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: tap Alt for edit mode: drag what moves, click it for its options; /sui center puts the middle back, /sui layout puts everything back")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui bosses  switches the boss bars on or off; /sui bosses elites  lists elites too")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui tally  switches between the kills and gold line under the bar and the game's own box")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui timer  shows or hides the run timer under the minimap (the clock and the bosses); /sui timer compact  leaves out the list of bosses")
@@ -2732,394 +2822,6 @@ SlashCmdList["SURVIVORUI"] = function(msg)
 	end
 end
 
-------------------------------------------------------------------------------
--- Worn gear the interface cannot name yet: the game hands the interface an
--- item's details only when asked. After a reload some worn pieces are not
--- there yet when the character pane and the build first draw; and a piece
--- that ranks up becomes a new item (each rank has its own), unknown until
--- asked for. Either way its slot stands empty. So every GEAR_CHECK seconds,
--- all the time, a slot that holds a piece the interface cannot name is asked
--- for again through a hidden tooltip, and the character pane's slots are
--- drawn again once one comes back. Nothing is asked while every worn piece is
--- known, and only the hero's own slots are ever asked for.
-
-local GEAR_CHECK = 5            -- seconds between looks at the worn slots
-local GEAR_SLOTS = {
-	"Head", "Neck", "Shoulder", "Shirt", "Chest", "Waist", "Legs", "Feet", "Wrist", "Hands",
-	"Finger0", "Finger1", "Trinket0", "Trinket1", "Back", "MainHand", "SecondaryHand", "Ranged", "Tabard",
-}
-
-local gearScan = CreateFrame("GameTooltip", "SurvivorUIGearScan", nil, "GameTooltipTemplate")
-local gearWatch = CreateFrame("Frame")
-local gearElapsed = 0
-local gearMissing = {}          -- [slot] = true while it holds a piece the interface cannot name
-
-local function RedrawGearSlots()
-	if not PaperDollItemSlotButton_Update then
-		return
-	end
-	local saved = this
-	for index = 1, table.getn(GEAR_SLOTS) do
-		local button = getglobal("Character"..GEAR_SLOTS[index].."Slot")
-		if button then
-			this = button
-			pcall(PaperDollItemSlotButton_Update)
-		end
-	end
-	this = saved
-end
-
--- A log of the worn slots, for /sui gear: every time a slot's piece goes
--- from named to unnamed or back, or changes, with the last event before it.
--- Kept in the saved variables (the last GEAR_LOG_KEPT), so a loss at a
--- reload is in it too.
-local GEAR_LOG_KEPT = 30
-local lastGearEvent = "start"
-
--- Each slot's link at the last look (false for none), kept in the run's
--- memory: after a reload the first look compares with the run's last one,
--- so a piece lost at the reload is logged too.
-local function GearLinks()
-	if SurvivorUI_RunMemory then
-		local memory = SurvivorUI_RunMemory("gear")
-		memory.links = memory.links or {}
-		return memory.links
-	end
-	return {}
-end
-
--- Each slot's last named piece this run, kept with the links: a slot that
--- goes blank (the game never sent its new piece) is guessed from it.
-local function GearNames()
-	if SurvivorUI_RunMemory then
-		local memory = SurvivorUI_RunMemory("gear")
-		memory.names = memory.names or {}
-		return memory.names
-	end
-	return {}
-end
-
-local function GearLog()
-	SurvivorUIDB = SurvivorUIDB or {}
-	SurvivorUIDB.gearLog = SurvivorUIDB.gearLog or {}
-	return SurvivorUIDB.gearLog
-end
-
-local function ItemName(link)
-	local _, _, name = string.find(link or "", "%[(.-)%]")
-	return name
-end
-
-local function NoteGear(slot, link)
-	local gearLinks = GearLinks()
-	local before = gearLinks[slot]
-	gearLinks[slot] = link or false
-	if before == nil or before == (link or false) then
-		return
-	end
-	local log = GearLog()
-	table.insert(log, {
-		at = date and date("%H:%M:%S") or "?",
-		slot = slot,
-		from = before and ItemName(before) or "-",
-		to = link and ItemName(link) or "-",
-		after = lastGearEvent,
-	})
-	while table.getn(log) > GEAR_LOG_KEPT do
-		table.remove(log, 1)
-	end
-end
-
--- A change of gear or a new world is looked at right away.
-gearWatch:RegisterEvent("PLAYER_ENTERING_WORLD")
-gearWatch:RegisterEvent("UNIT_INVENTORY_CHANGED")
-gearWatch:SetScript("OnEvent", function()
-	if event == "UNIT_INVENTORY_CHANGED" and arg1 ~= "player" then
-		return
-	end
-	lastGearEvent = (event == "PLAYER_ENTERING_WORLD" and "entering the world (a reload)" or "a gear change")
-		.." at "..(date and date("%H:%M:%S") or "?")
-	gearElapsed = GEAR_CHECK
-end)
-gearWatch:SetScript("OnUpdate", function()
-	gearElapsed = gearElapsed + arg1
-	if gearElapsed < GEAR_CHECK then
-		return
-	end
-	gearElapsed = 0
-	-- A slot whose piece comes back, or goes blank, is drawn again: the
-	-- character pane then shows the game's piece, or the Codex's guess.
-	local changed = false
-	for slot = 1, table.getn(GEAR_SLOTS) do
-		local link = GetInventoryItemLink("player", slot)
-		NoteGear(slot, link)
-		if link then
-			GearNames()[slot] = ItemName(link)
-			if gearMissing[slot] then
-				gearMissing[slot] = nil
-				changed = true
-			end
-		else
-			gearScan:SetOwner(WorldFrame, "ANCHOR_NONE")
-			gearScan:ClearLines()
-			-- True when the slot holds a piece: asked for, it comes in later.
-			-- An empty slot answers false and asks nothing.
-			local holds = gearScan:SetInventoryItem("player", slot) and true or nil
-			if holds ~= gearMissing[slot] then
-				changed = true
-			end
-			gearMissing[slot] = holds
-		end
-	end
-	if changed then
-		RedrawGearSlots()
-	end
-end)
-
--- Whether a slot holds a piece the game has not described to the interface
--- (no name, no icon, an empty tooltip), as of the last look: the piece is
--- worn and works, the interface just cannot show it.
-function SurvivorUI_SlotUnloaded(slot)
-	return gearMissing[slot] == true
-end
-
-------------------------------------------------------------------------------
--- A blank slot filled in from the Codex. When the game never sends a worn
--- piece's details, the slot is guessed from the piece it held before: a ring
--- or trinket only ranks up during a run, so it is that piece one rank higher;
--- a neck may have been swapped for another amulet, so its guess is always
--- marked unreliable, as is any guess whose rank the Codex has no description
--- of. The game's own piece always wins: a guess exists only while the slot
--- has no piece the game has described.
-
-local GUESS_KINDS = { [2] = "Neck", [11] = "Ring", [12] = "Ring", [13] = "Trinket", [14] = "Trinket" }
-local NUMERALS = { "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X" }
-
--- { name, icon, hex, lines, unreliable }, or nil.
-function SurvivorUI_SlotGuess(slot)
-	if GetInventoryItemLink("player", slot) or not gearMissing[slot] then
-		return nil
-	end
-	local kind = GUESS_KINDS[slot]
-	local before = GearNames()[slot]
-	if not (kind and before and SurvivorUI_BaseName) then
-		return nil
-	end
-	local base, rank = SurvivorUI_BaseName(before)
-	rank = math.floor(rank)
-	-- The next rank's names as the game writes them: past IX it may be "X"
-	-- or "X+".
-	local names = {}
-	if rank >= 10 then
-		names = { base.." X+" }
-	elseif rank == 9 then
-		names = { base.." X", base.." X+" }
-	else
-		names = { base.." "..NUMERALS[rank + 1] }
-	end
-	local book = SurvivorUIDB and SurvivorUIDB.codex and SurvivorUIDB.codex[kind] or {}
-	local exact, exactName
-	for index = 1, table.getn(names) do
-		if not exact and book[names[index]] then
-			exact, exactName = book[names[index]], names[index]
-		end
-	end
-	-- Its icon and color from any rank, every rank of a piece looks alike;
-	-- with no description of this rank, the nearest rank's that is kept (the
-	-- highest at or under it, else the lowest above), its numbers that rank's.
-	local any, near, nearRank, nearName
-	for name, info in pairs(book) do
-		local otherBase, otherRank = SurvivorUI_BaseName(name)
-		if otherBase == base then
-			if not any or (info.icon and not any.icon) then
-				any = info
-			end
-			if info.lines and table.getn(info.lines) > 1 then
-				local better = not near
-					or (otherRank <= rank + 1 and (nearRank > rank + 1 or otherRank > nearRank))
-					or (otherRank > rank + 1 and nearRank > rank + 1 and otherRank < nearRank)
-				if better then
-					near, nearRank, nearName = info, otherRank, name
-				end
-			end
-		end
-	end
-	local lines = exact and exact.lines
-	local whole = lines and table.getn(lines) > 1
-	return {
-		name = exactName or names[1],
-		icon = (exact and exact.icon) or (any and any.icon),
-		hex = (exact and exact.hex) or (any and any.hex),
-		lines = whole and lines or (near and near.lines) or nil,
-		linesFrom = not whole and near and nearName or nil,
-		unreliable = kind == "Neck" or not whole,
-		before = before,
-	}
-end
-
--- A guess's tooltip, for the build and the character pane: its kept
--- description (or its name), and a note saying where it comes from.
-function SurvivorUI_GuessTooltip(owner, guess)
-	GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
-	local hex = guess.hex or "ffffffff"
-	local r = (tonumber(string.sub(hex, 3, 4), 16) or 255) / 255
-	local g = (tonumber(string.sub(hex, 5, 6), 16) or 255) / 255
-	local b = (tonumber(string.sub(hex, 7, 8), 16) or 255) / 255
-	local title = guess.name..(guess.unreliable and " (Unreliable)" or "")
-	if guess.lines then
-		for index = 1, table.getn(guess.lines) do
-			local line = guess.lines[index]
-			if index == 1 then
-				GameTooltip:SetText(title, line[2], line[3], line[4])
-			elseif line[5] then
-				GameTooltip:AddDoubleLine(line[1], line[5], line[2], line[3], line[4], line[2], line[3], line[4])
-			else
-				GameTooltip:AddLine(line[1], line[2], line[3], line[4], 1)
-			end
-		end
-	else
-		GameTooltip:SetText(title, r, g, b)
-	end
-	GameTooltip:AddLine("From the Codex: the game has not sent this piece's details. "
-		..(guess.unreliable and "Unreliable: guessed from "..guess.before.." worn before it." or "It is "
-		..guess.before.." ranked up.")
-		..(guess.linesFrom and " Description of "..guess.linesFrom..", its numbers that rank's." or ""),
-		0.6, 0.6, 0.6, 1)
-	GameTooltip:Show()
-end
-
--- The character pane's slots: a blank one shows the guess's icon, and its
--- tooltip; a slot the game has described is left wholly to the game.
-local stockSlotUpdate = PaperDollItemSlotButton_Update
-if stockSlotUpdate then
-	function PaperDollItemSlotButton_Update()
-		stockSlotUpdate()
-		local guess = this and this.GetID and SurvivorUI_SlotGuess(this:GetID())
-		this.survivorGuess = guess
-		if guess and guess.icon and SetItemButtonTexture then
-			SetItemButtonTexture(this, guess.icon)
-		end
-	end
-end
-
-local stockSlotEnter = PaperDollItemSlotButton_OnEnter
-if stockSlotEnter then
-	function PaperDollItemSlotButton_OnEnter()
-		stockSlotEnter()
-		if this.survivorGuess and not GetInventoryItemLink("player", this:GetID()) then
-			SurvivorUI_GuessTooltip(this, this.survivorGuess)
-		end
-	end
-end
-
--- A worn piece's tooltip, read once and kept with its link: every part of
--- the addon that wants it (the build's gear and spell cards, the Codex) asks
--- here instead of reading the slot itself, so a slot is read when its piece
--- changes rather than many times a second. A tooltip the game had not yet
--- sent in full (the name alone) is read again every WORN_RETRY seconds until
--- it is. Lines are { text, r, g, b, right text }.
-local WORN_RETRY = 5
-local wornTooltips = {}         -- [slot] = { link, lines, at }
-
-function SurvivorUI_WornTooltip(slot)
-	local link = GetInventoryItemLink("player", slot)
-	if not link then
-		wornTooltips[slot] = nil
-		return nil
-	end
-	local kept = wornTooltips[slot]
-	if kept and kept.link == link and (table.getn(kept.lines) > 1 or GetTime() - kept.at < WORN_RETRY) then
-		return kept.lines
-	end
-	gearScan:SetOwner(WorldFrame, "ANCHOR_NONE")
-	gearScan:ClearLines()
-	gearScan:SetInventoryItem("player", slot)
-	local lines = {}
-	for index = 1, gearScan:NumLines() do
-		local left = getglobal("SurvivorUIGearScanTextLeft"..index)
-		local right = getglobal("SurvivorUIGearScanTextRight"..index)
-		local text = left and left:GetText()
-		if text then
-			local r, g, b = left:GetTextColor()
-			table.insert(lines, { text, r, g, b, right and right:IsShown() and right:GetText() or nil })
-		end
-	end
-	wornTooltips[slot] = { link = link, lines = lines, at = GetTime() }
-	return lines
-end
-
--- /sui gear: how the game sees each jewelry slot now (the piece's name, its
--- icon, whether the slot holds something), and the log of slots that lost or
--- regained their piece, the newest last.
-local JEWELRY_SLOTS = { 2, 11, 12, 13, 14 }
-
-function SurvivorUI_GearReport()
-	local say = function(text) DEFAULT_CHAT_FRAME:AddMessage("|cffffd100Survivor UI gear:|r "..text) end
-	for index = 1, table.getn(JEWELRY_SLOTS) do
-		local slot = JEWELRY_SLOTS[index]
-		local link = GetInventoryItemLink("player", slot)
-		local texture = GetInventoryItemTexture("player", slot)
-		gearScan:SetOwner(WorldFrame, "ANCHOR_NONE")
-		gearScan:ClearLines()
-		local holds = gearScan:SetInventoryItem("player", slot)
-		local first = getglobal("SurvivorUIGearScanTextLeft1")
-		first = first and first:GetText()
-		say(GEAR_SLOTS[slot].." ("..slot.."): name "..(ItemName(link) or "|cffff6060none|r")
-			..", icon "..(texture and "yes" or "|cffff6060no|r")
-			..", holds "..(holds and "yes" or "|cffff6060no|r")
-			..", tooltip "..(first or "|cffff6060empty|r")
-			..(gearMissing[slot] and ", |cffffd24dasked for again|r" or ""))
-	end
-	local log = GearLog()
-	if table.getn(log) == 0 then
-		say("no slot has lost or regained its piece yet.")
-		return
-	end
-	say("changes, newest last:")
-	for index = math.max(1, table.getn(log) - 11), table.getn(log) do
-		local entry = log[index]
-		say("  "..entry.at.."  "..(GEAR_SLOTS[entry.slot] or entry.slot)..": "..entry.from.." -> "..entry.to
-			.."  (after "..entry.after..")")
-	end
-end
-
-------------------------------------------------------------------------------
--- /sui logwatch words: for a minute, every message the game sends the
--- interface whose text holds those words is printed with its event, so a
--- piece the addon cannot read yet (a proc whose hits the damage card never
--- sees) shows how the game words it.
-
-local LOGWATCH_TIME = 60
-local LOGWATCH_MAX = 15
-
-local logWatch = CreateFrame("Frame")
-local logWords, logUntil, logShown
-
-logWatch:SetScript("OnEvent", function()
-	if not logWords then
-		return
-	end
-	if GetTime() > logUntil or logShown >= LOGWATCH_MAX then
-		this:UnregisterAllEvents()
-		DEFAULT_CHAT_FRAME:AddMessage("|cffffd100Survivor UI logwatch:|r done ("..logShown.." found).")
-		logWords = nil
-		return
-	end
-	for _, value in pairs({ arg1, arg2, arg3, arg4, arg5 }) do
-		if type(value) == "string" and string.find(string.lower(value), logWords, 1, true) then
-			logShown = logShown + 1
-			DEFAULT_CHAT_FRAME:AddMessage("|cffffd100"..event..":|r "..string.sub(value, 1, 200))
-			return
-		end
-	end
-end)
-
-function SurvivorUI_LogWatch(words)
-	logWords, logUntil, logShown = string.lower(words), GetTime() + LOGWATCH_TIME, 0
-	logWatch:RegisterAllEvents()
-	DEFAULT_CHAT_FRAME:AddMessage("|cffffd100Survivor UI logwatch:|r for "..LOGWATCH_TIME.." sec, every game message holding \""
-		..words.."\" is printed here (at most "..LOGWATCH_MAX..").")
-end
 
 ------------------------------------------------------------------------------
 
@@ -3134,7 +2836,7 @@ loader:SetScript("OnEvent", function()
 		ApplyUnitSize()
 		RestoreAnchor(playerAnchor)
 		RestoreAnchor(targetAnchor)
-		-- Mover.lua loads after this file: the unit frames' Alt handles are made here.
+		-- Mover.lua loads after this file: the unit frames' edit-mode handles are made here.
 		if SurvivorUI_RegisterMover and not playerAnchor.mover then
 			playerAnchor.mover = SurvivorUI_RegisterMover(playerAnchor, "Player frame",
 				function() SaveAnchor(playerAnchor) end, nil, function() RestoreAnchor(playerAnchor) end)
@@ -3144,7 +2846,7 @@ loader:SetScript("OnEvent", function()
 		HideStockBuffs()
 		ApplyAuraSize()
 		RestoreAuraPlace()
-		-- Mover.lua loads after this file: the buff row's Alt handle is made here.
+		-- Mover.lua loads after this file: the buff row's edit-mode handle is made here.
 		if SurvivorUI_RegisterMover and not auraHolder.mover then
 			auraHolder.mover = SurvivorUI_RegisterMover(auraHolder, "Buffs", SaveAuraPlace, nil, RestoreAuraPlace)
 		end

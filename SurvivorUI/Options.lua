@@ -53,7 +53,10 @@ local window = CreateFrame("Frame", "SurvivorUIOptions", UIParent)
 window:SetWidth(WIDTH)
 window:SetHeight(120)
 window:SetPoint("CENTER", UIParent, "CENTER", 0, 80)
-window:SetFrameStrata("DIALOG")
+-- Above the edit-mode handles and every panel, so a piece's options box
+-- stands in front of what it was opened over; the color wheel, reload
+-- prompts and tooltips stand higher still.
+window:SetFrameStrata("FULLSCREEN")
 window:SetBackdrop({
 	bgFile = FLAT, edgeFile = FLAT, tile = false, edgeSize = 1,
 	insets = { left = 1, right = 1, top = 1, bottom = 1 },
@@ -70,8 +73,60 @@ window:SetScript("OnDragStart", function() this:StartMoving() end)
 window:SetScript("OnDragStop", function() this:StopMovingOrSizing() end)
 window:Hide()
 
--- Escape closes it, as it closes the game's own windows.
-table.insert(UISpecialFrames, "SurvivorUIOptions")
+-- It fades in when opened and out when closed, over WINDOW_FADE seconds:
+-- OpenWindow and CloseWindow, never Show and Hide. Closing, it stays shown
+-- (window.closing) until it has faded out.
+local WINDOW_FADE = 0.12
+local windowFade = CreateFrame("Frame")
+windowFade:Hide()
+windowFade:SetScript("OnUpdate", function()
+	local alpha, target = window:GetAlpha(), window.alphaTarget or 1
+	local step = arg1 / WINDOW_FADE
+	if alpha < target then
+		alpha = math.min(target, alpha + step)
+	else
+		alpha = math.max(target, alpha - step)
+	end
+	window:SetAlpha(alpha)
+	if alpha == target then
+		this:Hide()
+		if target == 0 then
+			window.closing = nil
+			window:Hide()
+		end
+	end
+end)
+
+local function OpenWindow()
+	if not window:IsShown() then
+		window:SetAlpha(0)
+		window:Show()
+	end
+	window.closing = nil
+	window.alphaTarget = 1
+	windowFade:Show()
+end
+
+local function CloseWindow()
+	if not window:IsShown() then
+		return
+	end
+	window.closing = true
+	window.alphaTarget = 0
+	windowFade:Show()
+end
+
+-- Escape closes it, as it closes the game's own windows, fading as any
+-- close does.
+local BaseCloseSpecialWindows = CloseSpecialWindows
+function CloseSpecialWindows()
+	local found = BaseCloseSpecialWindows()
+	if window:IsShown() and not window.closing then
+		CloseWindow()
+		found = 1
+	end
+	return found
+end
 
 window.title = window:CreateFontString(nil, "OVERLAY")
 window.title:SetFont(FONT, 15 + FONT_BUMP, "OUTLINE")
@@ -108,7 +163,7 @@ close:SetScript("OnLeave", function()
 	this.text:SetTextColor(1, 0.84, 0.42)
 	this:SetBackdropBorderColor(0.62, 0.46, 0.22, 1)
 end)
-close:SetScript("OnClick", function() window:Hide() end)
+close:SetScript("OnClick", function() CloseWindow() end)
 
 ------------------------------------------------------------------------------
 -- The search box, left of the x: typing opens a Search tab at the front with
@@ -120,6 +175,60 @@ local SEARCH = "Search"
 local SEARCH_WIDTH = 180
 local query = ""
 local Draw
+
+-- A piece's own options, in a small box at the mouse: in edit mode a click on
+-- a piece's handle (Mover.lua) shows the window narrowed to that piece's
+-- options alone, with no tabs, search or footer. Closed, the window is the
+-- whole options window again, where it was.
+local FOCUS = "Focus"
+local FOCUS_WIDTH = 340
+local focus                     -- { title, wanted = { [option label] = true } } while it shows a piece's options
+local shownWidth = WIDTH
+local savedPlace                -- the whole window's place, while the box stands elsewhere
+
+-- Each piece's handle, by its label, and the options that are its own (with
+-- their sub-options).
+local ELEMENT_OPTIONS = {
+	["Action bar  -  /sui center"] = { "Simplified Ability Description", "Max abilities per row", "Cooldown numbers" },
+	["Player frame"] = { "Unit frames" },
+	["Target frame"] = { "Unit frames" },
+	["Buffs"] = { "Buff icon size", "Buff sweep" },
+	["Kills & gold"] = { "Kills and gold line" },
+	["XP bar"] = { "Level bar" },
+	["Run timer"] = { "Run timer" },
+	["Build"] = { "Build" },
+	["Damage meter"] = { "Damage meter" },
+	["Boss bars"] = { "Boss bars" },
+	["Loot"] = { "Loot log" },
+	["Cache reminder"] = { "Next Cache Reminder" },
+	["Minimap"] = { "Caches on the minimap", "Minimap button" },
+}
+local ELEMENT_TITLES = { ["Action bar  -  /sui center"] = "Action bar" }
+
+-- The window's height: the room the fullest tab needs, or less where the
+-- grip in its bottom right corner has made it shorter (kept). A tab, or a
+-- search's results, past that room is reached with the mouse wheel anywhere
+-- over the window, a thin marker down the right edge showing where.
+-- searchScroll is how far the open tab is scrolled, in pixels; Draw keeps
+-- it in range, and a new tab or search starts it over.
+local SCROLL_STEP = 44          -- pixels a wheel notch moves
+local ROOM_MIN = 120            -- the least room the grip leaves the options
+local searchScroll = 0
+local shownRoom = 0             -- the options' room as last drawn
+
+local function OptionsWheel()
+	searchScroll = searchScroll - arg1 * SCROLL_STEP
+	Draw()
+end
+
+window:EnableMouseWheel(true)
+window:SetScript("OnMouseWheel", OptionsWheel)
+
+local scrollMark = window:CreateTexture(nil, "OVERLAY")
+scrollMark:SetTexture(FLAT)
+scrollMark:SetVertexColor(1, 0.82, 0, 0.6)
+scrollMark:SetWidth(2)
+scrollMark:Hide()
 
 local searchBox = CreateFrame("EditBox", nil, window)
 searchBox:SetWidth(SEARCH_WIDTH)
@@ -162,6 +271,7 @@ searchBox:SetScript("OnEditFocusLost", function()
 end)
 searchBox:SetScript("OnTextChanged", function()
 	query = string.lower(this:GetText() or "")
+	searchScroll = 0
 	PaintSearch()
 	if Draw then
 		Draw()
@@ -171,6 +281,69 @@ searchBox:SetScript("OnEnterPressed", function() this:ClearFocus() end)
 searchBox:SetScript("OnEscapePressed", function()
 	this:SetText("")
 	this:ClearFocus()
+end)
+
+-- The grip in the bottom right corner, as the damage meter's: dragged up or
+-- down, a shorter or taller window, kept; the top edge stays where it is.
+local grip = CreateFrame("Button", nil, window)
+grip:SetWidth(12)
+grip:SetHeight(12)
+grip:SetPoint("BOTTOMRIGHT", window, "BOTTOMRIGHT", -1, 1)
+grip:SetFrameLevel(window:GetFrameLevel() + 5)
+grip.dots = {}
+for _, spot in pairs({ { 0, 0 }, { 4, 0 }, { 8, 0 }, { 0, 4 }, { 4, 4 }, { 0, 8 } }) do
+	local dot = grip:CreateTexture(nil, "OVERLAY")
+	dot:SetTexture(FLAT)
+	dot:SetWidth(2)
+	dot:SetHeight(2)
+	dot:SetPoint("BOTTOMRIGHT", grip, "BOTTOMRIGHT", -spot[1], spot[2])
+	dot:SetVertexColor(0.6, 0.6, 0.6, 0.9)
+	table.insert(grip.dots, dot)
+end
+
+local function TintGrip(r, g, b)
+	for index = 1, table.getn(grip.dots) do
+		grip.dots[index]:SetVertexColor(r, g, b, 0.9)
+	end
+end
+
+grip:SetScript("OnEnter", function()
+	TintGrip(1, 0.82, 0)
+	GameTooltip:SetOwner(this, "ANCHOR_TOPLEFT")
+	GameTooltip:SetText("Drag to size the window", 1, 1, 1)
+	GameTooltip:AddLine("Up and down: shorter or taller. Past its room, a tab scrolls with the mouse wheel.", 0.7, 0.7, 0.7, 1)
+	GameTooltip:Show()
+end)
+grip:SetScript("OnLeave", function()
+	if not this.from then
+		TintGrip(0.6, 0.6, 0.6)
+	end
+	GameTooltip:Hide()
+end)
+grip:SetScript("OnMouseDown", function()
+	local left, top = window:GetLeft(), window:GetTop()
+	if not left then
+		return
+	end
+	GameTooltip:Hide()
+	window:ClearAllPoints()
+	window:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", left, top)
+	local _, y = GetCursorPosition()
+	this.from = { y = y / window:GetEffectiveScale(), room = shownRoom }
+end)
+grip:SetScript("OnUpdate", function()
+	if not this.from then
+		return
+	end
+	local _, y = GetCursorPosition()
+	y = y / window:GetEffectiveScale()
+	SurvivorUIDB = SurvivorUIDB or {}
+	SurvivorUIDB.optionsRoom = math.max(ROOM_MIN, math.floor(this.from.room + this.from.y - y + 0.5))
+	Draw()
+end)
+grip:SetScript("OnMouseUp", function()
+	this.from = nil
+	TintGrip(0.6, 0.6, 0.6)
 end)
 
 -- Said in the options' place when a search matches nothing.
@@ -221,11 +394,67 @@ reload:SetScript("OnLeave", function()
 end)
 reload:SetScript("OnClick", function() ReloadUI() end)
 
+-- Edit mode at the top, styled as Reload UI: a click turns it on or off, as
+-- a tap of Alt does. While it is on the button lights up and says so.
+local editButton = CreateFrame("Button", nil, window)
+editButton:SetWidth(132)
+editButton:SetHeight(22)
+editButton:SetPoint("LEFT", window.title, "RIGHT", 14, 0)
+editButton:SetBackdrop({
+	bgFile = FLAT, edgeFile = FLAT, tile = false, edgeSize = 1,
+	insets = { left = 1, right = 1, top = 1, bottom = 1 },
+})
+editButton:SetBackdropColor(0, 0, 0, 0)
+editButton.fill = editButton:CreateTexture(nil, "BACKGROUND")
+editButton.fill:SetTexture(FLAT)
+editButton.fill:SetPoint("TOPLEFT", editButton, "TOPLEFT", 1, -1)
+editButton.fill:SetPoint("BOTTOMRIGHT", editButton, "BOTTOMRIGHT", -1, 1)
+editButton.text = editButton:CreateFontString(nil, "OVERLAY")
+editButton.text:SetFont(FONT, 12 + FONT_BUMP)
+editButton.text:SetPoint("CENTER", editButton, "CENTER", 0, 0)
+editButton.text:SetShadowColor(0, 0, 0, 1)
+editButton.text:SetShadowOffset(1, -1)
+
+local function PaintEditButton()
+	local on = SurvivorUI_EditMode and SurvivorUI_EditMode()
+	if on then
+		editButton.fill:SetGradient("VERTICAL", 0.30, 0.10, 0.04, 0.55, 0.22, 0.08)
+		editButton.text:SetText("Leave edit mode")
+	else
+		editButton.fill:SetGradient("VERTICAL", 0.13, 0.03, 0.03, 0.26, 0.06, 0.05)
+		editButton.text:SetText("Edit mode")
+	end
+	local lit = on or editButton.hovered
+	editButton:SetBackdropBorderColor(lit and 1 or 0.62, lit and 0.82 or 0.46, lit and 0.35 or 0.22, 1)
+	editButton.text:SetTextColor(lit and 1 or 1, lit and 0.95 or 0.84, lit and 0.7 or 0.42)
+end
+
+editButton:SetScript("OnEnter", function()
+	this.hovered = true
+	PaintEditButton()
+	GameTooltip:SetOwner(this, "ANCHOR_BOTTOM")
+	GameTooltip:SetText("Edit mode", 1, 1, 1)
+	GameTooltip:AddLine("Drag any piece to move it, click it for its own options. A quick tap of Alt does the same.", 0.7, 0.7, 0.7, 1)
+	GameTooltip:Show()
+end)
+editButton:SetScript("OnLeave", function()
+	this.hovered = nil
+	PaintEditButton()
+	GameTooltip:Hide()
+end)
+editButton:SetScript("OnClick", function()
+	if SurvivorUI_SetEditMode then
+		SurvivorUI_SetEditMode(not SurvivorUI_EditMode())
+	end
+	PaintEditButton()
+end)
+PaintEditButton()
+
 local hint = window:CreateFontString(nil, "OVERLAY")
 hint:SetFont(FONT, 12 + FONT_BUMP)
 hint:SetPoint("BOTTOM", reload, "TOP", 0, 8)
 hint:SetTextColor(0.75, 0.68, 0.5)
-hint:SetText("Hold ALT to edit layout")
+hint:SetText("Tap Alt to edit the layout")
 
 ------------------------------------------------------------------------------
 -- Tabs: flat buttons side by side under the title, the open one lit with a
@@ -282,6 +511,7 @@ local function Tab(index)
 	end)
 	tab:SetScript("OnClick", function()
 		-- Another tab ends the search; the Search tab itself stays.
+		searchScroll = 0
 		if this.section ~= SEARCH then
 			SurvivorUIDB = SurvivorUIDB or {}
 			SurvivorUIDB.optionsTab = this.section
@@ -740,9 +970,12 @@ end
 local function Seat(frame, y, parent)
 	local indent = parent and INDENT or 0
 	frame.parentOption = parent
+	-- The wheel scrolls a search's results from over any option too.
+	frame:EnableMouseWheel(true)
+	frame:SetScript("OnMouseWheel", OptionsWheel)
 	frame:ClearAllPoints()
 	frame:SetPoint("TOPLEFT", window, "TOPLEFT", PAD + indent, y)
-	frame:SetWidth(WIDTH - 2 * PAD - indent)
+	frame:SetWidth(shownWidth - 2 * PAD - indent)
 	if parent then
 		frame.guide:Show()
 	else
@@ -775,6 +1008,22 @@ local function Matches(bySection, order)
 	return found
 end
 
+-- A piece's options for the box: those it names, each with its sub-options,
+-- in tab order.
+local function FocusOptions(bySection, order)
+	local found = {}
+	for _, name in ipairs(order) do
+		local list = bySection[name]
+		for index = 1, table.getn(list) do
+			local option = list[index]
+			if focus.wanted[option.label] or (option.parent and focus.wanted[option.parent]) then
+				table.insert(found, option)
+			end
+		end
+	end
+	return found
+end
+
 Draw = function()
 	local bySection, order = Sections()
 	local open = OpenTab()
@@ -788,10 +1037,22 @@ Draw = function()
 		table.insert(order, 1, SEARCH)
 		open = SEARCH
 	end
-	window.noMatch:SetText(searching and table.getn(bySection[SEARCH]) == 0 and "No option matches \""..query.."\"." or "")
+	-- A piece's box: its options alone, no tabs.
+	if focus then
+		searching = false
+		bySection[FOCUS] = FocusOptions(bySection, order)
+		order = { FOCUS }
+		open = FOCUS
+	end
+	local compact = searching or focus ~= nil
+	if focus then
+		window.noMatch:SetText(table.getn(bySection[FOCUS]) == 0 and "No options for this piece." or "")
+	else
+		window.noMatch:SetText(searching and table.getn(bySection[SEARCH]) == 0 and "No option matches \""..query.."\"." or "")
+	end
 
 	-- The tabs, sharing the width.
-	local count = table.getn(order)
+	local count = focus and 0 or table.getn(order)
 	local tabWidth = (WIDTH - 2 * PAD - (count - 1) * TAB_GAP) / math.max(1, count)
 	for index = 1, count do
 		local tab = Tab(index)
@@ -808,7 +1069,7 @@ Draw = function()
 	end
 
 	-- The open tab's options.
-	local top = -TITLE_HEIGHT - TAB_HEIGHT - 10
+	local top = focus and (-TITLE_HEIGHT - 2) or (-TITLE_HEIGHT - TAB_HEIGHT - 10)
 	local y = top
 	local rowCount, sliderCount, swatchCount = 0, 0, 0
 	local entries = Nest(bySection[open] or {})
@@ -819,25 +1080,65 @@ Draw = function()
 		end
 	end
 	-- A search shows every match's sub-options, folded or not.
-	local unfolded = searching and setmetatable({}, { __index = function() return true end }) or OpenGroups()
+	local unfolded = compact and setmetatable({}, { __index = function() return true end }) or OpenGroups()
+
+	-- The room the options have: as tall as the fullest tab (the search's
+	-- results left out), never shorter than it has been. A search's results
+	-- past it scroll; only those inside it are drawn.
+	for _, name in ipairs(order) do
+		if name ~= SEARCH then
+			tallest = math.max(tallest, Height(bySection[name]))
+		end
+	end
+	local chosen = SurvivorUIDB and tonumber(SurvivorUIDB.optionsRoom)
+	local room = chosen and math.max(ROOM_MIN, math.min(chosen, tallest)) or tallest
+	local content = Height(bySection[open] or {})
+	-- A piece's box is as tall as its options.
+	if focus then
+		room = math.max(content, 24)
+	else
+		shownRoom = room
+	end
+	searchScroll = math.max(0, math.min(searchScroll, content - room))
+	y = top + searchScroll
+	local function Inside(at, height)
+		return at <= top + 0.5 and at - height >= top - room - 0.5
+	end
+	if content > room then
+		scrollMark:ClearAllPoints()
+		scrollMark:SetHeight(math.max(10, room * room / content))
+		scrollMark:SetPoint("TOPRIGHT", window, "TOPRIGHT", -4, top - room * searchScroll / content)
+		scrollMark:Show()
+	else
+		scrollMark:Hide()
+	end
+
 	local ruleCount = 0
+	local first = true
 	for _, entry in ipairs(entries) do
 		local option = entry.option
 		-- A thin rule over each top-level option but the first, so an option,
 		-- its fold button and its sub-options read as one group.
-		if not entry.parent and y ~= top then
+		if not entry.parent and not first then
 			y = y - RULE_GAP
-			ruleCount = ruleCount + 1
-			local rule = Rule(ruleCount)
-			rule:ClearAllPoints()
-			rule:SetPoint("TOPLEFT", window, "TOPLEFT", PAD, y)
-			rule:SetPoint("TOPRIGHT", window, "TOPRIGHT", -PAD, y)
-			rule:Show()
+			if Inside(y, 0) then
+				ruleCount = ruleCount + 1
+				local rule = Rule(ruleCount)
+				rule:ClearAllPoints()
+				rule:SetPoint("TOPLEFT", window, "TOPLEFT", PAD, y)
+				rule:SetPoint("TOPRIGHT", window, "TOPRIGHT", -PAD, y)
+				rule:Show()
+			end
 			y = y - RULE_GAP
 		end
-		-- A folded group's sub-options stay out of sight.
+		first = false
+		local height = option.kind == "slider" and SLIDER_HEIGHT or ROW_HEIGHT
+		-- A folded group's sub-options stay out of sight, and so does what a
+		-- search has scrolled past.
 		if entry.parent and not unfolded[entry.parent.label] then
 			-- folded away
+		elseif not Inside(y, height) then
+			y = y - height
 		elseif option.kind == "color" then
 			swatchCount = swatchCount + 1
 			local holder = Swatch(swatchCount)
@@ -860,7 +1161,7 @@ Draw = function()
 			Seat(row, y, entry.parent)
 			row.label:SetText(option.label)
 			Paint(row)
-			if hasChildren[option.label] and not searching then
+			if hasChildren[option.label] and not compact then
 				SurvivorUI_SetPlus(row.expand, not unfolded[option.label])
 				row.expand:Show()
 			else
@@ -883,16 +1184,24 @@ Draw = function()
 	end
 	shownRows, shownSliders, shownSwatches = rowCount, sliderCount, swatchCount
 
-	-- As tall as the fullest tab, and never shorter than it has been.
-	for _, name in ipairs(order) do
-		tallest = math.max(tallest, Height(bySection[name]))
+	-- The whole window, or a piece's box: no footer, search or grip there.
+	local whole = not focus
+	for _, part in pairs({ reload, hint, grip, searchBox, editButton }) do
+		if whole then
+			part:Show()
+		else
+			part:Hide()
+		end
 	end
-	window:SetHeight(-top + tallest + 8 + FOOTER_HEIGHT + PAD)
+	window.title:SetText(focus and focus.title or "Survivor UI")
+	window:SetWidth(shownWidth)
+	window:SetHeight(-top + room + 8 + (whole and FOOTER_HEIGHT or 0) + PAD)
 end
 
 -- Every switch painted again, and every child dimmed or not: one can change
 -- another's state, and a /sui command typed while the window is open does too.
 Refresh = function()
+	PaintEditButton()
 	for index = 1, shownRows do
 		Paint(rows[index])
 	end
@@ -913,12 +1222,81 @@ window:SetScript("OnUpdate", function()
 	end
 end)
 
+-- A piece's own options in a small box at the mouse (from its edit-mode
+-- handle). label is the handle's.
+-- piece (optional): the frame clicked, its handle. The box opens just outside
+-- it, by the edge nearest the click, so it never covers what it edits; with
+-- no piece, at the mouse.
+local BOX_GAP = 8
+
+function SurvivorUI_ShowElementOptions(label, piece)
+	if not focus then
+		local left, top = window:GetLeft(), window:GetTop()
+		savedPlace = left and { left = left, top = top } or nil
+	end
+	local wanted = {}
+	for _, name in ipairs(ELEMENT_OPTIONS[label] or {}) do
+		wanted[name] = true
+	end
+	focus = { title = ELEMENT_TITLES[label] or label, wanted = wanted }
+	shownWidth = FOCUS_WIDTH
+	searchScroll = 0
+	Draw()
+	local scale = window:GetEffectiveScale()
+	local x, y = GetCursorPosition()
+	x, y = x / scale, y / scale
+	local left, top = x + 12, y - 12
+	if piece and piece:GetLeft() then
+		-- The piece's edges in the window's own units.
+		local ratio = piece:GetEffectiveScale() / scale
+		local l, r = piece:GetLeft() * ratio, piece:GetRight() * ratio
+		local t, b = piece:GetTop() * ratio, piece:GetBottom() * ratio
+		local width, height = window:GetWidth(), window:GetHeight()
+		local nearest = math.min(x - l, r - x, t - y, y - b)
+		if nearest == x - l then
+			left, top = l - BOX_GAP - width, y + 20
+		elseif nearest == r - x then
+			left, top = r + BOX_GAP, y + 20
+		elseif nearest == t - y then
+			left, top = x - width / 2, t + BOX_GAP + height
+		else
+			left, top = x - width / 2, b - BOX_GAP
+		end
+	end
+	window:ClearAllPoints()
+	window:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", left, top)
+	OpenWindow()
+end
+
+-- Closed, a piece's box is the whole window again, back where it stood.
+window:SetScript("OnHide", function()
+	if not focus then
+		return
+	end
+	focus = nil
+	shownWidth = WIDTH
+	window:ClearAllPoints()
+	if savedPlace then
+		window:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", savedPlace.left, savedPlace.top)
+	else
+		window:SetPoint("CENTER", UIParent, "CENTER", 0, 80)
+	end
+	savedPlace = nil
+end)
+
+-- Leaving edit mode closes a piece's options box (SurvivorUI.lua calls this).
+function SurvivorUI_CloseElementOptions()
+	if focus then
+		CloseWindow()
+	end
+end
+
 function SurvivorUI_ToggleOptions()
-	if window:IsShown() then
-		window:Hide()
+	if window:IsShown() and not window.closing then
+		CloseWindow()
 	else
 		Draw()
-		window:Show()
+		OpenWindow()
 	end
 end
 

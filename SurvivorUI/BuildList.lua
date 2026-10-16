@@ -18,7 +18,7 @@
 -- build remembers every piece it sees). Each box folds away with the button
 -- in its heading's corner; click a row to open the Codex at its kind. From
 -- the game's addon API (AZS_SPELLS); without it
--- nothing shows. Hold Alt and drag to move; /sui build hides it.
+-- nothing shows. In edit mode (tap Alt), drag to move; /sui build hides it.
 
 local FLAT = "Interface\\ChatFrame\\ChatFrameBackground"
 local FONT = SurvivorUI_FONT or "Fonts\\FRIZQT__.TTF"
@@ -83,12 +83,20 @@ local function IsUtility(name)
 	return not share or share <= 0
 end
 
+-- A spell that hits every enemy in reach ("AoE") never gets extra targets,
+-- the heaviest upgrade, so its score counts a little more too.
+local AOE_LENIENCY = 1.15       -- placeholder
+local aoeSpells = {}            -- [spell name] = true, as last read off its tooltip (SpellScore)
+
 local function SpellTier(name, score, rank)
+	local leniency = 1
 	if IsUtility(name) then
-		score = score and score * UTIL_LENIENCY
-		rank = rank and rank * UTIL_LENIENCY
+		leniency = leniency * UTIL_LENIENCY
 	end
-	return Tier(score, rank)
+	if aoeSpells[name] then
+		leniency = leniency * AOE_LENIENCY
+	end
+	return Tier(score and score * leniency, rank and rank * leniency)
 end
 local UPGRADES = "Upgrades: "   -- how a tooltip begins its list of upgrades
 local GEAR_SLOTS = {            -- inventory slot, label
@@ -592,6 +600,7 @@ local function SpellScore(name, slot, rank)
 	end
 	local score = Score(SpellUpgrades(slot)) + GearScore(name)
 	scores[name] = { score = score, rank = rank, at = GetTime() }
+	aoeSpells[name] = SurvivorUI_HitsEveryEnemy and SurvivorUI_HitsEveryEnemy(slot) or nil
 	return score
 end
 
@@ -984,7 +993,12 @@ local function FillSpell(row, entry, actionSlot)
 	row.icon:SetVertexColor(1, 1, 1)
 	row.icon:SetAlpha(1)
 	row.name:SetText(name)
-	row.rank:SetText(rank or "")
+	-- Its rank: 7, or VII with Roman numerals switched on.
+	if rank and rank > 0 then
+		row.rank:SetText(Settings().buildRoman and SurvivorUI_Roman(rank) or rank)
+	else
+		row.rank:SetText("")
+	end
 	-- Its share of the damage: whole percents from 1%, one decimal under that
 	-- ("0.4%"), and "Util" for a spell that deals none (a stun, a heal, a shield).
 	local share = SurvivorUI_MeterShare and SurvivorUI_MeterShare(name)
@@ -1174,7 +1188,7 @@ watcher:SetScript("OnUpdate", function()
 		return
 	end
 	elapsed = 0
-	-- In preview (before the first step, or with Alt held) it shows anyway, so
+	-- In preview (before the first step, or in edit mode) it shows anyway, so
 	-- it can be placed.
 	if Settings().buildList and (Running() or (SurvivorUI_Preview and SurvivorUI_Preview())) then
 		Draw()
@@ -1200,6 +1214,16 @@ if SurvivorUI_RegisterOption then
 		command = "/sui build",
 		get = function() return Settings().buildList end,
 		toggle = SurvivorUI_ToggleBuild,
+	})
+	SurvivorUI_RegisterOption({
+		section = "General",
+		label = "Build Rank Roman Numerals",
+		parent = "Build",
+		tip = "Each spell's rank in the build as a Roman numeral (VII) rather than a number (7).",
+		get = function() return Settings().buildRoman == true end,
+		toggle = function()
+			Settings().buildRoman = not Settings().buildRoman
+		end,
 	})
 end
 

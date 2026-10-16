@@ -4,7 +4,7 @@
 -- top, each with the run second it came. The game's addon API says nothing
 -- about loot, so this reads the chat window's "You receive loot: [item]" lines.
 --
--- Hover an item for its tooltip. Hold Alt and drag to move; /sui loot hides it.
+-- Hover an item for its tooltip. In edit mode (tap Alt), drag to move; /sui loot hides it.
 
 local FLAT = "Interface\\ChatFrame\\ChatFrameBackground"
 local FONT = SurvivorUI_FONT or "Fonts\\FRIZQT__.TTF"
@@ -58,7 +58,7 @@ local function SavePlace()
 	settings.lootTop = math.floor(log:GetTop() + 0.5)
 end
 
-log:SetScript("OnDragStart", function() if IsAltKeyDown() then log:StartMoving() end end)
+log:SetScript("OnDragStart", function() if SurvivorUI_EditMode and SurvivorUI_EditMode() then log:StartMoving() end end)
 log:SetScript("OnDragStop", function() log:StopMovingOrSizing() SavePlace() end)
 
 log.title = log:CreateFontString(nil, "OVERLAY")
@@ -135,7 +135,7 @@ local function Bar(index)
 	end)
 	bar:SetScript("OnLeave", function() GameTooltip:Hide() end)
 	bar:RegisterForDrag("LeftButton")
-	bar:SetScript("OnDragStart", function() if IsAltKeyDown() then log:StartMoving() end end)
+	bar:SetScript("OnDragStart", function() if SurvivorUI_EditMode and SurvivorUI_EditMode() then log:StartMoving() end end)
 	bar:SetScript("OnDragStop", function() log:StopMovingOrSizing() SavePlace() end)
 	bars[index] = bar
 	return bar
@@ -278,7 +278,7 @@ watcher:SetScript("OnUpdate", function()
 
 	local phase = AZS_GetPhase and AZS_GetPhase()
 	local inRun = phase and phase ~= "ready"
-	-- In preview (before the first step, or with Alt held) it shows anyway.
+	-- In preview (before the first step, or in edit mode) it shows anyway.
 	local preview = SurvivorUI_Preview and SurvivorUI_Preview()
 	if Settings().lootLog and (inRun or preview or table.getn(entries) > 0) then
 		if not log:IsShown() then
