@@ -149,7 +149,7 @@ local function BaseName(name)
 	if SurvivorUI_BaseName then
 		return SurvivorUI_BaseName(name)
 	end
-	return name, 1
+	return name, 1, "I"
 end
 
 -- 950, 1.2k, 3.4m
@@ -275,6 +275,20 @@ end
 
 -- A kind's pieces, once each by name without rank, at the highest rank seen,
 -- by name; the classes that wore any rank of it together.
+-- How rare a piece is, by its color: legendary highest, poor lowest.
+local RARITY = {
+	ffff8000 = 5,               -- legendary
+	ffa335ee = 4,               -- epic
+	ff0070dd = 3,               -- rare
+	ff1eff00 = 2,               -- uncommon
+	ffffffff = 1,               -- common
+	ff9d9d9d = 0,               -- poor
+}
+
+local function Rarity(hex)
+	return RARITY[string.lower(hex or "")] or 1
+end
+
 -- A kept tooltip is whole once it holds more than the piece's name.
 local function Whole(lines)
 	return lines and table.getn(lines) > 1
@@ -282,32 +296,25 @@ end
 
 local function Pieces(kind)
 	local best = {}
+	-- One entry per piece, whatever its rank: the plain name, the color and
+	-- link of its lowest rank seen, an icon from any rank, and the base
+	-- description, its lowest rank's that is kept whole.
 	local function Consider(name, info)
 		local base, rank = BaseName(name)
-		local known = best[base]
-		local classes = known and known.classes or {}
-		for class in pairs(info.classes or {}) do
-			classes[class] = true
-		end
-		local entry = known
-		if not known or rank > known.rank or (rank == known.rank and info.icon and not known.icon) then
-			entry = {
-				base = base, name = name, rank = rank, hex = info.hex, link = info.link,
-				icon = info.icon or (known and known.icon),
-				classes = classes, lines = known and known.lines, linesRank = known and known.linesRank,
-				only = known and known.only,
-			}
+		local entry = best[base]
+		if not entry then
+			entry = { base = base, name = base, rank = rank, hex = info.hex, link = info.link, classes = {} }
 			best[base] = entry
+		elseif rank < entry.rank then
+			entry.rank, entry.hex, entry.link = rank, info.hex or entry.hex, info.link or entry.link
 		end
-		-- Every rank of a piece wears the same icon: one kept with any rank
-		-- serves the highest, when that one was seen before icons were kept.
+		for class in pairs(info.classes or {}) do
+			entry.classes[class] = true
+		end
 		entry.icon = entry.icon or info.icon
-		-- Its description: its own rank's where kept whole, else the highest
-		-- rank's that is (linesRank says which, and the card says so).
-		if Whole(info.lines) and (not Whole(entry.lines) or rank == entry.rank
-			or (entry.linesRank ~= entry.rank and rank > (entry.linesRank or 0))) then
+		entry.only = entry.only or info.only
+		if Whole(info.lines) and (not entry.linesRank or rank < entry.linesRank) then
 			entry.lines, entry.linesRank = info.lines, rank
-			entry.only = info.only or entry.only
 		end
 	end
 	local old = Settings().seenGear and Settings().seenGear[kind]
@@ -329,7 +336,14 @@ local function Pieces(kind)
 			table.insert(found, piece)
 		end
 	end
-	table.sort(found, function(a, b) return a.base < b.base end)
+	-- The rarest first (legendary, epic, rare...), then by name.
+	table.sort(found, function(a, b)
+		local ra, rb = Rarity(a.hex), Rarity(b.hex)
+		if ra ~= rb then
+			return ra > rb
+		end
+		return a.base < b.base
+	end)
 	return found
 end
 
@@ -718,7 +732,7 @@ local function WornSlot(piece)
 		for slotIndex = 1, table.getn(slots) do
 			local link = GetInventoryItemLink and GetInventoryItemLink("player", slots[slotIndex])
 			local _, _, name = string.find(link or "", "%[(.-)%]")
-			if name and name == piece.name then
+			if name and BaseName(name) == piece.base then
 				return slots[slotIndex]
 			end
 		end
@@ -727,25 +741,22 @@ end
 
 local function PieceTooltip(owner, piece)
 	GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
+	-- The base description, titled with the piece's plain name; else, worn,
+	-- the game's own tooltip of it; else its item; else its name.
 	local slot = WornSlot(piece)
-	if slot then
-		GameTooltip:SetInventoryItem("player", slot)
-	elseif Whole(piece.lines) then
+	if Whole(piece.lines) then
 		for index = 1, table.getn(piece.lines) do
 			local line = piece.lines[index]
 			if index == 1 then
-				GameTooltip:SetText(line[1], line[2], line[3], line[4])
+				GameTooltip:SetText(piece.base, line[2], line[3], line[4])
 			elseif line[5] then
 				GameTooltip:AddDoubleLine(line[1], line[5], line[2], line[3], line[4], line[2], line[3], line[4])
 			else
 				GameTooltip:AddLine(line[1], line[2], line[3], line[4], 1)
 			end
 		end
-		-- Borrowed from a lower rank: said so, as its numbers are that rank's.
-		if piece.linesRank and piece.linesRank ~= piece.rank then
-			GameTooltip:AddLine("Details of rank "..piece.linesRank..": rank "..piece.rank
-				.."'s are kept once you wear it.", 0.6, 0.6, 0.6, 1)
-		end
+	elseif slot then
+		GameTooltip:SetInventoryItem("player", slot)
 	elseif piece.link then
 		GameTooltip:SetHyperlink(piece.link)
 	else
@@ -862,8 +873,6 @@ local function Row(index)
 	return row
 end
 
-local ROMAN = { "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X" }
-
 -- The classes as tags: one or two by name, more as a count.
 local function ClassTags(piece)
 	local tokens = {}
@@ -896,11 +905,8 @@ local function FillPiece(row, piece)
 	row:SetBackdropColor(color[1] * 0.18, color[2] * 0.18, color[3] * 0.18, 0.9)
 	row.name:SetText(piece.base)
 	row.name:SetTextColor(color[1], color[2], color[3])
-	if piece.rank > 1 then
-		row.rank:SetText("Rank "..(ROMAN[piece.rank] or piece.rank))
-	else
-		row.rank:SetText("")
-	end
+	-- Each piece once, whatever its rank.
+	row.rank:SetText("")
 	row.classes:SetText(CLASS_KINDS[piece.kind] and ClassTags(piece) or "")
 	if piece.icon then
 		row.icon:SetTexture(piece.icon)

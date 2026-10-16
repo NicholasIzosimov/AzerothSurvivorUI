@@ -479,10 +479,12 @@ end
 -- "Quick Strike Ring", 3; a name with no numeral is rank 1.
 local ROMAN_VALUES = { I = 1, V = 5, X = 10, L = 50, C = 100 }
 
+-- The game names its last rank "X+" (ten and beyond): it counts just over
+-- X, so it sorts above it. The third value is the rank as written ("X+").
 local function BaseName(name)
-	local _, _, base, numeral = string.find(name, "^(.-) ([IVXLC]+)$")
+	local _, _, base, numeral, plus = string.find(name, "^(.-) ([IVXLC]+)(%+?)$")
 	if not base then
-		return name, 1
+		return name, 1, "I"
 	end
 	local value, last = 0, 0
 	for index = string.len(numeral), 1, -1 do
@@ -494,7 +496,10 @@ local function BaseName(name)
 			last = digit
 		end
 	end
-	return base, value
+	if plus == "+" then
+		value = value + 0.5
+	end
+	return base, value, numeral..plus
 end
 
 SurvivorUI_BaseName = BaseName
