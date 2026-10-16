@@ -267,13 +267,14 @@ end
 -- label.
 local REACH, DAMAGE, TARGETS, ECHO, EFFECT, OTHER, CRIT = 1, 2, 3, 4, 5, 6, 7
 
--- How many targets a spell hits, in the colors of gear rarity: up to 3
--- white, then green, blue, purple, and orange from 16.
+-- How many targets a spell hits, in the colors of gear rarity, each mixed
+-- halfway to white so they sit quietly among the other lines: 1 white, 2 to
+-- 4 green, 5 to 9 blue, 10 to 14 purple, and orange from 15.
 local TARGET_TIERS = {          -- from the top: targets reached, color
-	{ 16, "ff8000" },           -- legendary
-	{ 11, "a335ee" },           -- epic
-	{ 8,  "0070dd" },           -- rare
-	{ 4,  "1eff00" },           -- uncommon
+	{ 15, "ffc080" },           -- legendary
+	{ 10, "d19af7" },           -- epic
+	{ 5,  "80b8ee" },           -- rare
+	{ 2,  "8fff80" },           -- uncommon
 	{ 0,  "ffffff" },           -- common
 }
 
@@ -286,7 +287,15 @@ local function TargetsText(count)
 	return "+"..count
 end
 
+-- A rule may give a line's words in full as its fifth value, the number in
+-- white in it, in place of value and label.
 local FACTS = {
+	-- "Stacks up to 3 times on one enemy" is "Stacks up to 3 times".
+	{ "stacks up to (%d+) times?[^,;:]*", function(n) return EFFECT, n, "", nil, "Stacks up to "..n.." times" end },
+	-- "Afflicts the 4 healthiest enemies", "the 3 nearest enemies", "the
+	-- nearest enemy": how many it picks.
+	{ "the (%d+) %a+est enem%a*", function(n) return TARGETS, n, "Targets" end },
+	{ "the %a+est enemy", function() return TARGETS, "1", "Targets" end },
 	{ "up to (%d+) enem%a*", function(n) return TARGETS, n, "Targets" end },
 	{ "up to (%d+) targets?", function(n) return TARGETS, n, "Targets" end },
 	{ "(%d+) additional enem%a*", function(n) return TARGETS, "+"..n, "Targets" end },
@@ -340,8 +349,8 @@ local function ReadFacts(lines)
 					break
 				end
 				matched = true
-				local place, value, label, school = rule[2](found[3], found[4], found[5])
-				table.insert(facts, { place = place, value = value, label = label, school = school })
+				local place, value, label, school, text = rule[2](found[3], found[4], found[5])
+				table.insert(facts, { place = place, value = value, label = label, school = school, text = text })
 				-- Cut from both, so the next rules read only what is left.
 				lower = string.sub(lower, 1, found[1] - 1).." "..string.sub(lower, found[2] + 1)
 				original = string.sub(original, 1, found[1] - 1).." "..string.sub(original, found[2] + 1)

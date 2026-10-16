@@ -294,6 +294,7 @@ local MENU_WIDTH = 110
 local MENU_LINGER = 0.6         -- seconds off the menu before it closes
 
 local Draw
+local scrollOffset = 0          -- lines scrolled past; Draw keeps it in range
 local menu = CreateFrame("Frame", nil, meter)
 menu:SetFrameStrata("DIALOG")
 menu:SetWidth(MENU_WIDTH)
@@ -334,6 +335,7 @@ for index = 1, table.getn(MODES) do
 	row.text:SetText(MODES[index].title)
 	row:SetScript("OnClick", function()
 		Settings().meterMode = this.key
+		scrollOffset = 0
 		menu:Hide()
 		if SurvivorUI_CritCardHide then
 			SurvivorUI_CritCardHide()
@@ -660,6 +662,26 @@ local function Dull(color)
 	return { color[1] * 0.65 + 0.08, color[2] * 0.65 + 0.08, color[3] * 0.65 + 0.08 }
 end
 
+-- Lines past the meter's size are reached with the mouse wheel anywhere over
+-- it: the title, the bars or the space between (scrollOffset, by Draw).
+local function MeterWheel()
+	scrollOffset = scrollOffset - arg1
+	Draw()
+end
+
+meter:EnableMouseWheel(true)
+meter:SetScript("OnMouseWheel", MeterWheel)
+titleHover:EnableMouseWheel(true)
+titleHover:SetScript("OnMouseWheel", MeterWheel)
+
+-- A thin marker down the right edge while lines are hidden: as tall against
+-- the bars' room as the lines shown against all of them, where they stand.
+local scrollMark = meter:CreateTexture(nil, "OVERLAY")
+scrollMark:SetTexture(FLAT)
+scrollMark:SetVertexColor(1, 0.82, 0, 0.6)
+scrollMark:SetWidth(2)
+scrollMark:Hide()
+
 local function Bar(index)
 	local bar = bars[index]
 	if bar then
@@ -735,6 +757,8 @@ local function Bar(index)
 	bar:RegisterForDrag("LeftButton")
 	bar:SetScript("OnDragStart", StartMove)
 	bar:SetScript("OnDragStop", StopMove)
+	bar:EnableMouseWheel(true)
+	bar:SetScript("OnMouseWheel", MeterWheel)
 
 	bars[index] = bar
 	return bar
@@ -794,10 +818,24 @@ Draw = function()
 	meter.title:SetText(mode.title)
 	meter.total:SetText(Short(dps).." |cffb0b0b0"..mode.rate.."|r")
 
-	local count = math.min(shownLines, table.getn(lines))
-	local top = count > 0 and lines[1].dmg or 0
+	-- The lines scrolled to, kept in range as lines come and go; the bars
+	-- keep the top line's scale, and each its place in the whole list.
+	local all = table.getn(lines)
+	scrollOffset = math.max(0, math.min(scrollOffset, all - shownLines))
+	local count = math.min(shownLines, all - scrollOffset)
+	local top = all > 0 and lines[1].dmg or 0
+	if all > shownLines then
+		local room = shownLines * (BAR_HEIGHT + BAR_GAP) - BAR_GAP
+		scrollMark:ClearAllPoints()
+		scrollMark:SetHeight(math.max(6, room * shownLines / all))
+		scrollMark:SetPoint("TOPRIGHT", meter, "TOPRIGHT", -1, -20 - room * scrollOffset / all)
+		scrollMark:Show()
+	else
+		scrollMark:Hide()
+	end
 	for index = 1, count do
-		local line = lines[index]
+		local place = scrollOffset + index
+		local line = lines[place]
 		local name = line.name
 		local proc = line.proc
 		-- A spell of the build wears its rarity's color, as in the build; a
@@ -840,7 +878,7 @@ Draw = function()
 		room = math.max(20, room)
 		bar.name:SetWidth(room)
 		local rank = mode.key ~= "taken" and RankOf(name)
-		bar.name:SetText(index..". "..name..(rank and rank > 0 and "  |cffbdbdbd"..Roman(rank).."|r" or ""))
+		bar.name:SetText(place..". "..name..(rank and rank > 0 and "  |cffbdbdbd"..Roman(rank).."|r" or ""))
 		if proc then
 			bar.tag:ClearAllPoints()
 			bar.tag:SetPoint("LEFT", bar, "LEFT", 4 + math.min(bar.name:GetStringWidth(), room) + 4, 0)
