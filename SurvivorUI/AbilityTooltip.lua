@@ -119,15 +119,19 @@ local function List(text)
 end
 
 -- Returns the tooltip's pieces, or nil when it is not an ability's.
-local function Read()
-	local count = GameTooltip:NumLines()
+-- tip: the tooltip to read, the game's own unless another is given (a hidden
+-- one, named name, for the build's cards).
+local function Read(tip, name)
+	tip = tip or GameTooltip
+	name = name or "GameTooltip"
+	local count = tip:NumLines()
 	if count < 2 then
 		return nil
 	end
 
 	local ability = { stats = {}, description = {}, sections = {}, other = {} }
-	local title = getglobal("GameTooltipTextLeft1")
-	local rank = getglobal("GameTooltipTextRight1")
+	local title = getglobal(name.."TextLeft1")
+	local rank = getglobal(name.."TextRight1")
 	ability.title = Plain(title:GetText())
 	ability.rank = rank:IsShown() and Plain(rank:GetText()) or nil
 
@@ -135,8 +139,8 @@ local function Read()
 	-- cooldown on its right. Lines above it are short stats ("11 yd radius").
 	local castLine
 	for line = 2, count do
-		local left = Plain(getglobal("GameTooltipTextLeft"..line):GetText())
-		local right = getglobal("GameTooltipTextRight"..line)
+		local left = Plain(getglobal(name.."TextLeft"..line):GetText())
+		local right = getglobal(name.."TextRight"..line)
 		local rightText = right:IsShown() and Plain(right:GetText()) or ""
 		if string.find(rightText, "cooldown", 1, true) or left == "Automatic" or left == "Passive" then
 			castLine = line
@@ -149,7 +153,7 @@ local function Read()
 		return nil
 	end
 	for line = 2, castLine - 1 do
-		local text = Plain(getglobal("GameTooltipTextLeft"..line):GetText())
+		local text = Plain(getglobal(name.."TextLeft"..line):GetText())
 		if text ~= "" then
 			table.insert(ability.stats, text)
 		end
@@ -157,7 +161,7 @@ local function Read()
 
 	-- Everything below, one piece per line of text.
 	for line = castLine + 1, count do
-		local left = getglobal("GameTooltipTextLeft"..line)
+		local left = getglobal(name.."TextLeft"..line)
 		local r, g, b = left:GetTextColor()
 		for piece in string.gfind((left:GetText() or "").."\n", "([^\n]*)\n") do
 			local text = Plain(piece)
@@ -511,7 +515,9 @@ end
 -- The lines of the layout: { left, right, r, g, b, rr, rg, rb } a double
 -- line, { left, nil, r, g, b, wrap = true } a line, { rule = color } a blank
 -- line with a rule across it.
-local function Compose(ability)
+-- simple: the simplified layout whatever the switch and Shift say (the
+-- build's cards always use it).
+local function Compose(ability, simple)
 	local lines = {}
 	local function Double(left, right, color, rightColor)
 		table.insert(lines, { left, right, color[1], color[2], color[3], rightColor[1], rightColor[2], rightColor[3] })
@@ -534,7 +540,7 @@ local function Compose(ability)
 	Double(ability.cast, cooldown, MUTED, MUTED)
 
 	local others = ability.other
-	if ShowSimplified() then
+	if simple or ShowSimplified() then
 		local facts = AllFacts(ability)
 		if table.getn(facts) > 0 then
 			Spacer(tint)
@@ -617,6 +623,35 @@ end
 -- Watching for the game's text.
 
 local written                   -- the signature of the last layout written
+
+-- The simplified description of the spell on an action button, as lines for
+-- another card (the build's): everything below the name, the cast line and
+-- the rule under them. nil where the button cannot be read.
+local abilityScan = CreateFrame("GameTooltip", "SurvivorUIAbilityScan", nil, "GameTooltipTemplate")
+
+function SurvivorUI_SimplifiedLines(slot)
+	if not (slot and HasAction and HasAction(slot)) then
+		return nil
+	end
+	abilityScan:SetOwner(WorldFrame, "ANCHOR_NONE")
+	abilityScan:ClearLines()
+	abilityScan:SetAction(slot)
+	local ok, ability = pcall(Read, abilityScan, "SurvivorUIAbilityScan")
+	if not (ok and ability) then
+		return nil
+	end
+	local composed, lines = pcall(Compose, ability, true)
+	if not (composed and lines) then
+		return nil
+	end
+	local below = {}
+	for index = 3, table.getn(lines) do
+		if not (index == 3 and lines[index].rule) then
+			table.insert(below, lines[index])
+		end
+	end
+	return table.getn(below) > 0 and below or nil
+end
 -- The game's tooltip as last read, and whether Shift was down when it was
 -- laid out: Shift changes nothing the game writes, so a press is caught here
 -- and the same tooltip laid out again.

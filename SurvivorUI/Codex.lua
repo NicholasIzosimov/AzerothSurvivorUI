@@ -297,15 +297,16 @@ end
 local function Pieces(kind)
 	local best = {}
 	-- One entry per piece, whatever its rank: the plain name, the color and
-	-- link of its lowest rank seen, an icon from any rank, and the base
-	-- description, its lowest rank's that is kept whole.
+	-- link of its highest rank seen, an icon from any rank, and the best
+	-- description kept: its highest rank's that is whole, a lower one's where
+	-- the highest has none.
 	local function Consider(name, info)
 		local base, rank = BaseName(name)
 		local entry = best[base]
 		if not entry then
 			entry = { base = base, name = base, rank = rank, hex = info.hex, link = info.link, classes = {} }
 			best[base] = entry
-		elseif rank < entry.rank then
+		elseif rank > entry.rank then
 			entry.rank, entry.hex, entry.link = rank, info.hex or entry.hex, info.link or entry.link
 		end
 		for class in pairs(info.classes or {}) do
@@ -313,7 +314,7 @@ local function Pieces(kind)
 		end
 		entry.icon = entry.icon or info.icon
 		entry.only = entry.only or info.only
-		if Whole(info.lines) and (not entry.linesRank or rank < entry.linesRank) then
+		if Whole(info.lines) and (not entry.linesRank or rank > entry.linesRank) then
 			entry.lines, entry.linesRank = info.lines, rank
 		end
 	end
@@ -741,8 +742,8 @@ end
 
 local function PieceTooltip(owner, piece)
 	GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
-	-- The base description, titled with the piece's plain name; else, worn,
-	-- the game's own tooltip of it; else its item; else its name.
+	-- The best description kept, titled with the piece's plain name; else,
+	-- worn, the game's own tooltip of it; else its item; else its name.
 	local slot = WornSlot(piece)
 	if Whole(piece.lines) then
 		for index = 1, table.getn(piece.lines) do

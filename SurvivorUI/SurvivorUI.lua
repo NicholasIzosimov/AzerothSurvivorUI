@@ -2749,6 +2749,17 @@ local function GearLinks()
 	return {}
 end
 
+-- Each slot's last named piece this run, kept with the links: a slot that
+-- goes blank (the game never sent its new piece) is guessed from it.
+local function GearNames()
+	if SurvivorUI_RunMemory then
+		local memory = SurvivorUI_RunMemory("gear")
+		memory.names = memory.names or {}
+		return memory.names
+	end
+	return {}
+end
+
 local function GearLog()
 	SurvivorUIDB = SurvivorUIDB or {}
 	SurvivorUIDB.gearLog = SurvivorUIDB.gearLog or {}
@@ -2797,27 +2808,31 @@ gearWatch:SetScript("OnUpdate", function()
 		return
 	end
 	gearElapsed = 0
-	local cameBack = false
+	-- A slot whose piece comes back, or goes blank, is drawn again: the
+	-- character pane then shows the game's piece, or the Codex's guess.
+	local changed = false
 	for slot = 1, table.getn(GEAR_SLOTS) do
-		NoteGear(slot, GetInventoryItemLink("player", slot))
-		if GetInventoryItemLink("player", slot) then
+		local link = GetInventoryItemLink("player", slot)
+		NoteGear(slot, link)
+		if link then
+			GearNames()[slot] = ItemName(link)
 			if gearMissing[slot] then
 				gearMissing[slot] = nil
-				cameBack = true
+				changed = true
 			end
 		else
 			gearScan:SetOwner(WorldFrame, "ANCHOR_NONE")
 			gearScan:ClearLines()
 			-- True when the slot holds a piece: asked for, it comes in later.
 			-- An empty slot answers false and asks nothing.
-			if gearScan:SetInventoryItem("player", slot) then
-				gearMissing[slot] = true
-			else
-				gearMissing[slot] = nil
+			local holds = gearScan:SetInventoryItem("player", slot) and true or nil
+			if holds ~= gearMissing[slot] then
+				changed = true
 			end
+			gearMissing[slot] = holds
 		end
 	end
-	if cameBack then
+	if changed then
 		RedrawGearSlots()
 	end
 end)
@@ -2827,6 +2842,135 @@ end)
 -- worn and works, the interface just cannot show it.
 function SurvivorUI_SlotUnloaded(slot)
 	return gearMissing[slot] == true
+end
+
+------------------------------------------------------------------------------
+-- A blank slot filled in from the Codex. When the game never sends a worn
+-- piece's details, the slot is guessed from the piece it held before: a ring
+-- or trinket only ranks up during a run, so it is that piece one rank higher;
+-- a neck may have been swapped for another amulet, so its guess is always
+-- marked unreliable, as is any guess whose rank the Codex has no description
+-- of. The game's own piece always wins: a guess exists only while the slot
+-- has no piece the game has described.
+
+local GUESS_KINDS = { [2] = "Neck", [11] = "Ring", [12] = "Ring", [13] = "Trinket", [14] = "Trinket" }
+local NUMERALS = { "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X" }
+
+-- { name, icon, hex, lines, unreliable }, or nil.
+function SurvivorUI_SlotGuess(slot)
+	if GetInventoryItemLink("player", slot) or not gearMissing[slot] then
+		return nil
+	end
+	local kind = GUESS_KINDS[slot]
+	local before = GearNames()[slot]
+	if not (kind and before and SurvivorUI_BaseName) then
+		return nil
+	end
+	local base, rank = SurvivorUI_BaseName(before)
+	rank = math.floor(rank)
+	-- The next rank's names as the game writes them: past IX it may be "X"
+	-- or "X+".
+	local names = {}
+	if rank >= 10 then
+		names = { base.." X+" }
+	elseif rank == 9 then
+		names = { base.." X", base.." X+" }
+	else
+		names = { base.." "..NUMERALS[rank + 1] }
+	end
+	local book = SurvivorUIDB and SurvivorUIDB.codex and SurvivorUIDB.codex[kind] or {}
+	local exact, exactName
+	for index = 1, table.getn(names) do
+		if not exact and book[names[index]] then
+			exact, exactName = book[names[index]], names[index]
+		end
+	end
+	-- Its icon and color from any rank, every rank of a piece looks alike;
+	-- with no description of this rank, the nearest rank's that is kept (the
+	-- highest at or under it, else the lowest above), its numbers that rank's.
+	local any, near, nearRank, nearName
+	for name, info in pairs(book) do
+		local otherBase, otherRank = SurvivorUI_BaseName(name)
+		if otherBase == base then
+			if not any or (info.icon and not any.icon) then
+				any = info
+			end
+			if info.lines and table.getn(info.lines) > 1 then
+				local better = not near
+					or (otherRank <= rank + 1 and (nearRank > rank + 1 or otherRank > nearRank))
+					or (otherRank > rank + 1 and nearRank > rank + 1 and otherRank < nearRank)
+				if better then
+					near, nearRank, nearName = info, otherRank, name
+				end
+			end
+		end
+	end
+	local lines = exact and exact.lines
+	local whole = lines and table.getn(lines) > 1
+	return {
+		name = exactName or names[1],
+		icon = (exact and exact.icon) or (any and any.icon),
+		hex = (exact and exact.hex) or (any and any.hex),
+		lines = whole and lines or (near and near.lines) or nil,
+		linesFrom = not whole and near and nearName or nil,
+		unreliable = kind == "Neck" or not whole,
+		before = before,
+	}
+end
+
+-- A guess's tooltip, for the build and the character pane: its kept
+-- description (or its name), and a note saying where it comes from.
+function SurvivorUI_GuessTooltip(owner, guess)
+	GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
+	local hex = guess.hex or "ffffffff"
+	local r = (tonumber(string.sub(hex, 3, 4), 16) or 255) / 255
+	local g = (tonumber(string.sub(hex, 5, 6), 16) or 255) / 255
+	local b = (tonumber(string.sub(hex, 7, 8), 16) or 255) / 255
+	local title = guess.name..(guess.unreliable and " (Unreliable)" or "")
+	if guess.lines then
+		for index = 1, table.getn(guess.lines) do
+			local line = guess.lines[index]
+			if index == 1 then
+				GameTooltip:SetText(title, line[2], line[3], line[4])
+			elseif line[5] then
+				GameTooltip:AddDoubleLine(line[1], line[5], line[2], line[3], line[4], line[2], line[3], line[4])
+			else
+				GameTooltip:AddLine(line[1], line[2], line[3], line[4], 1)
+			end
+		end
+	else
+		GameTooltip:SetText(title, r, g, b)
+	end
+	GameTooltip:AddLine("From the Codex: the game has not sent this piece's details. "
+		..(guess.unreliable and "Unreliable: guessed from "..guess.before.." worn before it." or "It is "
+		..guess.before.." ranked up.")
+		..(guess.linesFrom and " Description of "..guess.linesFrom..", its numbers that rank's." or ""),
+		0.6, 0.6, 0.6, 1)
+	GameTooltip:Show()
+end
+
+-- The character pane's slots: a blank one shows the guess's icon, and its
+-- tooltip; a slot the game has described is left wholly to the game.
+local stockSlotUpdate = PaperDollItemSlotButton_Update
+if stockSlotUpdate then
+	function PaperDollItemSlotButton_Update()
+		stockSlotUpdate()
+		local guess = this and this.GetID and SurvivorUI_SlotGuess(this:GetID())
+		this.survivorGuess = guess
+		if guess and guess.icon and SetItemButtonTexture then
+			SetItemButtonTexture(this, guess.icon)
+		end
+	end
+end
+
+local stockSlotEnter = PaperDollItemSlotButton_OnEnter
+if stockSlotEnter then
+	function PaperDollItemSlotButton_OnEnter()
+		stockSlotEnter()
+		if this.survivorGuess and not GetInventoryItemLink("player", this:GetID()) then
+			SurvivorUI_GuessTooltip(this, this.survivorGuess)
+		end
+	end
 end
 
 -- A worn piece's tooltip, read once and kept with its link: every part of

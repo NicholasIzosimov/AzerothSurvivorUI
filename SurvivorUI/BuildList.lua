@@ -605,7 +605,10 @@ local GEAR_HEX = "|cffffa040"
 -- gear (optional, from GearForSpell): a stat the gear adds to sits beside the
 -- upgrade's value ("+160%  +50%"), a stat only the gear touches gets a row of
 -- its own, and the gear's other effects follow under "Gear Effects".
-local function ShowCard(owner, title, color, rank, heading, entries, empty, score, gear)
+-- simple (optional): the ability's simplified description, as its action
+-- button's tooltip lays it out (AbilityTooltip.lua); given, it stands below
+-- the rule, with the upgrades and the gear under a rule of their own.
+local function ShowCard(owner, title, color, rank, heading, entries, empty, score, gear, simple)
 	GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
 	GameTooltip:SetText(title, color[1], color[2], color[3])
 	if rank then
@@ -622,6 +625,22 @@ local function ShowCard(owner, title, color, rank, heading, entries, empty, scor
 		table.insert(rules, { GameTooltip:NumLines(), rule })
 	end
 	Rule(color)
+	if simple then
+		-- A small title over each block, as "Upgrades" has over its own.
+		GameTooltip:AddLine("Ability", 1, 0.82, 0)
+		for index = 1, table.getn(simple) do
+			local line = simple[index]
+			if line.rule then
+				Rule(line.rule)
+			elseif line[2] then
+				GameTooltip:AddDoubleLine(line[1], line[2], line[3], line[4], line[5], line[6], line[7], line[8])
+			else
+				GameTooltip:AddLine(line[1], line[3], line[4], line[5], line.wrap and 1 or nil)
+			end
+		end
+		-- Under it, past a rule of its own, the upgrades and the gear.
+		Rule(color)
+	end
 	local gearStats = gear and table.getn(gear.order) > 0
 	if table.getn(entries) == 0 and not gearStats then
 		GameTooltip:AddLine(empty, 0.55, 0.55, 0.55)
@@ -688,7 +707,9 @@ end
 
 local function RowEnter()
 	if this.gearSlot then
-		if this.unloaded and not this.itemName then
+		if this.guess and not this.itemName then
+			SurvivorUI_GuessTooltip(this, this.guess)
+		elseif this.unloaded and not this.itemName then
 			GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
 			GameTooltip:SetText("Not loaded", 0.75, 0.75, 0.75)
 			GameTooltip:AddLine("You wear a piece here and it works, but the game has not sent the interface its name, icon or description, so nothing can show it. It comes back when this slot's piece changes again (a new pick or a rank up).", 0.7, 0.7, 0.7, 1)
@@ -703,8 +724,12 @@ local function RowEnter()
 				"The game shares no list of what a cache can hold, so this one grows with every piece you wear.")
 		end
 	elseif this.ability then
+		-- Below the rule, the spell's simplified description, as its action
+		-- button shows it; the upgrades and gear where that cannot be read
+		-- (the cards are up and the bar is empty).
+		local simple = SurvivorUI_SimplifiedLines and SurvivorUI_SimplifiedLines(this.actionSlot)
 		ShowCard(this, this.ability, this.color or { 1, 1, 1 }, this.rankValue or "-", "Upgrades",
-			SpellUpgrades(this.actionSlot), "No upgrades yet", this.score, GearForSpell(this.ability))
+			SpellUpgrades(this.actionSlot), "No upgrades yet", this.score, GearForSpell(this.ability), simple)
 	elseif this.emptySpell then
 		ShowPool(this, "Spells you could learn", UnlearnedSpells(),
 			"None left in your spellbook.",
@@ -1067,6 +1092,7 @@ local function DrawGear(y)
 			local _, _, hex = string.find(link, "|c(%x%x%x%x%x%x%x%x)")
 			local color = HexColor(hex)
 			row.itemName, row.color = name or "?", color
+			row.guess = nil
 			if name then
 				RememberGear(label, name, hex)
 			end
@@ -1078,16 +1104,29 @@ local function DrawGear(y)
 			Paint(row, color, 1, true)
 			row.rank:SetTextColor(0.85, 0.85, 0.85)
 		else
-			-- Worn but not described by the game (no name or icon to show):
-			-- "not loaded", not "empty".
+			-- Worn but not described by the game: what the Codex can tell of
+			-- it ("(Unreliable)" where it is a guess), else "not loaded"; no
+			-- piece at all, "empty".
 			row.unloaded = SurvivorUI_SlotUnloaded and SurvivorUI_SlotUnloaded(slot) or nil
+			row.guess = SurvivorUI_SlotGuess and SurvivorUI_SlotGuess(slot) or nil
 			row.itemName, row.color = nil, nil
-			row.icon:SetTexture(FLAT)
-			row.icon:SetVertexColor(0.15, 0.15, 0.18)
-			row.icon:SetAlpha(0.8)
-			row.name:SetText(row.unloaded and "not loaded" or "empty")
-			row.rank:SetText(label)
-			Paint(row, MUTED, 0.6)
+			if row.guess then
+				local color = HexColor(row.guess.hex)
+				row.icon:SetTexture(row.guess.icon or FLAT)
+				row.icon:SetVertexColor(1, 1, 1)
+				row.icon:SetAlpha(row.guess.icon and 1 or 0.8)
+				row.name:SetText(row.guess.name..(row.guess.unreliable and " (Unreliable)" or ""))
+				row.rank:SetText(label)
+				Paint(row, color, 1, true)
+				row.rank:SetTextColor(0.85, 0.85, 0.85)
+			else
+				row.icon:SetTexture(FLAT)
+				row.icon:SetVertexColor(0.15, 0.15, 0.18)
+				row.icon:SetAlpha(0.8)
+				row.name:SetText(row.unloaded and "not loaded" or "empty")
+				row.rank:SetText(label)
+				Paint(row, MUTED, 0.6)
+			end
 		end
 		y = Place(row, y)
 	end
