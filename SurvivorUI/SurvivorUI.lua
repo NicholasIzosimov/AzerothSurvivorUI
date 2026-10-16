@@ -1326,13 +1326,15 @@ local function UpdateAuras()
 				if not (left and left == left and left > 0 and left < PERMANENT) then
 					left = nil
 				end
-				local shield = pass == 1 and not left and ShieldLeft and ShieldLeft(texture)
-				if left then
-					aura.time:SetText(TimeText(left))
-					aura.time:SetTextColor(1, 0.95, 0.6)
-				elseif shield and shield > 0 then
+				-- A shield shows what it has left to absorb, timer or not (its
+				-- sweep still runs down with the time); else the time left.
+				local shield = pass == 1 and ShieldLeft and ShieldLeft(texture)
+				if shield and shield > 0 then
 					aura.time:SetText(AbsorbText(shield))
 					aura.time:SetTextColor(0.75, 0.9, 1)
+				elseif left then
+					aura.time:SetText(TimeText(left))
+					aura.time:SetTextColor(1, 0.95, 0.6)
 				else
 					aura.time:SetText("")
 				end

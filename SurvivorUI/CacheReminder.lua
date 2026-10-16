@@ -388,24 +388,31 @@ local function Offset(cx, cy, px, py)
 end
 
 -- The way the hero last moved, radians clockwise from north: where the game
--- gives no facing to read, a hero faces the way it moves. Taken over each
--- stretch of a yard or more, so standing still keeps the last heading.
-local MOVE_STEP = 1             -- yards moved before the heading is taken again
-local lastX, lastY, heading
+-- gives no facing to read, a hero faces the way it moves. Read from where
+-- the hero stood HEADING_WINDOW seconds ago to where it stands now, so a
+-- turn shows within a step rather than after the old way has been walked
+-- off; standing still (under HEADING_MIN yards in that time) keeps the last
+-- heading.
+local HEADING_WINDOW = 0.2      -- seconds of movement the heading is read over
+local HEADING_MIN = 0.3         -- yards moved in that time before it counts
+local trail = {}                -- { x, y, t } of the hero's map position, oldest first
+local heading
 
 local function MovementHeading()
 	local px, py = GetPlayerMapPosition("player")
 	if not px or (px == 0 and py == 0) then
 		return heading
 	end
-	if not lastX then
-		lastX, lastY = px, py
-		return heading
+	local now = GetTime()
+	table.insert(trail, { x = px, y = py, t = now })
+	-- The oldest kept is the newest at least HEADING_WINDOW old.
+	while table.getn(trail) > 2 and now - trail[2].t >= HEADING_WINDOW do
+		table.remove(trail, 1)
 	end
-	local east, north = Offset(px, py, lastX, lastY)
-	if east * east + north * north >= MOVE_STEP * MOVE_STEP then
+	local old = trail[1]
+	local east, north = Offset(px, py, old.x, old.y)
+	if east * east + north * north >= HEADING_MIN * HEADING_MIN then
 		heading = math.atan2(east, north)
-		lastX, lastY = px, py
 	end
 	return heading
 end

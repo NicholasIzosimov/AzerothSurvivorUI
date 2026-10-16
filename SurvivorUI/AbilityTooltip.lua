@@ -268,10 +268,10 @@ local function Thing(text)
 	return Capital((string.gsub(string.gsub(text, "^your ", ""), "^the ", "")))
 end
 
--- Each fact: its place in the list (reach, damage, targets, everything
+-- Each fact: its place in the list (damage, reach, targets, everything
 -- else, then the two that hold for every spell together at the foot: the
 -- chance to cast twice and the crit chance), its value and its label.
-local REACH, DAMAGE, TARGETS, EFFECT, OTHER, ECHO, CRIT = 1, 2, 3, 4, 5, 6, 7
+local DAMAGE, REACH, TARGETS, EFFECT, OTHER, ECHO, CRIT = 1, 2, 3, 4, 5, 6, 7
 
 -- How many targets a spell hits, in the colors of gear rarity, each mixed a
 -- quarter of the way to white, softened but still plainly colored: 1 white,
