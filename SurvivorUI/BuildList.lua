@@ -306,14 +306,28 @@ local function SpellSlot(name)
 	return name and slotByName[string.lower(name)]
 end
 
+-- A worn piece's tooltip texts from its second line on, each piece of a line
+-- with breaks on its own, from the one shared reader (SurvivorUI.lua), which
+-- reads a slot only when its piece changes.
+local function WornTexts(slot)
+	local lines = SurvivorUI_WornTooltip and SurvivorUI_WornTooltip(slot) or {}
+	local texts = {}
+	for index = 2, table.getn(lines) do
+		for piece in string.gfind((lines[index][1] or "").."\n", "([^\n]*)\n") do
+			local text = Plain(piece)
+			if text ~= "" then
+				table.insert(texts, text)
+			end
+		end
+	end
+	return texts
+end
+
 -- An item's rank, where its tooltip names one, and what it gives: its
 -- upgrades and every line with a number in it.
 local function ItemDetails(slot)
 	local rank, found = nil, {}
-	scan:SetOwner(WorldFrame, "ANCHOR_NONE")
-	scan:ClearLines()
-	scan:SetInventoryItem("player", slot)
-	local texts = ScanTexts(2)
+	local texts = WornTexts(slot)
 	for index = 1, table.getn(texts) do
 		local text = texts[index]
 		local _, _, number = string.find(text, "^Rank (%d+)")
@@ -368,10 +382,7 @@ local function GearForSpell(spell)
 	end
 	for slot = 1, 19 do
 		if GetInventoryItemLink and GetInventoryItemLink("player", slot) then
-			scan:SetOwner(WorldFrame, "ANCHOR_NONE")
-			scan:ClearLines()
-			scan:SetInventoryItem("player", slot)
-			local texts = ScanTexts(2)
+			local texts = WornTexts(slot)
 			for index = 1, table.getn(texts) do
 				local text = texts[index]
 				if string.find(string.lower(text), wanted, 1, true) then
@@ -672,7 +683,12 @@ end
 
 local function RowEnter()
 	if this.gearSlot then
-		if this.itemName then
+		if this.unloaded and not this.itemName then
+			GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
+			GameTooltip:SetText("Not loaded", 0.75, 0.75, 0.75)
+			GameTooltip:AddLine("You wear a piece here and it works, but the game has not sent the interface its name, icon or description, so nothing can show it. It comes back when this slot's piece changes again (a new pick or a rank up).", 0.7, 0.7, 0.7, 1)
+			GameTooltip:Show()
+		elseif this.itemName then
 			local rank, entries = ItemDetails(this.gearSlot)
 			ShowCard(this, this.itemName, this.color, rank, "Gives", entries, "Nothing to read")
 		else
@@ -1057,11 +1073,14 @@ local function DrawGear(y)
 			Paint(row, color, 1, true)
 			row.rank:SetTextColor(0.85, 0.85, 0.85)
 		else
+			-- Worn but not described by the game (no name or icon to show):
+			-- "not loaded", not "empty".
+			row.unloaded = SurvivorUI_SlotUnloaded and SurvivorUI_SlotUnloaded(slot) or nil
 			row.itemName, row.color = nil, nil
 			row.icon:SetTexture(FLAT)
 			row.icon:SetVertexColor(0.15, 0.15, 0.18)
 			row.icon:SetAlpha(0.8)
-			row.name:SetText("empty")
+			row.name:SetText(row.unloaded and "not loaded" or "empty")
 			row.rank:SetText(label)
 			Paint(row, MUTED, 0.6)
 		end

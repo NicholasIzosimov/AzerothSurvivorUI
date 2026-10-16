@@ -2704,7 +2704,7 @@ end
 -- drawn again once one comes back. Nothing is asked while every worn piece is
 -- known, and only the hero's own slots are ever asked for.
 
-local GEAR_CHECK = 2            -- seconds between looks at the worn slots
+local GEAR_CHECK = 5            -- seconds between looks at the worn slots
 local GEAR_SLOTS = {
 	"Head", "Neck", "Shoulder", "Shirt", "Chest", "Waist", "Legs", "Feet", "Wrist", "Hands",
 	"Finger0", "Finger1", "Trinket0", "Trinket1", "Back", "MainHand", "SecondaryHand", "Ranged", "Tabard",
@@ -2821,6 +2821,49 @@ gearWatch:SetScript("OnUpdate", function()
 		RedrawGearSlots()
 	end
 end)
+
+-- Whether a slot holds a piece the game has not described to the interface
+-- (no name, no icon, an empty tooltip), as of the last look: the piece is
+-- worn and works, the interface just cannot show it.
+function SurvivorUI_SlotUnloaded(slot)
+	return gearMissing[slot] == true
+end
+
+-- A worn piece's tooltip, read once and kept with its link: every part of
+-- the addon that wants it (the build's gear and spell cards, the Codex) asks
+-- here instead of reading the slot itself, so a slot is read when its piece
+-- changes rather than many times a second. A tooltip the game had not yet
+-- sent in full (the name alone) is read again every WORN_RETRY seconds until
+-- it is. Lines are { text, r, g, b, right text }.
+local WORN_RETRY = 5
+local wornTooltips = {}         -- [slot] = { link, lines, at }
+
+function SurvivorUI_WornTooltip(slot)
+	local link = GetInventoryItemLink("player", slot)
+	if not link then
+		wornTooltips[slot] = nil
+		return nil
+	end
+	local kept = wornTooltips[slot]
+	if kept and kept.link == link and (table.getn(kept.lines) > 1 or GetTime() - kept.at < WORN_RETRY) then
+		return kept.lines
+	end
+	gearScan:SetOwner(WorldFrame, "ANCHOR_NONE")
+	gearScan:ClearLines()
+	gearScan:SetInventoryItem("player", slot)
+	local lines = {}
+	for index = 1, gearScan:NumLines() do
+		local left = getglobal("SurvivorUIGearScanTextLeft"..index)
+		local right = getglobal("SurvivorUIGearScanTextRight"..index)
+		local text = left and left:GetText()
+		if text then
+			local r, g, b = left:GetTextColor()
+			table.insert(lines, { text, r, g, b, right and right:IsShown() and right:GetText() or nil })
+		end
+	end
+	wornTooltips[slot] = { link = link, lines = lines, at = GetTime() }
+	return lines
+end
 
 -- /sui gear: how the game sees each jewelry slot now (the piece's name, its
 -- icon, whether the slot holds something), and the log of slots that lost or

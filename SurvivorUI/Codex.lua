@@ -199,23 +199,17 @@ local scan = CreateFrame("GameTooltip", "SurvivorUICodexScan", nil, "GameTooltip
 
 -- The lines of a worn piece's tooltip, as { text, r, g, b, right }, and the
 -- class it is kept to ("Classes: Rogue"), if any.
+-- From the one shared reader (SurvivorUI.lua), which reads a slot only when
+-- its piece changes.
 local function ReadSlot(slot)
-	scan:SetOwner(WorldFrame, "ANCHOR_NONE")
-	scan:ClearLines()
-	scan:SetInventoryItem("player", slot)
+	local read = SurvivorUI_WornTooltip and SurvivorUI_WornTooltip(slot) or {}
 	local lines, only = {}, nil
-	for index = 1, math.min(LINES_KEPT, scan:NumLines()) do
-		local left = getglobal("SurvivorUICodexScanTextLeft"..index)
-		local right = getglobal("SurvivorUICodexScanTextRight"..index)
-		local text = left and left:GetText()
-		if text then
-			local r, g, b = left:GetTextColor()
-			local rightText = right and right:IsShown() and right:GetText() or nil
-			table.insert(lines, { text, r, g, b, rightText })
-			local _, _, classes = string.find(text, "^Classes: (.+)$")
-			if classes then
-				only = classes
-			end
+	for index = 1, math.min(LINES_KEPT, table.getn(read)) do
+		local line = read[index]
+		table.insert(lines, { line[1], line[2], line[3], line[4], line[5] })
+		local _, _, classes = string.find(line[1] or "", "^Classes: (.+)$")
+		if classes then
+			only = classes
 		end
 	end
 	return lines, only
