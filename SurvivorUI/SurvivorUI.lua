@@ -897,6 +897,8 @@ if stockUpdateUsable then
 	end
 end
 
+local BAR_STRATA = "HIGH"
+
 local function PlaceButton(prefix, id, position)
 	local button = getglobal(prefix..id)
 	if not button then
@@ -908,6 +910,11 @@ local function PlaceButton(prefix, id, position)
 		local x, y = SlotOffset(position)
 		button:SetPoint("TOPLEFT", row, "TOP", x, y)
 		button.survivorKept = true
+		-- Above what the game draws over the field (nameplates among it), so
+		-- the mouse always reaches the button and its tooltip; the options
+		-- window, the Lexicon and the tooltips stand higher still. Its
+		-- cooldown sweep and numbers come with it.
+		button:SetFrameStrata(BAR_STRATA)
 		StyleButton(button)
 	else
 		-- Off screen rather than hidden: the stock code shows buttons on its own.

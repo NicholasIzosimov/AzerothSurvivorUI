@@ -262,9 +262,29 @@ local function Thing(text)
 	return Capital((string.gsub(string.gsub(text, "^your ", ""), "^the ", "")))
 end
 
--- Each fact: its place in the list (reach, damage, targets, the crit line,
--- the chance to cast twice, then everything else), its value and its label.
-local REACH, DAMAGE, TARGETS, CRIT, ECHO, EFFECT, OTHER = 1, 2, 3, 4, 5, 6, 7
+-- Each fact: its place in the list (reach, damage, targets, the chance to
+-- cast twice, everything else, and the crit chance last), its value and its
+-- label.
+local REACH, DAMAGE, TARGETS, ECHO, EFFECT, OTHER, CRIT = 1, 2, 3, 4, 5, 6, 7
+
+-- How many targets a spell hits, in the colors of gear rarity: up to 3
+-- white, then green, blue, purple, and orange from 16.
+local TARGET_TIERS = {          -- from the top: targets reached, color
+	{ 16, "ff8000" },           -- legendary
+	{ 11, "a335ee" },           -- epic
+	{ 8,  "0070dd" },           -- rare
+	{ 4,  "1eff00" },           -- uncommon
+	{ 0,  "ffffff" },           -- common
+}
+
+local function TargetsText(count)
+	for index = 1, table.getn(TARGET_TIERS) do
+		if count >= TARGET_TIERS[index][1] then
+			return "|cff"..TARGET_TIERS[index][2].."+"..count.."|r"
+		end
+	end
+	return "+"..count
+end
 
 local FACTS = {
 	{ "up to (%d+) enem%a*", function(n) return TARGETS, n, "Targets" end },
@@ -346,7 +366,11 @@ local function FactText(fact, school, tint)
 		return Highlight(fact.text, school, tint)
 	end
 	local value = "|cffffffff"..fact.value.."|r"
-	if fact.place == DAMAGE and fact.school and SCHOOL_COLORS[Capital(fact.school)] then
+	-- Targets as a count to add ("+3"), colored by how many.
+	local _, _, count = string.find(fact.place == TARGETS and fact.value or "", "^%+?(%d+)$")
+	if count then
+		value = TargetsText(tonumber(count))
+	elseif fact.place == DAMAGE and fact.school and SCHOOL_COLORS[Capital(fact.school)] then
 		value = Hex(SCHOOL_COLORS[Capital(fact.school)])..fact.value.."|r"
 	end
 	if fact.label == "" then
@@ -363,8 +387,12 @@ local function AllFacts(ability)
 		local stat = ability.stats[index]
 		local _, _, yards = string.find(stat, "^([%d%.]+) yds?")
 		-- The line under the name holds the reach, and may hold the targets.
-		local place = string.find(string.lower(stat), "target", 1, true) and TARGETS or REACH
-		table.insert(facts, { place = place, text = stat })
+		local _, _, targets = string.find(string.lower(stat), "(%d+) targets?")
+		if targets then
+			table.insert(facts, { place = TARGETS, value = targets, label = "Targets" })
+		else
+			table.insert(facts, { place = REACH, text = stat })
+		end
 		if yards then
 			seen[yards.." yd"] = true
 		end
@@ -434,7 +462,7 @@ local function Compose(ability)
 				if fact.echo then
 					Line(fact.echo, ECHO_COLOR)
 				elseif fact.crit then
-					Line(CRIT_HEX..ability.critChance.."|r crit"..DOT..CRIT_HEX..ability.critDamage.."|r crit damage", MUTED)
+					Line(CRIT_HEX..ability.critChance.."|r crit", MUTED)
 				else
 					Line(FactText(fact, school, tint), MUTED)
 				end
