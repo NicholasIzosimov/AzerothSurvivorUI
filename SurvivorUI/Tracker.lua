@@ -148,6 +148,43 @@ head.timeline:SetStatusBarColor(0.30, 0.80, 0.35, 1)
 head.ticks = {}
 head.bosses = {}
 
+-- A fold button in the top left corner, as the build's: "-" folds the timer
+-- to its compact form (no list of bosses), "+" brings the list back. The
+-- same switch as "Compact run timer" in /sui opt.
+local fold = CreateFrame("Button", nil, head)
+fold:SetWidth(14)
+fold:SetHeight(14)
+fold:SetPoint("TOPLEFT", head, "TOPLEFT", -2, 2)
+fold.edge = fold:CreateTexture(nil, "BACKGROUND")
+fold.edge:SetTexture(FLAT)
+fold.edge:SetVertexColor(0.45, 0.45, 0.5, 1)
+fold.edge:SetPoint("TOPLEFT", fold, "TOPLEFT", -1, 1)
+fold.edge:SetPoint("BOTTOMRIGHT", fold, "BOTTOMRIGHT", 1, -1)
+fold.fill = fold:CreateTexture(nil, "BORDER")
+fold.fill:SetTexture(FLAT)
+fold.fill:SetVertexColor(0.08, 0.08, 0.11, 1)
+fold.fill:SetAllPoints(fold)
+SurvivorUI_PlusMinus(fold, 8)
+SurvivorUI_TintPlus(fold, 0.75, 0.75, 0.75)
+fold:SetScript("OnEnter", function()
+	SurvivorUI_TintPlus(this, 1, 1, 1)
+	this.edge:SetVertexColor(1, 0.82, 0, 1)
+	GameTooltip:SetOwner(this, "ANCHOR_LEFT")
+	GameTooltip:SetText(Settings().trackerCompact and "Show the bosses" or "Compact run timer", 1, 1, 1)
+	GameTooltip:Show()
+end)
+fold:SetScript("OnLeave", function()
+	SurvivorUI_TintPlus(this, 0.75, 0.75, 0.75)
+	this.edge:SetVertexColor(0.45, 0.45, 0.5, 1)
+	GameTooltip:Hide()
+end)
+fold:SetScript("OnClick", function()
+	local settings = Settings()
+	settings.trackerCompact = not settings.trackerCompact
+	SurvivorUI_SetPlus(fold, settings.trackerCompact)
+end)
+SurvivorUI_SetPlus(fold, Settings().trackerCompact)
+
 -- Across the frame at y, centered; returns the y under it.
 local function Put(object, y, height)
 	object:ClearAllPoints()
@@ -380,8 +417,9 @@ local function Draw(game, phase)
 	end
 
 	-- Compact: the zone, the clock and the timeline with its ticks and
-	-- countdowns; no list of bosses.
+	-- countdowns; no list of bosses. The fold button shows which.
 	local compact = Settings().trackerCompact
+	SurvivorUI_SetPlus(fold, compact)
 
 	local y = 0
 	head.zone:SetText(zoneName)

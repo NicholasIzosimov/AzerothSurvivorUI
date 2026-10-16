@@ -292,12 +292,16 @@ local function Pieces(kind)
 		local entry = known
 		if not known or rank > known.rank or (rank == known.rank and info.icon and not known.icon) then
 			entry = {
-				base = base, name = name, rank = rank, hex = info.hex, link = info.link, icon = info.icon,
+				base = base, name = name, rank = rank, hex = info.hex, link = info.link,
+				icon = info.icon or (known and known.icon),
 				classes = classes, lines = known and known.lines, linesRank = known and known.linesRank,
 				only = known and known.only,
 			}
 			best[base] = entry
 		end
+		-- Every rank of a piece wears the same icon: one kept with any rank
+		-- serves the highest, when that one was seen before icons were kept.
+		entry.icon = entry.icon or info.icon
 		-- Its description: its own rank's where kept whole, else the highest
 		-- rank's that is (linesRank says which, and the card says so).
 		if Whole(info.lines) and (not Whole(entry.lines) or rank == entry.rank
