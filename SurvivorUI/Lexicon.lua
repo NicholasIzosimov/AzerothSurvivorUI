@@ -1,20 +1,30 @@
 -- Survivor UI: the Lexicon, a book of every piece of jewelry the hero has
--- worn, in any run. A wide button at the foot of the build opens it; a
--- bookmark per kind (amulets, rings, trinkets) down its left edge, the pieces
--- of that kind on the page, a few pages to a kind, turned with the arrows at
--- the foot.
+-- worn, in any run, and of the hero's abilities. A wide button at the foot of
+-- the build opens it, and so does a click on one of the build's rows, at its
+-- kind; a bookmark per kind (amulets, rings, trinkets, then abilities) down
+-- its left edge, the entries of that kind on the page, a few pages to a kind,
+-- turned with the arrows at the foot.
 --
--- Each piece shows once, at the highest rank seen ("Quick Strike Ring III"),
--- in its quality's color; hover it for its tooltip. The book learns a piece
--- the moment it is worn and keeps it in SurvivorUIDB.lexicon, across runs.
--- The names the build remembered before the book existed (seenGear) are
--- read too, their icon and tooltip found among the game's jewelry items.
+-- Jewelry: each piece shows once, at the highest rank seen ("Quick Strike
+-- Ring III"), in its quality's color, with the classes that wore it; hover it
+-- for its tooltip. The book learns a piece the moment it is worn and keeps it
+-- in SurvivorUIDB.lexicon, across runs, its tooltip's lines with it: a piece
+-- no longer in the game's item cache still shows its description. The names
+-- the build remembered before the book existed (seenGear) are read too, their
+-- icon and tooltip found among the game's jewelry items. A button in the
+-- corner keeps the page to the jewelry your class has worn.
+--
+-- Abilities: every spell of the hero's class (from the spellbook, the ones
+-- not learned yet too) and the best average cast each has reached in a run
+-- (from the damage meter's cards, CritCard.lua), with the highest rank it
+-- reached and how many runs took it. Kept per class in
+-- SurvivorUIDB.abilityBook.
 
 local FLAT = "Interface\\ChatFrame\\ChatFrameBackground"
 local FONT = SurvivorUI_FONT or "Fonts\\FRIZQT__.TTF"
 local FONT_BUMP = SurvivorUI_FONT_BUMP or 0
 
-local WIDTH = 480
+local WIDTH = 520
 local HEIGHT = 440
 local PAD = 14
 local TITLE_HEIGHT = 34
@@ -23,19 +33,21 @@ local TAB_HEIGHT = 26
 local TAB_GAP = 4
 local ROW_HEIGHT = 28
 local ROW_GAP = 3
-local ROWS = 10                 -- pieces to a page
-local FOOT_HEIGHT = 26
+local ROWS = 10                 -- entries to a page
 local BUTTON_HEIGHT = 24
+local LINES_KEPT = 30           -- a tooltip's lines kept with its piece
 
 local GOLD_EDGE = { 0.62, 0.46, 0.22 }
 local GOLD_TEXT = { 1, 0.84, 0.42 }
 
--- The kinds a run upgrades, in the book's order: the slots that fill them,
--- and the bookmark's name.
+-- The kinds, in the book's order: the slots that fill a kind of jewelry, and
+-- the bookmark's name. The abilities come last.
+local ABILITY = "Ability"
 local KINDS = {
-	{ kind = "Neck",    title = "Amulets",  slots = { 2 },      always = true },
-	{ kind = "Ring",    title = "Rings",    slots = { 11, 12 }, always = true },
-	{ kind = "Trinket", title = "Trinkets", slots = { 13, 14 }, always = true },
+	{ kind = "Neck",    title = "Amulets",   slots = { 2 },      always = true },
+	{ kind = "Ring",    title = "Rings",     slots = { 11, 12 }, always = true },
+	{ kind = "Trinket", title = "Trinkets",  slots = { 13, 14 }, always = true },
+	{ kind = ABILITY,   title = "Abilities", always = true },
 }
 
 -- The game's run jewelry sits in one block of item numbers, read through for
@@ -43,19 +55,25 @@ local KINDS = {
 local JEWELRY_FIRST = 900000
 local JEWELRY_LAST = 900999
 
+-- An average cast counts from this many casts on, so one lucky blow early in
+-- a run does not stand as the best.
+local MIN_CASTS = 5
+
 local function Settings()
 	SurvivorUIDB = SurvivorUIDB or {}
 	return SurvivorUIDB
 end
 
--- The book, holding only the kinds above: anything else it once kept (the
--- armor and weapons of its first version) is let go.
+-- The book, holding only the jewelry kinds above: anything else it once kept
+-- (the armor and weapons of its first version) is let go.
 local function Book()
 	local settings = Settings()
 	settings.lexicon = settings.lexicon or {}
 	local keep = {}
 	for index = 1, table.getn(KINDS) do
-		keep[KINDS[index].kind] = true
+		if KINDS[index].slots then
+			keep[KINDS[index].kind] = true
+		end
 	end
 	for kind in pairs(settings.lexicon) do
 		if not keep[kind] then
@@ -63,6 +81,30 @@ local function Book()
 		end
 	end
 	return settings.lexicon
+end
+
+local function ClassToken()
+	local _, class = UnitClass("player")
+	return class or "UNKNOWN"
+end
+
+local function ClassName()
+	return UnitClass("player") or "your class"
+end
+
+-- This class's abilities: { [name] = { icon, best, bestRank, rank, runs, inBook } }.
+local function Abilities()
+	local settings = Settings()
+	settings.abilityBook = settings.abilityBook or {}
+	local class = ClassToken()
+	settings.abilityBook[class] = settings.abilityBook[class] or {}
+	return settings.abilityBook[class]
+end
+
+local function Ability(name)
+	local book = Abilities()
+	book[name] = book[name] or { runs = 0 }
+	return book[name]
 end
 
 local function HexColor(hex)
@@ -83,17 +125,84 @@ local function BaseName(name)
 	return name, 1
 end
 
+-- 950, 1.2k, 3.4m
+local function Short(value)
+	local short, suffix
+	if value >= 1000000 then
+		short, suffix = value / 1000000, "m"
+	elseif value >= 1000 then
+		short, suffix = value / 1000, "k"
+	else
+		return math.floor(value + 0.5)
+	end
+	return (string.gsub(string.format("%.1f", short), "%.0$", ""))..suffix
+end
+
+-- A class token's name in its class color: "|cffc79c6eWarrior|r".
+local CLASS_NAMES = {
+	WARRIOR = "Warrior", PALADIN = "Paladin", HUNTER = "Hunter", ROGUE = "Rogue", PRIEST = "Priest",
+	SHAMAN = "Shaman", MAGE = "Mage", WARLOCK = "Warlock", DRUID = "Druid",
+}
+local CLASS_OVERRIDES = { SHAMAN = { r = 0.00, g = 0.44, b = 0.87 } }
+
+local function ClassText(token)
+	local color = CLASS_OVERRIDES[token] or (RAID_CLASS_COLORS and RAID_CLASS_COLORS[token])
+	local name = CLASS_NAMES[token] or token
+	if not color then
+		return name
+	end
+	return string.format("|cff%02x%02x%02x%s|r", math.floor(color.r * 255), math.floor(color.g * 255),
+		math.floor(color.b * 255), name)
+end
+
+-- The class token for a class's name ("Rogue" is ROGUE), for "Classes:" lines.
+local function TokenOf(name)
+	for token, known in pairs(CLASS_NAMES) do
+		if known == name then
+			return token
+		end
+	end
+end
+
 ------------------------------------------------------------------------------
--- Learning: every worn slot, whenever the gear changes.
+-- Learning jewelry: every worn slot, whenever the gear changes, its tooltip
+-- read with it while the game still holds it.
+
+local scan = CreateFrame("GameTooltip", "SurvivorUILexiconScan", nil, "GameTooltipTemplate")
+
+-- The lines of a worn piece's tooltip, as { text, r, g, b, right }, and the
+-- class it is kept to ("Classes: Rogue"), if any.
+local function ReadSlot(slot)
+	scan:SetOwner(WorldFrame, "ANCHOR_NONE")
+	scan:ClearLines()
+	scan:SetInventoryItem("player", slot)
+	local lines, only = {}, nil
+	for index = 1, math.min(LINES_KEPT, scan:NumLines()) do
+		local left = getglobal("SurvivorUILexiconScanTextLeft"..index)
+		local right = getglobal("SurvivorUILexiconScanTextRight"..index)
+		local text = left and left:GetText()
+		if text then
+			local r, g, b = left:GetTextColor()
+			local rightText = right and right:IsShown() and right:GetText() or nil
+			table.insert(lines, { text, r, g, b, rightText })
+			local _, _, classes = string.find(text, "^Classes: (.+)$")
+			if classes then
+				only = classes
+			end
+		end
+	end
+	return lines, only
+end
 
 local function Learn()
 	if not GetInventoryItemLink then
 		return
 	end
 	local book = Book()
+	local class = ClassToken()
 	for index = 1, table.getn(KINDS) do
 		local entry = KINDS[index]
-		for slotIndex = 1, table.getn(entry.slots) do
+		for slotIndex = 1, table.getn(entry.slots or {}) do
 			local slot = entry.slots[slotIndex]
 			local link = GetInventoryItemLink("player", slot)
 			local _, _, name = string.find(link or "", "%[(.-)%]")
@@ -101,11 +210,19 @@ local function Learn()
 				local _, _, hex = string.find(link, "|c(%x%x%x%x%x%x%x%x)")
 				local _, _, item = string.find(link, "|H(item:[%-%d:]+)|h")
 				book[entry.kind] = book[entry.kind] or {}
-				book[entry.kind][name] = {
-					hex = hex or "ffffffff",
-					link = item,
-					icon = GetInventoryItemTexture("player", slot),
-				}
+				local piece = book[entry.kind][name] or {}
+				book[entry.kind][name] = piece
+				piece.hex = hex or "ffffffff"
+				piece.icon = GetInventoryItemTexture("player", slot) or piece.icon
+				piece.classes = piece.classes or {}
+				piece.classes[class] = true
+				if piece.link ~= item or not piece.lines then
+					local lines, only = ReadSlot(slot)
+					if table.getn(lines) > 0 then
+						piece.lines, piece.only = lines, only
+					end
+				end
+				piece.link = item
 			end
 		end
 	end
@@ -149,15 +266,42 @@ local function FillFromItems()
 	end
 end
 
+local function ClassOnly()
+	return Settings().lexiconClassOnly == true
+end
+
+-- Whether a piece belongs on the page with the class filter as it stands.
+local function ForThisClass(piece)
+	if not ClassOnly() then
+		return true
+	end
+	local class = ClassToken()
+	if piece.only then
+		return string.find(piece.only, CLASS_NAMES[class] or class, 1, true) ~= nil
+	end
+	return piece.classes[class] == true
+end
+
 -- A kind's pieces, once each by name without rank, at the highest rank seen,
--- by name.
+-- by name; the classes that wore any rank of it together.
 local function Pieces(kind)
 	local best = {}
 	local function Consider(name, info)
 		local base, rank = BaseName(name)
 		local known = best[base]
+		local classes = known and known.classes or {}
+		for class in pairs(info.classes or {}) do
+			classes[class] = true
+		end
 		if not known or rank > known.rank or (rank == known.rank and info.icon and not known.icon) then
-			best[base] = { base = base, name = name, rank = rank, hex = info.hex, link = info.link, icon = info.icon }
+			best[base] = {
+				base = base, name = name, rank = rank, hex = info.hex, link = info.link, icon = info.icon,
+				lines = info.lines or (known and known.lines), only = info.only or (known and known.only),
+				classes = classes,
+			}
+		else
+			known.lines = known.lines or info.lines
+			known.only = known.only or info.only
 		end
 	end
 	local old = Settings().seenGear and Settings().seenGear[kind]
@@ -174,10 +318,122 @@ local function Pieces(kind)
 	end
 	local found = {}
 	for _, piece in pairs(best) do
-		table.insert(found, piece)
+		if ForThisClass(piece) then
+			table.insert(found, piece)
+		end
 	end
 	table.sort(found, function(a, b) return a.base < b.base end)
 	return found
+end
+
+------------------------------------------------------------------------------
+-- Learning abilities: the spellbook when the book opens, the run's spells as
+-- it goes, and each spell's average cast from the damage meter's cards.
+
+local function ReadSpellbook()
+	if not GetSpellName then
+		return
+	end
+	local bookType = BOOKTYPE_SPELL or "spell"
+	local index = 1
+	while true do
+		local name = GetSpellName(index, bookType)
+		if not name then
+			break
+		end
+		local ability = Ability(name)
+		ability.inBook = true
+		ability.icon = GetSpellTexture and GetSpellTexture(index, bookType) or ability.icon
+		index = index + 1
+	end
+end
+
+local function Field(entry, name, index)
+	if entry[name] ~= nil then
+		return entry[name]
+	end
+	return entry[index]
+end
+
+-- The run's spells (AZS_SPELLS): each one's highest rank, and one more run
+-- for each spell the first time a run is seen to hold it.
+local function LearnRun()
+	if not (AZS_SPELLS and AZS_GetPhase and SurvivorUI_SpellName) then
+		return
+	end
+	local phase = AZS_GetPhase()
+	if not phase or phase == "ready" then
+		return
+	end
+	local counted = SurvivorUI_RunMemory and SurvivorUI_RunMemory("lexicon") or {}
+	for index = 1, table.getn(AZS_SPELLS) do
+		local entry = AZS_SPELLS[index]
+		local name = SurvivorUI_SpellName(Field(entry, "key", 1))
+		local rank = tonumber(Field(entry, "rank", 3)) or 0
+		if name and name ~= "?" then
+			local ability = Ability(name)
+			ability.rank = math.max(ability.rank or 0, rank)
+			if not counted[name] then
+				counted[name] = true
+				ability.runs = (ability.runs or 0) + 1
+			end
+		end
+	end
+end
+
+-- The rank a run's spell stands at now, or nil.
+local function RankNow(name)
+	if not (AZS_SPELLS and SurvivorUI_SpellName) then
+		return nil
+	end
+	for index = 1, table.getn(AZS_SPELLS) do
+		local entry = AZS_SPELLS[index]
+		if SurvivorUI_SpellName(Field(entry, "key", 1)) == name then
+			return tonumber(Field(entry, "rank", 3))
+		end
+	end
+end
+
+-- From the damage meter's cards (CritCard.lua): an ability's average cast so
+-- far this run, over this many casts.
+function SurvivorUI_LexiconAverage(name, average, casts)
+	if not (name and average and casts and casts >= MIN_CASTS) then
+		return
+	end
+	local ability = Ability(name)
+	if not ability.best or average > ability.best then
+		ability.best = average
+		ability.bestRank = RankNow(name) or ability.bestRank
+	end
+end
+
+-- This class's abilities for the page: the best averages first, the most
+-- first, then the rest by name.
+local function AbilityList()
+	local found = {}
+	for name, info in pairs(Abilities()) do
+		table.insert(found, {
+			base = name, name = name, icon = info.icon, best = info.best, bestRank = info.bestRank,
+			rank = info.rank, runs = info.runs or 0, ability = true,
+		})
+	end
+	table.sort(found, function(a, b)
+		if (a.best ~= nil) ~= (b.best ~= nil) then
+			return a.best ~= nil
+		end
+		if a.best and a.best ~= b.best then
+			return a.best > b.best
+		end
+		return a.name < b.name
+	end)
+	return found
+end
+
+local function Entries(kind)
+	if kind == ABILITY then
+		return AbilityList()
+	end
+	return Pieces(kind)
 end
 
 ------------------------------------------------------------------------------
@@ -245,13 +501,32 @@ book.note = book:CreateFontString(nil, "OVERLAY")
 book.note:SetFont(FONT, 11 + FONT_BUMP)
 book.note:SetPoint("BOTTOMLEFT", book.title, "BOTTOMRIGHT", 10, 1)
 book.note:SetTextColor(0.6, 0.55, 0.48)
-book.note:SetText("Gear you have worn, in any run")
 
 local close = GoldButton(book, "x", 13)
 close:SetWidth(20)
 close:SetHeight(20)
 close:SetPoint("TOPRIGHT", book, "TOPRIGHT", -8, -8)
 close:SetScript("OnClick", function() book:Hide() end)
+
+local Draw
+
+-- The class filter, left of the close button: every piece, or only the ones
+-- this class has worn (or is kept to).
+local filter = GoldButton(book, "", 11)
+filter:SetWidth(110)
+filter:SetHeight(20)
+filter:SetPoint("RIGHT", close, "LEFT", -6, 0)
+filter:SetScript("OnClick", function()
+	Settings().lexiconClassOnly = not ClassOnly()
+	Draw()
+end)
+filter:SetScript("OnEnter", function()
+	GameTooltip:SetOwner(this, "ANCHOR_BOTTOM")
+	GameTooltip:SetText("Class filter", 1, 1, 1)
+	GameTooltip:AddLine("Show every piece, or only those your "..ClassName().." has worn or is kept to. Pieces from before the Lexicon kept classes show only under every class.", 0.7, 0.7, 0.7, 1)
+	GameTooltip:Show()
+end)
+filter:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
 -- The spine: a gold line between the bookmarks and the page.
 local spine = book:CreateTexture(nil, "ARTWORK")
@@ -273,18 +548,31 @@ page.leaf:SetVertexColor(0.11, 0.08, 0.06, 0.9)
 page.empty = page:CreateFontString(nil, "OVERLAY")
 page.empty:SetFont(FONT, 12 + FONT_BUMP)
 page.empty:SetPoint("CENTER", page, "CENTER", 0, 10)
-page.empty:SetWidth(240)
+page.empty:SetWidth(260)
 page.empty:SetTextColor(0.55, 0.5, 0.45)
-page.empty:SetText("Nothing of this kind worn yet.")
 
 local chosen = KINDS[1].kind
 local pageNumber = 1
-local Draw
 
 ------------------------------------------------------------------------------
--- The bookmarks down the left edge.
+-- The bookmarks down the left edge. Hovered, a bookmark's words fade to white
+-- and its leaf lifts a little.
 
 local tabs = {}
+
+local function TabColors(tab)
+	if tab.open then
+		return { 1, 0.95, 0.75 }, { 1, 0.95, 0.75 }
+	end
+	return GOLD_TEXT, { 0.62, 0.55, 0.42 }
+end
+
+local function PaintTabHover(tab, fade)
+	local text, count = TabColors(tab)
+	tab.text:SetTextColor(text[1] + (1 - text[1]) * fade, text[2] + (1 - text[2]) * fade, text[3] + (1 - text[3]) * fade)
+	tab.count:SetTextColor(count[1] + (1 - count[1]) * fade, count[2] + (1 - count[2]) * fade, count[3] + (1 - count[3]) * fade)
+	tab.glow:SetAlpha(0.14 * fade)
+end
 
 local function Tab(index)
 	local tab = tabs[index]
@@ -301,6 +589,23 @@ local function Tab(index)
 	tab.count:SetPoint("RIGHT", tab, "RIGHT", -7, 0)
 	tab.count:SetShadowColor(0, 0, 0, 1)
 	tab.count:SetShadowOffset(1, -1)
+	-- The fade's own lift in place of the stock highlight, which pops.
+	tab.hover:SetVertexColor(1, 0.8, 0.4, 0)
+	tab.glow = tab:CreateTexture(nil, "ARTWORK")
+	tab.glow:SetTexture(FLAT)
+	tab.glow:SetAllPoints(tab.fill)
+	tab.glow:SetVertexColor(1, 0.85, 0.55, 1)
+	tab.glow:SetAlpha(0)
+	tab:SetScript("OnEnter", function()
+		if SurvivorUI_Fade then
+			SurvivorUI_Fade(this, 1, PaintTabHover)
+		end
+	end)
+	tab:SetScript("OnLeave", function()
+		if SurvivorUI_Fade then
+			SurvivorUI_Fade(this, 0, PaintTabHover)
+		end
+	end)
 	tab:SetScript("OnClick", function()
 		chosen = this.kind
 		pageNumber = 1
@@ -311,21 +616,87 @@ local function Tab(index)
 end
 
 local function PaintTab(tab, open)
+	tab.open = open
 	if open then
 		tab.fill:SetGradient("VERTICAL", 0.30, 0.10, 0.06, 0.50, 0.20, 0.10)
-		tab.text:SetTextColor(1, 0.95, 0.75)
-		tab.count:SetTextColor(1, 0.95, 0.75)
 	else
 		tab.fill:SetGradient("VERTICAL", 0.13, 0.03, 0.03, 0.26, 0.06, 0.05)
-		tab.text:SetTextColor(GOLD_TEXT[1], GOLD_TEXT[2], GOLD_TEXT[3])
-		tab.count:SetTextColor(0.62, 0.55, 0.42)
 	end
+	PaintTabHover(tab, tab.fade or 0)
 end
 
 ------------------------------------------------------------------------------
 -- The page's rows.
 
 local rows = {}
+
+-- A piece's tooltip: the game's own while it is worn or in the game's item
+-- cache, else the lines the book kept when it was worn, else its name.
+local function WornSlot(piece)
+	for index = 1, table.getn(KINDS) do
+		local slots = KINDS[index].slots or {}
+		for slotIndex = 1, table.getn(slots) do
+			local link = GetInventoryItemLink and GetInventoryItemLink("player", slots[slotIndex])
+			local _, _, name = string.find(link or "", "%[(.-)%]")
+			if name and name == piece.name then
+				return slots[slotIndex]
+			end
+		end
+	end
+end
+
+local function PieceTooltip(owner, piece)
+	GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
+	local slot = WornSlot(piece)
+	local cached = piece.link and GetItemInfo and GetItemInfo(piece.link)
+	if slot then
+		GameTooltip:SetInventoryItem("player", slot)
+	elseif cached then
+		GameTooltip:SetHyperlink(piece.link)
+	elseif piece.lines and table.getn(piece.lines) > 0 then
+		for index = 1, table.getn(piece.lines) do
+			local line = piece.lines[index]
+			if index == 1 then
+				GameTooltip:SetText(line[1], line[2], line[3], line[4])
+			elseif line[5] then
+				GameTooltip:AddDoubleLine(line[1], line[5], line[2], line[3], line[4], line[2], line[3], line[4])
+			else
+				GameTooltip:AddLine(line[1], line[2], line[3], line[4], 1)
+			end
+		end
+	else
+		local color = HexColor(piece.hex)
+		GameTooltip:SetText(piece.name, color[1], color[2], color[3])
+		GameTooltip:AddLine("Seen before the Lexicon kept details. Wear it again for its tooltip.", 0.6, 0.6, 0.6, 1)
+	end
+	local worn = {}
+	for class in pairs(piece.classes or {}) do
+		table.insert(worn, ClassText(class))
+	end
+	if table.getn(worn) > 0 then
+		table.sort(worn)
+		GameTooltip:AddLine("Worn as: "..table.concat(worn, ", "), 0.7, 0.7, 0.7, 1)
+	end
+	GameTooltip:Show()
+end
+
+local function AbilityTooltip(owner, ability)
+	GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
+	GameTooltip:SetText(ability.name, 1, 1, 1)
+	if ability.best then
+		GameTooltip:AddDoubleLine("Best average cast", Short(ability.best)
+			..(ability.bestRank and "  |cffa0a0a0at rank "..ability.bestRank.."|r" or ""),
+			0.7, 0.7, 0.7, 1, 0.82, 0.3)
+	else
+		GameTooltip:AddLine("No average cast yet: it needs "..MIN_CASTS.." casts in a run.", 0.55, 0.55, 0.55, 1)
+	end
+	if ability.rank and ability.rank > 0 then
+		GameTooltip:AddDoubleLine("Highest rank", ability.rank, 0.7, 0.7, 0.7, 1, 1, 1)
+	end
+	GameTooltip:AddDoubleLine("Runs taken", ability.runs or 0, 0.7, 0.7, 0.7, 1, 1, 1)
+	GameTooltip:AddLine("The average cast is the damage meter card's: what one cast dealt on average over a run.", 0.45, 0.45, 0.45, 1)
+	GameTooltip:Show()
+end
 
 local function Row(index)
 	local row = rows[index]
@@ -349,33 +720,35 @@ local function Row(index)
 	row.name = row:CreateFontString(nil, "OVERLAY")
 	row.name:SetFont(FONT, 12 + FONT_BUMP)
 	row.name:SetPoint("LEFT", row, "LEFT", ROW_HEIGHT + 4, 0)
-	row.name:SetPoint("RIGHT", row, "RIGHT", -60, 0)
+	row.name:SetHeight(14)
 	row.name:SetJustifyH("LEFT")
 	row.name:SetShadowColor(0, 0, 0, 1)
 	row.name:SetShadowOffset(1, -1)
 	row.rank = row:CreateFontString(nil, "OVERLAY")
 	row.rank:SetFont(FONT, 11 + FONT_BUMP)
 	row.rank:SetPoint("RIGHT", row, "RIGHT", -6, 0)
+	row.rank:SetJustifyH("RIGHT")
 	row.rank:SetTextColor(0.75, 0.72, 0.66)
+	-- The classes that wore a piece, small, left of its rank.
+	row.classes = row:CreateFontString(nil, "OVERLAY")
+	row.classes:SetFont(FONT, 9 + FONT_BUMP, "OUTLINE")
+	row.classes:SetPoint("RIGHT", row, "RIGHT", -62, 0)
+	row.classes:SetJustifyH("RIGHT")
 	row.hover = row:CreateTexture(nil, "HIGHLIGHT")
 	row.hover:SetTexture(FLAT)
 	row.hover:SetPoint("TOPLEFT", row, "TOPLEFT", 1, -1)
 	row.hover:SetPoint("BOTTOMRIGHT", row, "BOTTOMRIGHT", -1, 1)
 	row.hover:SetVertexColor(1, 0.85, 0.5, 0.08)
 	row:SetScript("OnEnter", function()
-		local piece = this.piece
-		if not piece then
+		local entry = this.entry
+		if not entry then
 			return
 		end
-		GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
-		if piece.link then
-			GameTooltip:SetHyperlink(piece.link)
+		if entry.ability then
+			AbilityTooltip(this, entry)
 		else
-			local color = HexColor(piece.hex)
-			GameTooltip:SetText(piece.name, color[1], color[2], color[3])
-			GameTooltip:AddLine("Seen before the Lexicon kept details. Wear it again for its tooltip.", 0.6, 0.6, 0.6, 1)
+			PieceTooltip(this, entry)
 		end
-		GameTooltip:Show()
 	end)
 	row:SetScript("OnLeave", function() GameTooltip:Hide() end)
 	rows[index] = row
@@ -384,8 +757,34 @@ end
 
 local ROMAN = { "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X" }
 
-local function FillRow(row, piece)
-	row.piece = piece
+-- The classes as tags: one or two by name, more as a count.
+local function ClassTags(piece)
+	local tokens = {}
+	if piece.only then
+		for name in string.gfind(piece.only, "[^,]+") do
+			local token = TokenOf((string.gsub(string.gsub(name, "^%s+", ""), "%s+$", "")))
+			if token then
+				table.insert(tokens, token)
+			end
+		end
+	end
+	if table.getn(tokens) == 0 then
+		for class in pairs(piece.classes or {}) do
+			table.insert(tokens, class)
+		end
+	end
+	table.sort(tokens)
+	if table.getn(tokens) > 2 then
+		return "|cffb0b0b0"..table.getn(tokens).." classes|r"
+	end
+	local texts = {}
+	for index = 1, table.getn(tokens) do
+		table.insert(texts, ClassText(tokens[index]))
+	end
+	return table.concat(texts, " ")
+end
+
+local function FillPiece(row, piece)
 	local color = HexColor(piece.hex)
 	row:SetBackdropColor(color[1] * 0.18, color[2] * 0.18, color[3] * 0.18, 0.9)
 	row.name:SetText(piece.base)
@@ -395,12 +794,56 @@ local function FillRow(row, piece)
 	else
 		row.rank:SetText("")
 	end
+	row.classes:SetText(ClassTags(piece))
 	if piece.icon then
 		row.icon:SetTexture(piece.icon)
 		row.icon:SetVertexColor(1, 1, 1)
 	else
 		row.icon:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
 		row.icon:SetVertexColor(0.6, 0.6, 0.6)
+	end
+end
+
+-- An ability: white once a run has taken it, grey before; its best average
+-- cast on the right in gold.
+local function FillAbility(row, ability)
+	local used = (ability.runs or 0) > 0 or ability.best
+	row:SetBackdropColor(0.12, 0.10, 0.08, 0.9)
+	row.name:SetText(ability.name)
+	if used then
+		row.name:SetTextColor(1, 1, 1)
+	else
+		row.name:SetTextColor(0.55, 0.55, 0.55)
+	end
+	if ability.best then
+		row.rank:SetText("|cffffd24d"..Short(ability.best).."|r |cffa0a0a0avg|r")
+	else
+		row.rank:SetText("|cff6a6a6a-|r")
+	end
+	if ability.rank and ability.rank > 0 then
+		row.classes:SetText("|cffa0a0a0rank "..ability.rank.."|r")
+	else
+		row.classes:SetText("")
+	end
+	if ability.icon then
+		row.icon:SetTexture(ability.icon)
+		row.icon:SetVertexColor(1, 1, 1)
+	else
+		row.icon:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
+		row.icon:SetVertexColor(0.6, 0.6, 0.6)
+	end
+end
+
+local function FillRow(row, entry)
+	row.entry = entry
+	-- The name runs up to the tags on its right.
+	row.name:ClearAllPoints()
+	row.name:SetPoint("LEFT", row, "LEFT", ROW_HEIGHT + 4, 0)
+	row.name:SetPoint("RIGHT", row, "RIGHT", entry.ability and -130 or -132, 0)
+	if entry.ability then
+		FillAbility(row, entry)
+	else
+		FillPiece(row, entry)
 	end
 	row:Show()
 end
@@ -446,13 +889,12 @@ end
 
 Draw = function()
 	local y = -TITLE_HEIGHT - 4
-	local shown, chosenShown = 0, false
+	local chosenShown = false
 	for index = 1, table.getn(KINDS) do
 		local entry = KINDS[index]
-		local count = table.getn(Pieces(entry.kind))
+		local count = table.getn(Entries(entry.kind))
 		local tab = Tab(index)
 		if count > 0 or entry.always then
-			shown = shown + 1
 			tab.kind = entry.kind
 			tab.text:SetText(entry.title)
 			tab.count:SetText(count)
@@ -471,21 +913,33 @@ Draw = function()
 		PaintTab(Tab(1), true)
 	end
 
-	local pieces = Pieces(chosen)
-	local pages = math.max(1, math.ceil(table.getn(pieces) / ROWS))
+	if chosen == ABILITY then
+		book.note:SetText("Your "..ClassName().." abilities and their best average cast")
+		page.empty:SetText("No abilities seen yet: open your spellbook once, or play a run.")
+		filter:Hide()
+	else
+		book.note:SetText("Gear you have worn, in any run")
+		page.empty:SetText(ClassOnly() and "Nothing of this kind worn as "..ClassName().." yet."
+			or "Nothing of this kind worn yet.")
+		filter.text:SetText(ClassOnly() and ClassName().." only" or "Every class")
+		filter:Show()
+	end
+
+	local entries = Entries(chosen)
+	local pages = math.max(1, math.ceil(table.getn(entries) / ROWS))
 	pageNumber = math.max(1, math.min(pageNumber, pages))
 	local first = (pageNumber - 1) * ROWS
 	for index = 1, ROWS do
-		local piece = pieces[first + index]
+		local entry = entries[first + index]
 		local row = Row(index)
-		if piece then
-			FillRow(row, piece)
+		if entry then
+			FillRow(row, entry)
 		else
-			row.piece = nil
+			row.entry = nil
 			row:Hide()
 		end
 	end
-	if table.getn(pieces) == 0 then
+	if table.getn(entries) == 0 then
 		page.empty:Show()
 	else
 		page.empty:Hide()
@@ -498,6 +952,8 @@ end
 book:SetScript("OnShow", function()
 	Learn()
 	FillFromItems()
+	ReadSpellbook()
+	LearnRun()
 	Draw()
 end)
 
@@ -506,6 +962,35 @@ function SurvivorUI_ToggleLexicon()
 		book:Hide()
 	else
 		book:Show()
+	end
+end
+
+-- The book open at a kind ("Ring", "Ability"); for an ability, at the page
+-- that holds the one named.
+function SurvivorUI_OpenLexicon(kind, name)
+	local known = false
+	for index = 1, table.getn(KINDS) do
+		known = known or KINDS[index].kind == kind
+	end
+	if not known then
+		kind = KINDS[1].kind
+	end
+	chosen = kind
+	pageNumber = 1
+	if book:IsShown() then
+		Draw()
+	else
+		book:Show()
+	end
+	if name then
+		local entries = Entries(kind)
+		for index = 1, table.getn(entries) do
+			if entries[index].name == name then
+				pageNumber = math.ceil(index / ROWS)
+				Draw()
+				break
+			end
+		end
 	end
 end
 
@@ -522,7 +1007,7 @@ if build then
 	open:SetScript("OnEnter", function()
 		GameTooltip:SetOwner(this, "ANCHOR_LEFT")
 		GameTooltip:SetText("Lexicon", 1, 1, 1)
-		GameTooltip:AddLine("Every piece of gear you have worn, in any run, by kind (/sui lexicon).", 0.7, 0.7, 0.7, 1)
+		GameTooltip:AddLine("Every piece of gear you have worn, in any run, by kind, and your abilities with their best average cast (/sui lexicon).", 0.7, 0.7, 0.7, 1)
 		GameTooltip:Show()
 	end)
 	open:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -539,4 +1024,15 @@ learner:SetScript("OnEvent", function()
 	if book:IsShown() then
 		Draw()
 	end
+end)
+
+-- The run's spells, every few seconds while one is on.
+local learned = 0
+learner:SetScript("OnUpdate", function()
+	learned = learned + arg1
+	if learned < 3 then
+		return
+	end
+	learned = 0
+	LearnRun()
 end)

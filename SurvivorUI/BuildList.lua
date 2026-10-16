@@ -16,7 +16,8 @@
 -- fill it: the spells not learned yet (from the spellbook), or the jewelry of
 -- that kind worn in earlier runs (the game shares no list of its own, so the
 -- build remembers every piece it sees). Each box folds away with the button
--- in its heading's corner. From the game's addon API (AZS_SPELLS); without it
+-- in its heading's corner; click a row to open the Lexicon at its kind. From
+-- the game's addon API (AZS_SPELLS); without it
 -- nothing shows. Hold Alt and drag to move; /sui build hides it.
 
 local FLAT = "Interface\\ChatFrame\\ChatFrameBackground"
@@ -440,6 +441,7 @@ local function BaseName(name)
 end
 
 SurvivorUI_BaseName = BaseName
+SurvivorUI_SpellName = SpellName
 
 -- Every piece of this kind seen before and not worn now, once per piece
 -- whatever its rank: by its name without the rank, in the color of the
@@ -581,6 +583,7 @@ local function ShowCard(owner, title, color, rank, heading, entries, empty, scor
 			GameTooltip:AddLine("  "..gear.effects[index], 0.8, 0.8, 0.8, 1)
 		end
 	end
+	GameTooltip:AddLine("Click to open the Lexicon.", 0.45, 0.45, 0.45)
 	GameTooltip:Show()
 end
 
@@ -599,6 +602,7 @@ local function ShowPool(owner, title, entries, empty, note)
 		end
 	end
 	GameTooltip:AddLine(note, 0.55, 0.55, 0.55, 1)
+	GameTooltip:AddLine("Click to open the Lexicon.", 0.45, 0.45, 0.45)
 	GameTooltip:Show()
 end
 
@@ -684,19 +688,17 @@ local function Heading(text, key)
 	fold.fill:SetTexture(FLAT)
 	fold.fill:SetVertexColor(0.08, 0.08, 0.11, 1)
 	fold.fill:SetAllPoints(fold)
-	fold.text = fold:CreateFontString(nil, "OVERLAY")
-	fold.text:SetFont(FONT, 12 + FONT_BUMP, "OUTLINE")
-	fold.text:SetPoint("CENTER", fold, "CENTER", 1, 1)
-	fold.text:SetTextColor(0.75, 0.75, 0.75)
+	SurvivorUI_PlusMinus(fold, 8)
+	SurvivorUI_TintPlus(fold, 0.75, 0.75, 0.75)
 	fold:SetScript("OnEnter", function()
-		this.text:SetTextColor(1, 1, 1)
+		SurvivorUI_TintPlus(this, 1, 1, 1)
 		this.edge:SetVertexColor(1, 0.82, 0, 1)
 		GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
 		GameTooltip:SetText(Settings()[key] and "Unfold" or "Fold away", 1, 1, 1)
 		GameTooltip:Show()
 	end)
 	fold:SetScript("OnLeave", function()
-		this.text:SetTextColor(0.75, 0.75, 0.75)
+		SurvivorUI_TintPlus(this, 0.75, 0.75, 0.75)
 		this.edge:SetVertexColor(0.45, 0.45, 0.5, 1)
 		GameTooltip:Hide()
 	end)
@@ -781,6 +783,19 @@ local function Row(pool, index)
 	row:EnableMouse(true)
 	row:SetScript("OnEnter", RowEnter)
 	row:SetScript("OnLeave", function() GameTooltip:Hide() end)
+	-- A click opens the Lexicon at this row's kind: the jewelry's own page,
+	-- or the abilities for a spell.
+	row:SetScript("OnMouseUp", function()
+		if arg1 ~= "LeftButton" or not SurvivorUI_OpenLexicon then
+			return
+		end
+		GameTooltip:Hide()
+		if this.gearKind then
+			SurvivorUI_OpenLexicon(this.gearKind)
+		elseif this.ability or this.emptySpell then
+			SurvivorUI_OpenLexicon("Ability", this.ability)
+		end
+	end)
 
 	pool[index] = row
 	return row
@@ -995,7 +1010,7 @@ end
 -- Laying both boxes out, the frame sized to them.
 
 local function Fold(heading)
-	heading.fold.text:SetText(Settings()[heading.key] and "+" or "-")
+	SurvivorUI_SetPlus(heading.fold, Settings()[heading.key])
 end
 
 Draw = function()
@@ -1052,7 +1067,7 @@ end
 
 if SurvivorUI_RegisterOption then
 	SurvivorUI_RegisterOption({
-		section = "Panels",
+		section = "General",
 		label = "Build",
 		tip = "Your spells and the jewelry a run upgrades, in the right column. Hover one for its rank and upgrades; each box folds away with the button in its corner.",
 		command = "/sui build",

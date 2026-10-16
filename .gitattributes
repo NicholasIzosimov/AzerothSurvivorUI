@@ -1,0 +1,3 @@
+# Windows scripts keep their Windows line endings everywhere, downloads too:
+# cmd misreads a file with Unix line endings.
+*.cmd -text

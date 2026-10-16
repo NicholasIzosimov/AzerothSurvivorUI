@@ -74,6 +74,23 @@ log.empty:SetTextColor(0.5, 0.5, 0.5)
 log.empty:SetText("Nothing yet")
 
 local entries = {}              -- newest first: { item, name, color, count, new, at }
+
+-- The list lives in the run's memory (SurvivorUI_RunMemory), so a reload in
+-- the middle of a run keeps it.
+local function Remember()
+	if SurvivorUI_RunMemory then
+		local memory = SurvivorUI_RunMemory("loot")
+		memory.entries = memory.entries or {}
+		entries = memory.entries
+	end
+end
+
+local function Forget()
+	entries = {}
+	if SurvivorUI_RunMemory then
+		SurvivorUI_RunMemory("loot").entries = entries
+	end
+end
 local bars = {}
 
 local function Bar(index)
@@ -194,6 +211,7 @@ local function Add(message)
 	end
 	lastAdded, lastAddedAt = rest, now
 
+	Remember()
 	table.insert(entries, 1, {
 		item = item, name = name, color = color, count = tonumber(count),
 		new = string.find(rest, "New in your collection", 1, true) ~= nil,
@@ -215,7 +233,7 @@ local function Seen(text)
 	end
 	-- "<hero> enters <zone>. Move to begin.": a new run, an empty list.
 	if string.find(text, "Move to begin", 1, true) then
-		entries = {}
+		Forget()
 		Draw()
 	elseif string.find(text, "You receive", 1, true) then
 		Add(text)
@@ -251,8 +269,9 @@ watcher:SetScript("OnUpdate", function()
 
 	-- The game's clock going back means a new run.
 	local seconds = RunSeconds()
+	Remember()
 	if seconds and lastSeconds and seconds + 3 < lastSeconds then
-		entries = {}
+		Forget()
 		Draw()
 	end
 	lastSeconds = seconds
@@ -279,7 +298,7 @@ end
 
 if SurvivorUI_RegisterOption then
 	SurvivorUI_RegisterOption({
-		section = "Panels",
+		section = "General",
 		label = "Loot log",
 		tip = "What the run has dropped, newest on top, in the top left corner.",
 		command = "/sui loot",

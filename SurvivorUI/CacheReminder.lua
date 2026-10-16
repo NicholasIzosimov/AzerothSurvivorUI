@@ -34,6 +34,11 @@ local function Settings()
 	if SurvivorUIDB.cachePins == nil then
 		SurvivorUIDB.cachePins = true
 	end
+	-- The arrow points by the map unless asked otherwise: the game's camera
+	-- does not turn with the hero, so north stays up on the screen.
+	if SurvivorUIDB.cacheArrowByMap == nil then
+		SurvivorUIDB.cacheArrowByMap = true
+	end
 	return SurvivorUIDB
 end
 
@@ -174,30 +179,52 @@ end
 ------------------------------------------------------------------------------
 -- The arrow: over the reminder, pointing to the nearest cache (the game sends
 -- where every cache is, AZS_CHESTS), with the distance under it, green when
--- near and turning red with distance. It points relative to the way the hero
--- faces, as TomTom's does, read off the minimap's own player arrow (the game
--- has no facing call for addons); switched to "by the map", it points with
--- north up instead.
+-- near and turning red with distance. It points with north up (the game's
+-- camera does not turn); switched off "by the map", it points relative to the
+-- way the hero faces, as TomTom's does, read off the minimap's own player
+-- arrow, or the way the hero last moved where that cannot be read.
+--
+-- It keeps to one cache: another has to be SWITCH_MARGIN yards nearer before
+-- the arrow turns to it, so two caches at about the same distance do not
+-- trade places every step. It turns toward its bearing smoothly rather than
+-- in jumps, and looks again every few seconds even while the hero stands
+-- still.
 
 local ARROW = "Interface\\Minimap\\ROTATING-MINIMAPGUIDEARROW"
-local ARROW_SIZE = 40
+local ARROW_SIZE = 56           -- the arrow's size until one is chosen
+local ARROW_MIN, ARROW_MAX = 24, 96
 local NEAR, FAR = 15, 150       -- yards: fully green at NEAR, fully red from FAR
+local SWITCH_MARGIN = 10        -- yards another cache must be nearer by to take the arrow
+local TURN_RATE = 10            -- how quickly the arrow catches up with its bearing
+local AIM_EVERY = 0.1           -- seconds between readings of the hero and the caches
+local REFRESH_EVERY = 2         -- seconds between full looks, standing still or not
+
+local function ArrowSize()
+	return math.max(ARROW_MIN, math.min(ARROW_MAX, tonumber(Settings().cacheArrowSize) or ARROW_SIZE))
+end
 
 local arrowFrame = CreateFrame("Frame", nil, holder)
-arrowFrame:SetWidth(ARROW_SIZE)
-arrowFrame:SetHeight(ARROW_SIZE + 14)
 arrowFrame:SetPoint("BOTTOM", holder, "TOP", 0, 2)
 arrowFrame:Hide()
 
 local arrow = arrowFrame:CreateTexture(nil, "OVERLAY")
 arrow:SetTexture(ARROW)
-arrow:SetWidth(ARROW_SIZE)
-arrow:SetHeight(ARROW_SIZE)
 arrow:SetPoint("TOP", arrowFrame, "TOP", 0, 0)
 
 local distance = arrowFrame:CreateFontString(nil, "OVERLAY")
-distance:SetFont(FONT, 11 + FONT_BUMP, "OUTLINE")
 distance:SetPoint("TOP", arrow, "BOTTOM", 0, 2)
+
+-- The arrow at its size, the distance under it in proportion.
+local function ApplyArrowSize()
+	local size = ArrowSize()
+	local textSize = math.max(10, math.floor(size * 0.22 + 0.5))
+	arrow:SetWidth(size)
+	arrow:SetHeight(size)
+	distance:SetFont(FONT, textSize + FONT_BUMP, "OUTLINE")
+	arrowFrame:SetWidth(size)
+	arrowFrame:SetHeight(size + textSize + 4)
+end
+ApplyArrowSize()
 
 -- Turns the arrow's picture by an angle, clockwise, about its middle.
 local function Turn(angle)
@@ -308,7 +335,7 @@ local function Spread(list)
 	return total / table.getn(list) / middle
 end
 
-local function MapSpan()
+local function ReadMapSpan()
 	local points = Points()
 	-- Each reading: world axis for the map's x, world axis for its y.
 	local readings = { { "wy", "wx" }, { "wx", "wy" } }
@@ -340,6 +367,20 @@ local function MapSpan()
 	return GUESS_ACROSS, GUESS_DOWN, false
 end
 
+-- The span, read again every few seconds rather than for every cache on
+-- every frame: it takes every pair of points, and a fresh reading each frame
+-- as the caches come and go also made the arrow shake.
+local spanAcross, spanDown, spanLearned, spanAt
+
+local function MapSpan()
+	local now = GetTime()
+	if not spanAt or now - spanAt >= REFRESH_EVERY then
+		spanAt = now
+		spanAcross, spanDown, spanLearned = ReadMapSpan()
+	end
+	return spanAcross, spanDown, spanLearned
+end
+
 -- Yards east and north from the hero to a map point.
 local function Offset(cx, cy, px, py)
 	local across, down = MapSpan()
@@ -369,10 +410,19 @@ local function MovementHeading()
 	return heading
 end
 
--- The nearest cache: its direction (radians clockwise from north) and its
--- distance in yards; nil without the hero's or any cache's position.
+-- The cache the arrow keeps to, by where it stands on the map.
+local lockedKey
+
+local function CacheKey(cx, cy)
+	return string.format("%.3f:%.3f", cx, cy)
+end
+
+-- The cache to point at: its direction (radians clockwise from north) and
+-- its distance in yards; nil without the hero's or any cache's position. The
+-- one already pointed at, unless another is SWITCH_MARGIN yards nearer.
 local function NearestCache()
 	if not AZS_CHESTS or table.getn(AZS_CHESTS) == 0 then
+		lockedKey = nil
 		return nil
 	end
 	local px, py = GetPlayerMapPosition("player")
@@ -383,22 +433,30 @@ local function NearestCache()
 	if not px or (px == 0 and py == 0) then
 		return nil
 	end
-	local bestEast, bestNorth, bestYards
+	local near, locked
 	for index = 1, table.getn(AZS_CHESTS) do
 		local cx, cy = MapPoint(AZS_CHESTS[index])
 		if cx then
 			local east, north = Offset(cx, cy, px, py)
-			local yards = math.sqrt(east * east + north * north)
-			if not bestYards or yards < bestYards then
-				bestEast, bestNorth, bestYards = east, north, yards
+			local found = { east = east, north = north, yards = math.sqrt(east * east + north * north), key = CacheKey(cx, cy) }
+			if not near or found.yards < near.yards then
+				near = found
+			end
+			if found.key == lockedKey then
+				locked = found
 			end
 		end
 	end
-	if not bestYards then
+	if not near then
 		return nil
 	end
+	local target = near
+	if locked and locked.yards - near.yards < SWITCH_MARGIN then
+		target = locked
+	end
+	lockedKey = target.key
 	-- Clockwise from north.
-	return math.atan2(bestEast, bestNorth), bestYards
+	return math.atan2(target.east, target.north), target.yards
 end
 
 ------------------------------------------------------------------------------
@@ -537,22 +595,23 @@ local function ArrowColor(yards)
 	return 1, 1 - (t - 0.5) * 2, 0.1
 end
 
-local function DrawArrow(preview)
-	if not Settings().cacheArrow then
-		arrowFrame:Hide()
-		return
-	end
+-- The way to point and how far, read every AIM_EVERY seconds; the arrow
+-- itself turns toward it every frame. Every REFRESH_EVERY seconds the map is
+-- set back to the hero's zone (the world map can leave it on another), so the
+-- arrow keeps up even while the hero stands still.
+local aimAngle, aimYards
+local shownAngle
+
+-- An angle brought into -pi to pi.
+local function Wrap(angle)
+	return angle - 2 * math.pi * math.floor((angle + math.pi) / (2 * math.pi))
+end
+local aimElapsed, refreshElapsed = AIM_EVERY, 0
+
+local function Aim()
 	local bearing, yards = NearestCache()
 	if not bearing then
-		if preview then
-			-- Somewhere to place it from: pointing up, in grey.
-			Turn(0)
-			arrow:SetVertexColor(0.6, 0.6, 0.6)
-			distance:SetText("|cff9a9a9a-- yd|r")
-			arrowFrame:Show()
-		else
-			arrowFrame:Hide()
-		end
+		aimAngle, aimYards = nil, nil
 		return
 	end
 	local angle = bearing
@@ -569,10 +628,53 @@ local function DrawArrow(preview)
 			end
 		end
 	end
-	Turn(angle)
-	local r, g, b = ArrowColor(yards)
+	aimAngle, aimYards = angle, yards
+end
+
+local function DrawArrow(preview, elapsed)
+	if not Settings().cacheArrow then
+		arrowFrame:Hide()
+		return
+	end
+	refreshElapsed = refreshElapsed + elapsed
+	if refreshElapsed >= REFRESH_EVERY then
+		refreshElapsed = 0
+		local mapOpen = WorldMapFrame and WorldMapFrame:IsVisible()
+		if SetMapToCurrentZone and not mapOpen then
+			SetMapToCurrentZone()
+		end
+		aimElapsed = AIM_EVERY
+	end
+	aimElapsed = aimElapsed + elapsed
+	if aimElapsed >= AIM_EVERY then
+		aimElapsed = 0
+		Aim()
+	end
+	if not aimAngle then
+		shownAngle = nil
+		if preview then
+			-- Somewhere to place it from: pointing up, in grey.
+			Turn(0)
+			arrow:SetVertexColor(0.6, 0.6, 0.6)
+			distance:SetText("|cff9a9a9a-- yd|r")
+			arrowFrame:Show()
+		else
+			arrowFrame:Hide()
+		end
+		return
+	end
+	-- The shorter way round toward the bearing, eased: quick for a big turn,
+	-- gentle as it closes in.
+	if not shownAngle then
+		shownAngle = Wrap(aimAngle)
+	else
+		local turn = Wrap(aimAngle - shownAngle)
+		shownAngle = Wrap(shownAngle + turn * (1 - math.exp(-elapsed * TURN_RATE)))
+	end
+	Turn(shownAngle)
+	local r, g, b = ArrowColor(aimYards)
 	arrow:SetVertexColor(r, g, b)
-	distance:SetText(math.floor(yards + 0.5).." yd")
+	distance:SetText(math.floor(aimYards + 0.5).." yd")
 	distance:SetTextColor(r, g, b)
 	arrowFrame:Show()
 end
@@ -607,7 +709,7 @@ holder:SetScript("OnUpdate", function()
 		return
 	end
 	-- The arrow follows every frame, so it turns smoothly with the hero.
-	DrawArrow(not Affordable())
+	DrawArrow(not Affordable(), arg1)
 	-- Fades in (eased, so it neither pops nor stops short), then breathes:
 	-- down to PULSE_LOW and back to full, starting from full.
 	shownFor = shownFor + arg1
@@ -628,7 +730,7 @@ end)
 
 if SurvivorUI_RegisterOption then
 	SurvivorUI_RegisterOption({
-		section = "Panels",
+		section = "General",
 		label = "Next Cache Reminder",
 		tip = "\""..TEXT.."\" in large letters over the middle of the screen while your gold covers the next cache.",
 		get = function() return Settings().cacheReminder end,
@@ -638,7 +740,7 @@ if SurvivorUI_RegisterOption then
 		end,
 	})
 	SurvivorUI_RegisterOption({
-		section = "Panels",
+		section = "General",
 		kind = "slider",
 		label = "Next Cache Reminder size",
 		parent = "Next Cache Reminder",
@@ -663,7 +765,7 @@ if SurvivorUI_RegisterOption then
 		end,
 	})
 	SurvivorUI_RegisterOption({
-		section = "Panels",
+		section = "General",
 		label = "Reminder text",
 		parent = "Next Cache Reminder",
 		tip = "The words \"Can Afford Next Cache!\". Off, only your gold against the price shows (\"505 / 20\"), in their place and size.",
@@ -674,10 +776,10 @@ if SurvivorUI_RegisterOption then
 		end,
 	})
 	SurvivorUI_RegisterOption({
-		section = "Panels",
+		section = "General",
 		label = "Cache arrow",
 		parent = "Next Cache Reminder",
-		tip = "An arrow over the reminder pointing to the nearest cache, with the distance under it: green when near, red when far.",
+		tip = "An arrow over the reminder pointing to the nearest cache, with the distance under it: green when near, red when far. It keeps to one cache until another is "..SWITCH_MARGIN.." yards nearer.",
 		get = function() return Settings().cacheArrow end,
 		toggle = function()
 			local settings = Settings()
@@ -685,10 +787,25 @@ if SurvivorUI_RegisterOption then
 		end,
 	})
 	SurvivorUI_RegisterOption({
-		section = "Panels",
+		section = "General",
+		kind = "slider",
+		label = "Cache arrow size",
+		parent = "Next Cache Reminder",
+		tip = "The size of the arrow to the nearest cache, in pixels.",
+		min = ARROW_MIN,
+		max = ARROW_MAX,
+		step = 2,
+		get = ArrowSize,
+		set = function(size)
+			Settings().cacheArrowSize = size
+			ApplyArrowSize()
+		end,
+	})
+	SurvivorUI_RegisterOption({
+		section = "General",
 		label = "Arrow points by the map",
 		parent = "Next Cache Reminder",
-		tip = "Off, the arrow points relative to the way your hero faces, as TomTom's does (taken from the way you last moved, as the game shares no facing). On, it points with north up, which suits a camera that never turns.",
+		tip = "On (the default), the arrow points with north up, which suits the game's camera, as it never turns. Off, it points relative to the way your hero faces, as TomTom's does (taken from the way you last moved, as the game shares no facing).",
 		get = function() return Settings().cacheArrowByMap end,
 		toggle = function()
 			local settings = Settings()

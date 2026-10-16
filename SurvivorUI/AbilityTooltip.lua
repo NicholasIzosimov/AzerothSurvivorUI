@@ -13,9 +13,17 @@
 -- hero's Echo, AZS_STATS.echo), as the game itself writes on some of them;
 -- where the game already wrote it, its own line stands.
 --
+-- Simplified (a switch in /sui opt, Ability Bar, on unless switched off):
+-- under the name, rank, cast and cooldown, every number the description and
+-- the line under the name give stands on a line of its own, value first: "3
+-- Targets", "7 yd", "34% chance to cast twice", "26% crit · 219% crit
+-- damage", "826 Physical Damage", "50% Leech". Wording without a number
+-- ("Bosses and elites are targeted first.") is left out.
+--
 -- The game rewrites the tooltip a few times a second while the mouse stays,
 -- so the layout is redone whenever its text changes. A tooltip it cannot read
--- is left as the game wrote it.
+-- is left as the game wrote it, and so is one whose new layout fails to come
+-- together: the lines are worked out in full before the tooltip is touched.
 
 local FLAT = "Interface\\ChatFrame\\ChatFrameBackground"
 local DOT = " \194\183 "
@@ -45,6 +53,7 @@ local COOLDOWN_HEX = "|cff8cccff"   -- light blue
 local REACH_HEX = "|cff99f2bf"      -- mint
 local CRIT_HEX = "|cffffc214"       -- the gold of a critical strike's number
 local MUTED = { 0.62, 0.62, 0.62 }
+local ECHO_COLOR = { 1, 0.82, 0 }   -- the game's own gold for "chance to cast twice"
 
 ------------------------------------------------------------------------------
 -- Rules: thin lines drawn across the tooltip, each over a blank line.
@@ -163,6 +172,7 @@ local function Read()
 				table.insert(ability.sections, { info = section, items = List(string.sub(text, string.len(section.prefix) + 1)) })
 			elseif critChance then
 				ability.crit = critChance.." crit"..DOT..critDamage
+				ability.critChance, ability.critDamage = critChance, critDamage
 			elseif text ~= "" then
 				-- The description is the first text below the cast line; the
 				-- rest ("Not learned yet", a racial's note) keep their color.
@@ -220,57 +230,273 @@ local function Highlight(text, school, schoolColor)
 	return text
 end
 
-local function Spacer(color)
-	GameTooltip:AddLine(" ")
-	Rule(GameTooltip:NumLines(), color)
+-- The new layout is worked out as a list of lines first, and the tooltip
+-- written from it only once that list is whole: a layout that fails halfway
+-- would otherwise leave the tooltip empty, and an empty tooltip hides.
+local function Simplified()
+	SurvivorUIDB = SurvivorUIDB or {}
+	return SurvivorUIDB.simpleTips ~= false
 end
 
-local function Write(ability)
-	HideRules()
-	GameTooltip:ClearLines()
+-- The simplified description: the numbers a description gives, one fact to a
+-- line, the value first ("3 Targets", "7 yd", "826 Physical Damage", "50%
+-- Leech"), read from the description's wording, clause by clause. A rule
+-- takes what it reads out of the clause, so no later rule reads it again; a
+-- clause with a number no rule knows stands as it is written; one with no
+-- number at all ("Bosses and elites are targeted first.") is left out.
+
+local NUMBER = "([%d%.]+)"
+
+local function Capital(text)
+	return string.upper(string.sub(text, 1, 1))..string.sub(text, 2)
+end
+
+-- "your attack speed" as a label: "Attack speed".
+local function Thing(text)
+	return Capital((string.gsub(string.gsub(text, "^your ", ""), "^the ", "")))
+end
+
+-- Each fact: its place in the list (targets, then reach, the cast twice and
+-- crit lines, damage, then everything else), its value and its label.
+local TARGETS, REACH, ECHO, CRIT, DAMAGE, EFFECT, OTHER = 1, 2, 3, 4, 5, 6, 7
+
+local FACTS = {
+	{ "up to (%d+) enem%a*", function(n) return TARGETS, n, "Targets" end },
+	{ "up to (%d+) targets?", function(n) return TARGETS, n, "Targets" end },
+	{ "(%d+) additional enem%a*", function(n) return TARGETS, "+"..n, "Targets" end },
+	{ "(%d+) additional targets?", function(n) return TARGETS, "+"..n, "Targets" end },
+	{ "(%d+) nearby enem%a*", function(n) return TARGETS, n, "Targets" end },
+	{ "(%d+) enem%a*", function(n) return TARGETS, n, "Targets" end },
+	{ "(%d+) targets", function(n) return TARGETS, n, "Targets" end },
+	{ "absorbs? up to "..NUMBER, function(n) return EFFECT, n, "Absorb" end },
+	{ "absorbs? "..NUMBER, function(n) return EFFECT, n, "Absorb" end },
+	{ "absorbing "..NUMBER, function(n) return EFFECT, n, "Absorb" end },
+	{ "heals? you for "..NUMBER.."%% of the damage[%a ]*", function(n) return EFFECT, n.."%", "Leech" end },
+	{ NUMBER.." (%a+) damage over "..NUMBER.." sec", function(n, school, t)
+		return DAMAGE, n, Capital(school).." Damage over "..t.." sec", school end },
+	{ NUMBER.." (%a+) damage", function(n, school) return DAMAGE, n, Capital(school).." Damage", school end },
+	{ NUMBER.." damage", function(n) return DAMAGE, n, "Damage" end },
+	{ "within "..NUMBER.." yds?", function(n) return REACH, n.." yd", "" end },
+	{ NUMBER.." yds? radius", function(n) return REACH, n.." yd", "radius" end },
+	{ NUMBER.." yds? range", function(n) return REACH, n.." yd", "range" end },
+	{ NUMBER.." yds?", function(n) return REACH, n.." yd", "" end },
+	{ "heals? [%a ]-for "..NUMBER.."%%", function(n) return EFFECT, n.."%", "Heal" end },
+	{ "heals? [%a ]-for "..NUMBER, function(n) return EFFECT, n, "Healing" end },
+	{ "restores? "..NUMBER.." health", function(n) return EFFECT, n, "Healing" end },
+	{ "(%a+)s them for "..NUMBER.." sec", function(verb, t) return EFFECT, t.." sec", Capital(verb) end },
+	{ "(%a+)s them by "..NUMBER.."%%", function(verb, n) return EFFECT, n.."%", Capital(verb) end },
+	{ NUMBER.."%% chance to (.+)", function(n, rest) return EFFECT, n.."%", "chance to "..rest end },
+	{ "increases? (.-) by "..NUMBER.."%%", function(what, n) return EFFECT, "+"..n.."%", Thing(what) end },
+	{ "reduces? (.-) by "..NUMBER.."%%", function(what, n) return EFFECT, "-"..n.."%", Thing(what) end },
+	{ "for "..NUMBER.." sec", function(t) return EFFECT, t.." sec", "Duration" end },
+	{ "lasts? "..NUMBER.." sec", function(t) return EFFECT, t.." sec", "Duration" end },
+	{ "every "..NUMBER.." sec", function(t) return EFFECT, t.." sec", "Interval" end },
+}
+
+local function Trim(text)
+	return (string.gsub(string.gsub(text, "^[%s,]+", ""), "[%s,%.]+$", ""))
+end
+
+-- The facts of a description (its lines, joined), as { place, value, label,
+-- school } in the order they were read.
+local function ReadFacts(lines)
+	local facts = {}
+	local text = table.concat(lines, " ").." . "
+	for clause in string.gfind(text, "(.-)[%.;]%s") do
+		local original = Trim(clause)
+		local lower = string.lower(original)
+		local matched = false
+		for index = 1, table.getn(FACTS) do
+			local rule = FACTS[index]
+			while true do
+				local found = { string.find(lower, rule[1]) }
+				if not found[1] then
+					break
+				end
+				matched = true
+				local place, value, label, school = rule[2](found[3], found[4], found[5])
+				table.insert(facts, { place = place, value = value, label = label, school = school })
+				-- Cut from both, so the next rules read only what is left.
+				lower = string.sub(lower, 1, found[1] - 1).." "..string.sub(lower, found[2] + 1)
+				original = string.sub(original, 1, found[1] - 1).." "..string.sub(original, found[2] + 1)
+			end
+		end
+		if not matched and string.find(original, "%d") then
+			table.insert(facts, { place = OTHER, text = original })
+		end
+	end
+	return facts
+end
+
+-- The echo line ("34% chance to cast twice"), wherever it was written.
+local function IsEcho(text)
+	return string.find(text, "chance to cast", 1, true) or string.find(text, "^Casts ")
+end
+
+-- A fact as a line: the value in white (a damage's in its school's color),
+-- the label muted.
+local function FactText(fact, school, tint)
+	if fact.text then
+		return Highlight(fact.text, school, tint)
+	end
+	local value = "|cffffffff"..fact.value.."|r"
+	if fact.place == DAMAGE and fact.school and SCHOOL_COLORS[Capital(fact.school)] then
+		value = Hex(SCHOOL_COLORS[Capital(fact.school)])..fact.value.."|r"
+	end
+	if fact.label == "" then
+		return value
+	end
+	return value.." "..fact.label
+end
+
+-- The facts in their places: the line under the name's (range, radius) with
+-- the reach, the echo and the crit after it, then the description's own.
+local function AllFacts(ability)
+	local facts, seen = {}, {}
+	for index = 1, table.getn(ability.stats) do
+		local stat = ability.stats[index]
+		local _, _, yards = string.find(stat, "^([%d%.]+) yds?")
+		table.insert(facts, { place = REACH, text = stat })
+		if yards then
+			seen[yards.." yd"] = true
+		end
+	end
+	for index = 1, table.getn(ability.other) do
+		local other = ability.other[index]
+		if IsEcho(other.text) then
+			table.insert(facts, { place = ECHO, echo = other.text })
+		end
+	end
+	if ability.critChance then
+		table.insert(facts, { place = CRIT, crit = true })
+	end
+	local read = ReadFacts(ability.description)
+	for index = 1, table.getn(read) do
+		local fact = read[index]
+		-- "within 7 yd" says again what "7 yd range" said.
+		if not (fact.place == REACH and seen[fact.value]) then
+			table.insert(facts, fact)
+		end
+	end
+	-- In their places, each place in the order read.
+	for index = 1, table.getn(facts) do
+		facts[index].order = index
+	end
+	table.sort(facts, function(a, b)
+		if a.place ~= b.place then
+			return a.place < b.place
+		end
+		return a.order < b.order
+	end)
+	return facts
+end
+
+-- The lines of the layout: { left, right, r, g, b, rr, rg, rb } a double
+-- line, { left, nil, r, g, b, wrap = true } a line, { rule = color } a blank
+-- line with a rule across it.
+local function Compose(ability)
+	local lines = {}
+	local function Double(left, right, color, rightColor)
+		table.insert(lines, { left, right, color[1], color[2], color[3], rightColor[1], rightColor[2], rightColor[3] })
+	end
+	local function Line(text, color)
+		table.insert(lines, { text, nil, color[1], color[2], color[3], wrap = true })
+	end
+	local function Spacer(color)
+		table.insert(lines, { rule = color })
+	end
 	local school, tint = School(ability)
 
 	if ability.rank then
-		GameTooltip:AddDoubleLine(ability.title, ability.rank, tint[1], tint[2], tint[3], MUTED[1], MUTED[2], MUTED[3])
+		Double(ability.title, ability.rank, tint, MUTED)
 	else
-		GameTooltip:AddLine(ability.title, tint[1], tint[2], tint[3])
+		Line(ability.title, tint)
 	end
 	-- "3.4 sec" cooldown, "28 yd" range, "7%" crit "204%".
 	local cooldown = string.gsub(ability.cooldown or " ", "^([%d%.]+ sec)", COOLDOWN_HEX.."%1|r")
-	GameTooltip:AddDoubleLine(ability.cast, cooldown, MUTED[1], MUTED[2], MUTED[3], MUTED[1], MUTED[2], MUTED[3])
-	if table.getn(ability.stats) > 0 or ability.crit then
-		local reach = string.gsub(table.concat(ability.stats, DOT), "([%d%.]+ yd)", REACH_HEX.."%1|r")
-		local crit = string.gsub(ability.crit or " ", "(%d+%%)", CRIT_HEX.."%1|r")
-		GameTooltip:AddDoubleLine(reach, crit, MUTED[1], MUTED[2], MUTED[3], MUTED[1], MUTED[2], MUTED[3])
-	end
+	Double(ability.cast, cooldown, MUTED, MUTED)
 
-	if table.getn(ability.description) > 0 then
-		Spacer(tint)
-		for index = 1, table.getn(ability.description) do
-			GameTooltip:AddLine(Highlight(ability.description[index], school, tint),
-				DESCRIPTION_COLOR[1], DESCRIPTION_COLOR[2], DESCRIPTION_COLOR[3], 1)
+	local others = ability.other
+	if Simplified() then
+		local facts = AllFacts(ability)
+		if table.getn(facts) > 0 then
+			Spacer(tint)
+			for index = 1, table.getn(facts) do
+				local fact = facts[index]
+				if fact.echo then
+					Line(fact.echo, ECHO_COLOR)
+				elseif fact.crit then
+					Line(CRIT_HEX..ability.critChance.."|r crit"..DOT..CRIT_HEX..ability.critDamage.."|r crit damage", MUTED)
+				else
+					Line(FactText(fact, school, tint), MUTED)
+				end
+			end
+		elseif table.getn(ability.description) > 0 then
+			-- Nothing to count: the description as the game wrote it.
+			Spacer(tint)
+			for index = 1, table.getn(ability.description) do
+				Line(Highlight(ability.description[index], school, tint), DESCRIPTION_COLOR)
+			end
+		end
+		-- The echo line has its place among the facts.
+		others = {}
+		for index = 1, table.getn(ability.other) do
+			if not IsEcho(ability.other[index].text) then
+				table.insert(others, ability.other[index])
+			end
+		end
+	else
+		if table.getn(ability.stats) > 0 or ability.crit then
+			local reach = string.gsub(table.concat(ability.stats, DOT), "([%d%.]+ yd)", REACH_HEX.."%1|r")
+			local crit = string.gsub(ability.crit or " ", "(%d+%%)", CRIT_HEX.."%1|r")
+			Double(reach, crit, MUTED, MUTED)
+		end
+		if table.getn(ability.description) > 0 then
+			Spacer(tint)
+			for index = 1, table.getn(ability.description) do
+				Line(Highlight(ability.description[index], school, tint), DESCRIPTION_COLOR)
+			end
 		end
 	end
 
 	-- The upgrades, bonuses and talents are left out: the card stays short,
 	-- and the build's own card lists a spell's upgrades.
 
-	if table.getn(ability.other) > 0 then
+	if table.getn(others) > 0 then
 		Spacer(MUTED)
-		for index = 1, table.getn(ability.other) do
-			local other = ability.other[index]
-			GameTooltip:AddLine(other.text, other.color[1], other.color[2], other.color[3], 1)
+		for index = 1, table.getn(others) do
+			Line(others[index].text, others[index].color)
 		end
 	end
+	return lines
+end
 
+local function Write(ability)
+	local ok, lines = pcall(Compose, ability)
+	if not (ok and lines and table.getn(lines) > 0) then
+		return false
+	end
+	HideRules()
+	GameTooltip:ClearLines()
+	for index = 1, table.getn(lines) do
+		local line = lines[index]
+		if line.rule then
+			GameTooltip:AddLine(" ")
+			Rule(GameTooltip:NumLines(), line.rule)
+		elseif line[2] then
+			GameTooltip:AddDoubleLine(line[1], line[2], line[3], line[4], line[5], line[6], line[7], line[8])
+		else
+			GameTooltip:AddLine(line[1], line[3], line[4], line[5], line.wrap and 1 or nil)
+		end
+	end
 	-- Shown again to fit the new lines, where the game placed it.
 	GameTooltip:Show()
+	return true
 end
 
 ------------------------------------------------------------------------------
 -- The chance to cast twice, for the action bar's tooltips.
 
-local ECHO_COLOR = { 1, 0.82, 0 }
 local TIMES = { "once", "twice" }
 
 -- The action button whose tooltip is up, from the game's own opener.
@@ -344,7 +570,8 @@ watcher:SetScript("OnUpdate", function()
 	local ok, ability = pcall(Read)
 	if ok and ability then
 		pcall(AddEcho, ability)
-		if pcall(Write, ability) then
+		local wrote, done = pcall(Write, ability)
+		if wrote and done then
 			written = Signature()
 		end
 	end
@@ -359,3 +586,17 @@ GameTooltip:SetScript("OnHide", function()
 		stockHide()
 	end
 end)
+
+if SurvivorUI_RegisterOption then
+	SurvivorUI_RegisterOption({
+		section = "Ability Bar",
+		order = 1,
+		label = "Simplified Ability Description",
+		tip = "Ability tooltips as a list: under the name, rank, cast and cooldown, every number on a line of its own, value first (\"3 Targets\", \"7 yd\", \"26% crit · 219% crit damage\", \"826 Physical Damage\", \"50% Leech\"). Off, the description reads as the game writes it, its numbers in white.",
+		get = Simplified,
+		toggle = function()
+			SurvivorUIDB = SurvivorUIDB or {}
+			SurvivorUIDB.simpleTips = not Simplified()
+		end,
+	})
+end

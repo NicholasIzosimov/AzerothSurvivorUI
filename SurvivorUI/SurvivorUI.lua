@@ -111,6 +111,157 @@ function SurvivorUI_Preview()
 	return AZS_GetPhase ~= nil and AZS_GetPhase() == "ready"
 end
 
+-- Run memory: what the panels learn as a run goes (when each boss came and
+-- fell, the meter's casts and colors, the loot) is kept in the saved
+-- variables, so a reload in the middle of a run picks up where it left off
+-- instead of starting blind. Each panel keeps a part of its own
+-- (SurvivorUI_RunMemory("tracker")). It belongs to one run: the clock gone
+-- back, another zone, or more run time gone than real time allows since it
+-- was last written (a run that is not this one) lets it go, and so does the
+-- next run waiting to begin.
+local memoryChecked = false     -- the remembered run was checked against this one, this session
+
+-- The run's clock, while one is on; waiting is true between runs.
+local function RunClock()
+	if not (AZS_GetPhase and AZS_RUN) then
+		return nil
+	end
+	local phase = AZS_GetPhase()
+	if not phase then
+		return nil
+	end
+	if phase == "ready" then
+		return nil, true
+	end
+	return (AZS_GetRunTime and AZS_GetRunTime()) or tonumber(AZS_RUN.t) or 0
+end
+
+function SurvivorUI_RunMemory(part)
+	local settings = Settings()
+	local memory = settings.runMemory
+	local seconds, waiting = RunClock()
+	local now = GetTime()
+	local zone = (GetRealZoneText and GetRealZoneText()) or ""
+	local fresh = not (memory and memory.parts)
+	if not fresh and waiting then
+		-- Between runs: the one remembered is over.
+		fresh = memory.seconds ~= nil
+	elseif not fresh and seconds and memory.seconds then
+		if seconds + 3 < memory.seconds then
+			fresh = true
+		elseif not memoryChecked then
+			fresh = memory.zone ~= zone or not memory.wall or now < memory.wall
+				or seconds - memory.seconds > now - memory.wall + 3
+		end
+	end
+	if seconds then
+		memoryChecked = true
+	end
+	if fresh then
+		memory = { parts = {} }
+		settings.runMemory = memory
+	end
+	if seconds then
+		memory.seconds, memory.wall, memory.zone = seconds, now, zone
+	end
+	memory.parts[part] = memory.parts[part] or {}
+	return memory.parts[part]
+end
+
+-- A quick fade between two looks, for hover effects: frame.fade runs from 0
+-- (at rest) to 1 (hovered) in FADE_TIME, and paint(frame, fade) draws each
+-- step, eased. SurvivorUI_Fade(frame, 1, paint) on enter, (frame, 0) on leave.
+local FADE_TIME = 0.15
+local fading = {}
+local fader = CreateFrame("Frame")
+fader:Hide()
+fader:SetScript("OnUpdate", function()
+	local step = arg1 / FADE_TIME
+	local any = false
+	for frame in pairs(fading) do
+		local fade, target = frame.fade or 0, frame.fadeTarget or 0
+		if fade < target then
+			fade = math.min(target, fade + step)
+		else
+			fade = math.max(target, fade - step)
+		end
+		frame.fade = fade
+		frame.fadePaint(frame, fade * fade * (3 - 2 * fade))
+		if fade == target then
+			fading[frame] = nil
+		else
+			any = true
+		end
+	end
+	if not any then
+		this:Hide()
+	end
+end)
+
+function SurvivorUI_Fade(frame, target, paint)
+	frame.fadeTarget = target
+	frame.fadePaint = paint or frame.fadePaint
+	if frame.fadePaint and (frame.fade or 0) ~= target then
+		fading[frame] = true
+		fader:Show()
+	end
+end
+
+-- The + and - of a fold button, drawn as two flat bars rather than typed: a
+-- typed + sits off the middle of its box by a pixel or two, drawn bars on
+-- the exact middle. SurvivorUI_PlusMinus(button, 8) makes them,
+-- SurvivorUI_SetPlus(button, true) shows a +, false a -.
+function SurvivorUI_PlusMinus(button, length)
+	length = length or 8
+	button.plusAcross = button:CreateTexture(nil, "OVERLAY")
+	button.plusAcross:SetTexture("Interface\\ChatFrame\\ChatFrameBackground")
+	button.plusAcross:SetWidth(length)
+	button.plusAcross:SetHeight(2)
+	button.plusAcross:SetPoint("CENTER", button, "CENTER", 0, 0)
+	button.plusDown = button:CreateTexture(nil, "OVERLAY")
+	button.plusDown:SetTexture("Interface\\ChatFrame\\ChatFrameBackground")
+	button.plusDown:SetWidth(2)
+	button.plusDown:SetHeight(length)
+	button.plusDown:SetPoint("CENTER", button, "CENTER", 0, 0)
+end
+
+function SurvivorUI_SetPlus(button, plus)
+	if plus then
+		button.plusDown:Show()
+	else
+		button.plusDown:Hide()
+	end
+end
+
+function SurvivorUI_TintPlus(button, r, g, b)
+	button.plusAcross:SetVertexColor(r, g, b, 1)
+	button.plusDown:SetVertexColor(r, g, b, 1)
+end
+
+-- A change that shows fully only after a reload asks for one: Reload now, or
+-- Later.
+StaticPopupDialogs = StaticPopupDialogs or {}
+StaticPopupDialogs["SURVIVORUI_RELOAD"] = {
+	text = "Survivor UI: %s\n\nReload the interface now?",
+	button1 = "Reload",
+	button2 = "Later",
+	OnAccept = function() ReloadUI() end,
+	timeout = 0,
+	whileDead = 1,
+	hideOnEscape = 1,
+}
+
+function SurvivorUI_AskReload(reason)
+	if not StaticPopup_Show then
+		return
+	end
+	local popup = StaticPopup_Show("SURVIVORUI_RELOAD", reason)
+	-- Above the options window, which stands in the same stratum.
+	if popup and popup.SetFrameStrata then
+		popup:SetFrameStrata("FULLSCREEN_DIALOG")
+	end
+end
+
 -- 1.12 paints shamans in the paladin's pink; they wear their modern blue here.
 local CLASS_OVERRIDES = {
 	SHAMAN = { r = 0.00, g = 0.44, b = 0.87 },
@@ -607,6 +758,9 @@ function SurvivorUI_ToggleUnitStyle()
 	DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: "..(settings.unitStyle
 		and "the addon's flat unit frames."
 		or "the game's own unit frames, in the same places, still moved with Alt."))
+	-- The game's frames do not all come back by themselves until a reload.
+	SurvivorUI_AskReload(settings.unitStyle and "the addon's unit frames are on."
+		or "the game's own unit frames are back.")
 end
 
 SurvivorUI_RegisterOption({
@@ -809,7 +963,7 @@ function SurvivorUI_SetBarPerRow(count)
 end
 
 SurvivorUI_RegisterOption({
-	section = "Interface",
+	section = "Ability Bar",
 	kind = "slider",
 	label = "Max abilities per row",
 	tip = "How many action buttons stand side by side. Set it lower and the buttons past it move down to a new row under the first, centered, and so on; what sits under the bar moves down with them.",
@@ -892,12 +1046,24 @@ for index = 1, AURA_MAX do
 	aura.texture:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 
 	-- The clock sweep: the stock cooldown model, made at the 36 pixels of an
-	-- action button it is drawn for and scaled down to the icon.
+	-- action button it is drawn for and scaled down to the icon. It runs
+	-- backwards here: an action button's sweep clears as the spell comes
+	-- ready, a buff's darkens as its time runs out, so the two never read
+	-- alike. The model's one sequence is a second long, its time set from the
+	-- share of the buff still left.
 	aura.sweep = CreateFrame("Model", nil, aura, "CooldownFrameTemplate")
 	aura.sweep:SetWidth(36)
 	aura.sweep:SetHeight(36)
 	aura.sweep:SetScale(AURA_SIZE / 36)
 	aura.sweep:SetPoint("CENTER", aura, "CENTER", 0, 0)
+	aura.sweep:SetScript("OnUpdateModel", function()
+		if not (this.expires and this.duration and this.duration > 0) then
+			return
+		end
+		local left = (this.expires - GetTime()) / this.duration
+		this:SetSequenceTime(0, math.max(0, math.min(0.999, left)) * 1000)
+	end)
+	aura.sweep:SetScript("OnAnimFinished", nil)
 	aura.sweep:Hide()
 
 	-- The time and stacks above the sweep, so it never darkens them. A frame
@@ -966,7 +1132,7 @@ function SurvivorUI_SetAuraSize(size)
 end
 
 SurvivorUI_RegisterOption({
-	section = "Combat",
+	section = "Ability Bar",
 	kind = "slider",
 	label = "Buff icon size",
 	tip = "The size of your buff and debuff icons above the player frame, in pixels.",
@@ -983,9 +1149,9 @@ SurvivorUI_RegisterOption({
 local auraLength = {}           -- [key] = seconds it lasts
 local auraLastLeft = {}         -- [key] = seconds it had left last time
 
--- Runs the sweep as the stock cooldown model runs its own: start, duration and
--- stopping, read by its OnUpdateModel. CooldownFrame_SetTimer is not used, as
--- the cooldown numbers below hang from it and would put a second count on the
+-- Runs the sweep from when the aura ends and how long it lasts, read by its
+-- own OnUpdateModel (above). CooldownFrame_SetTimer is not used, as the
+-- cooldown numbers below hang from it and would put a second count on the
 -- icon. The sweep is set again only when the aura's timing really changes.
 local function Sweep(aura, left, length)
 	local sweep = aura.sweep
@@ -993,13 +1159,30 @@ local function Sweep(aura, left, length)
 		sweep:Hide()
 		return
 	end
-	local start = GetTime() - (length - left)
-	if sweep:IsShown() and sweep.duration == length and math.abs((sweep.start or 0) - start) < 0.2 then
+	local expires = GetTime() + left
+	if sweep:IsShown() and sweep.duration == length and math.abs((sweep.expires or 0) - expires) < 0.2 then
 		return
 	end
-	sweep.start, sweep.duration, sweep.stopping = start, length, 0
+	sweep.expires, sweep.duration = expires, length
 	sweep:SetSequence(0)
 	sweep:Show()
+end
+
+-- A buff that lasts as long as it is kept up (a shield the game refreshes,
+-- an aura) tells no real time left: 0, nothing, or an endless number. Those
+-- stand still, with no time and no sweep; a shield shows what it has left to
+-- absorb instead (ShieldLeft, in the absorb section below).
+local PERMANENT = 86400         -- seconds; a time left this long is no timer
+local ShieldLeft
+
+-- 950, 1.2k, 12k
+local function AbsorbText(value)
+	if value >= 10000 then
+		return math.floor(value / 1000 + 0.5).."k"
+	elseif value >= 1000 then
+		return (string.gsub(string.format("%.1f", value / 1000), "%.0$", "")).."k"
+	end
+	return math.floor(value)
 end
 
 -- The client does not know every buff's timer: some of the game's own come
@@ -1095,10 +1278,23 @@ local function UpdateAuras()
 				end
 
 				local left = GetPlayerBuffTimeLeft(buffIndex)
-				if pass == 1 and not (left and left > 0) then
+				if pass == 1 and not (left and left > 0 and left < PERMANENT) then
 					left = GameBuffLeft(buffIndex, texture)
 				end
-				aura.time:SetText(left and left > 0 and TimeText(left) or "")
+				-- No real timer (0, nothing, endless, or not a number): it stands still.
+				if not (left and left == left and left > 0 and left < PERMANENT) then
+					left = nil
+				end
+				local shield = pass == 1 and not left and ShieldLeft and ShieldLeft(texture)
+				if left then
+					aura.time:SetText(TimeText(left))
+					aura.time:SetTextColor(1, 0.95, 0.6)
+				elseif shield and shield > 0 then
+					aura.time:SetText(AbsorbText(shield))
+					aura.time:SetTextColor(0.75, 0.9, 1)
+				else
+					aura.time:SetText("")
+				end
 
 				local key = filter..(texture or "")
 				if left and left > 0 then
@@ -1136,9 +1332,9 @@ function SurvivorUI_ToggleAuraSweep()
 end
 
 SurvivorUI_RegisterOption({
-	section = "Combat",
+	section = "Ability Bar",
 	label = "Buff sweep",
-	tip = "A clock sweep over your buffs and debuffs above the player frame, darkening as their time runs out.",
+	tip = "A clock sweep over your buffs and debuffs above the player frame, darkening as their time runs out: the other way round from the action buttons' sweep, which clears as a spell comes ready.",
 	command = "/sui sweep",
 	get = function() return Settings().auraSweep end,
 	toggle = SurvivorUI_ToggleAuraSweep,
@@ -1249,6 +1445,29 @@ local function AbsorbLeft()
 	return live + math.max(0, fixed - soaked)
 end
 
+-- What one shield has left, by its icon, for its buff icon: as its tooltip
+-- says where that counts down, else its share of what the log says the
+-- shields that do not count down have left.
+ShieldLeft = function(key)
+	local shield = key and shields[key]
+	if not shield then
+		return nil
+	end
+	if shield.now < shield.start then
+		return shield.now
+	end
+	local fixed = 0
+	for _, other in pairs(shields) do
+		if other.now >= other.start then
+			fixed = fixed + other.start
+		end
+	end
+	if fixed <= 0 then
+		return 0
+	end
+	return shield.start / fixed * math.max(0, fixed - soaked)
+end
+
 local function DrawAbsorb()
 	local left = AbsorbShown() and Styled() and AbsorbLeft() or 0
 	local most = UnitHealthMax("player") or 0
@@ -1346,7 +1565,7 @@ if CooldownFrame_SetTimer and not OmniCC_OnUpdate then
 	end
 
 	SurvivorUI_RegisterOption({
-		section = "Combat",
+		section = "Ability Bar",
 		label = "Cooldown numbers",
 		tip = "The seconds left on a spell cooling down, over its action button.",
 		get = function() return Settings().cdNumbers ~= false end,
@@ -1356,7 +1575,7 @@ if CooldownFrame_SetTimer and not OmniCC_OnUpdate then
 		end,
 	})
 	SurvivorUI_RegisterOption({
-		section = "Combat",
+		section = "Ability Bar",
 		label = "Round cooldown numbers",
 		parent = "Cooldown numbers",
 		tip = "Whole seconds, rounded up (\"1\" rather than \"0.8\"), under a minute.",
@@ -1388,7 +1607,7 @@ if CooldownFrame_SetTimer and not OmniCC_OnUpdate then
 	end
 
 	SurvivorUI_RegisterOption({
-		section = "Combat",
+		section = "Ability Bar",
 		kind = "color",
 		label = "Cooldown number color",
 		parent = "Cooldown numbers",
@@ -1403,7 +1622,7 @@ if CooldownFrame_SetTimer and not OmniCC_OnUpdate then
 	})
 
 	SurvivorUI_RegisterOption({
-		section = "Combat",
+		section = "Ability Bar",
 		kind = "slider",
 		label = "Cooldown number size",
 		parent = "Cooldown numbers",
@@ -2070,7 +2289,7 @@ function SurvivorUI_ToggleDamageText()
 end
 
 SurvivorUI_RegisterOption({
-	section = "Combat",
+	section = "Text & Numbers",
 	label = "Quick damage numbers",
 	tip = "Small, quick numbers over the enemies you hit and the hits you take, in place of the game's floating combat text. Off, the game's own is back as it was.",
 	command = "/sui combattext",
@@ -2079,7 +2298,7 @@ SurvivorUI_RegisterOption({
 })
 
 SurvivorUI_RegisterOption({
-	section = "Combat",
+	section = "Text & Numbers",
 	label = "Hide damage numbers",
 	tip = "No damage numbers at all: neither the quick ones nor the game's floating ones, over enemies or over you. Overrides Quick damage numbers while on.",
 	command = "/sui nodamage",
@@ -2119,25 +2338,61 @@ end
 -- in! Qiraji Champion approaches!"). They are one of the run's screens the game
 -- lets addons switch (its "banners"), kept as the game's own setting.
 
+--
+-- Switched off, the addon keeps it off: the game can switch its banners back
+-- on by itself (a new run, a reload), so the setting is put back whenever it
+-- is found on again. The raid warning frame, which a game may also write such
+-- lines to and which a run has no other use for, hangs from a hidden frame
+-- meanwhile.
+local eventsAway = CreateFrame("Frame")
+eventsAway:Hide()
+
 local function EventsShown()
+	local hidden = Settings().eventsHidden
+	if hidden ~= nil then
+		return not hidden
+	end
 	if AZS_IsHudShown then
 		return AZS_IsHudShown("banners") and true or false
 	end
 	return true
 end
 
-function SurvivorUI_ToggleEventsText()
-	if not AZS_SetHudShown then
-		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: this version of the game does not let addons switch its event text.")
-		return
+local function ApplyEventsText()
+	local hidden = Settings().eventsHidden == true
+	if AZS_SetHudShown and AZS_IsHudShown and hidden and AZS_IsHudShown("banners") then
+		AZS_SetHudShown("banners", false)
 	end
+	if RaidWarningFrame then
+		RaidWarningFrame:SetParent(hidden and eventsAway or UIParent)
+	end
+end
+
+function SurvivorUI_ToggleEventsText()
 	local shown = not EventsShown()
-	AZS_SetHudShown("banners", shown)
+	Settings().eventsHidden = not shown
+	if AZS_SetHudShown then
+		AZS_SetHudShown("banners", shown)
+	end
+	ApplyEventsText()
 	DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: event text "..(shown and "shown." or "hidden."))
 end
 
+local eventsWatch = CreateFrame("Frame")
+local eventsElapsed = 0
+eventsWatch:SetScript("OnUpdate", function()
+	eventsElapsed = eventsElapsed + arg1
+	if eventsElapsed < 1 then
+		return
+	end
+	eventsElapsed = 0
+	if Settings().eventsHidden then
+		ApplyEventsText()
+	end
+end)
+
 SurvivorUI_RegisterOption({
-	section = "Combat",
+	section = "Text & Numbers",
 	label = "Events text",
 	tip = "The game's banners over the fight, such as \"A wall of foes closes in!\" or \"Qiraji Champion approaches!\". Kept as the game's own setting.",
 	command = "/sui events",
@@ -2146,13 +2401,123 @@ SurvivorUI_RegisterOption({
 })
 
 SurvivorUI_RegisterOption({
-	section = "Combat",
+	section = "Text & Numbers",
 	label = "Error text",
 	tip = "The game's red messages over the middle of the screen (\"This cache needs 1787 gold.\") and its yellow notices. Off, none of them show.",
 	command = "/sui errors",
 	get = function() return Settings().errorText ~= false end,
 	toggle = SurvivorUI_ToggleErrorText,
 })
+
+------------------------------------------------------------------------------
+-- The camera's furthest zoom: the client's own setting (cameraDistanceMax,
+-- in yards), raised past the game's 15 up to the 50 the client allows. Left
+-- alone until the slider is moved; set again on every login, as the client
+-- can put it back.
+
+local CAMERA_MIN, CAMERA_MAX = 15, 50
+
+local function CameraDistance()
+	local wanted = tonumber(Settings().cameraMax)
+	if wanted then
+		return wanted
+	end
+	local ok, current = pcall(GetCVar, "cameraDistanceMax")
+	current = ok and tonumber(current) or CAMERA_MIN
+	return math.max(CAMERA_MIN, math.min(CAMERA_MAX, current))
+end
+
+local function ApplyCamera()
+	local wanted = tonumber(Settings().cameraMax)
+	if wanted then
+		pcall(SetCVar, "cameraDistanceMax", wanted)
+	end
+end
+
+SurvivorUI_RegisterOption({
+	section = "Interface",
+	kind = "slider",
+	label = "Camera max distance",
+	tip = "How far out the camera can zoom, in yards (the client's cameraDistanceMax). Scroll out after raising it. If the game holds its camera itself, this may change nothing.",
+	min = CAMERA_MIN,
+	max = CAMERA_MAX,
+	step = 1,
+	get = CameraDistance,
+	set = function(value)
+		Settings().cameraMax = value
+		ApplyCamera()
+	end,
+})
+
+------------------------------------------------------------------------------
+-- /sui inspect and /sui find: what a piece of the game's interface is called,
+-- so the addon can be taught to style or hide it. inspect names the frame
+-- under the mouse and the frames it hangs from; find names every shown frame
+-- whose text holds the words given ("/sui find Options").
+
+local function FramePath(frame)
+	local parts = {}
+	local node = frame
+	while node and node ~= UIParent and table.getn(parts) < 8 do
+		local name = node.GetName and node:GetName()
+		table.insert(parts, 1, name or ("<"..(node.GetObjectType and node:GetObjectType() or "?")..">"))
+		node = node.GetParent and node:GetParent()
+	end
+	return table.concat(parts, " > ")
+end
+
+local function Say(text)
+	DEFAULT_CHAT_FRAME:AddMessage("|cffffd100Survivor UI:|r "..text)
+end
+
+local function Inspect()
+	local focus = GetMouseFocus and GetMouseFocus()
+	if not focus then
+		Say("nothing under the mouse; point at the piece and type /sui inspect again.")
+		return
+	end
+	Say("under the mouse: "..FramePath(focus))
+	local width, height = focus:GetWidth(), focus:GetHeight()
+	Say(string.format("  %s, %.0f by %.0f, strata %s", focus:GetObjectType(), width or 0, height or 0,
+		focus.GetFrameStrata and focus:GetFrameStrata() or "?"))
+	local top = focus
+	while top:GetParent() and top:GetParent() ~= UIParent and top:GetParent() ~= WorldFrame do
+		top = top:GetParent()
+	end
+	if top ~= focus then
+		Say("  its window: "..(top:GetName() or "<unnamed "..top:GetObjectType()..">"))
+	end
+end
+
+local function Find(words)
+	if not EnumerateFrames then
+		Say("this client cannot list its frames.")
+		return
+	end
+	local wanted = string.lower(words)
+	local found = 0
+	local frame = EnumerateFrames()
+	while frame and found < 12 do
+		if frame:IsVisible() and frame.GetRegions then
+			local regions = { frame:GetRegions() }
+			for index = 1, table.getn(regions) do
+				local region = regions[index]
+				if region.GetObjectType and region:GetObjectType() == "FontString" then
+					local text = region:GetText()
+					if text and string.find(string.lower(text), wanted, 1, true) then
+						found = found + 1
+						Say("\""..string.sub(text, 1, 40).."\" in "..FramePath(frame))
+						break
+					end
+				end
+			end
+		end
+		frame = EnumerateFrames(frame)
+	end
+	if found == 0 then
+		Say("no shown text holds \""..words.."\".")
+	end
+end
 
 SLASH_SURVIVORUI1 = "/sui"
 SlashCmdList["SURVIVORUI"] = function(msg)
@@ -2234,6 +2599,10 @@ SlashCmdList["SURVIVORUI"] = function(msg)
 		if SurvivorUI_DebugIcons then
 			SurvivorUI_DebugIcons()
 		end
+	elseif msg == "inspect" then
+		Inspect()
+	elseif command == "find" and argument ~= "" then
+		Find(argument)
 	elseif msg == "reload" then
 		-- The whole interface again, every addon's files read afresh from disk:
 		-- an edited file takes effect without leaving the game. A new file (or a
@@ -2246,8 +2615,10 @@ SlashCmdList["SURVIVORUI"] = function(msg)
 	else
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui opt  opens a window with every switch below")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui combattext  switches between the quick damage numbers and the game's own floating combat text")
+		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui nodamage  hides every damage number, the game's and the addon's")
+		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui frames  switches between the addon's unit frames and the game's")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui sweep  switches the clock sweep over your buffs")
-		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui errors  shows or hides the game's red error text")
+		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui errors  shows or hides the game's red error text; /sui events  its event banners")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui reload  reloads the interface, picking up edited addon files")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui chat 12  sets the chat text size, 8 to 18")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: hold Alt to see everything that moves, and drag; /sui center puts the middle back, /sui layout puts everything back")
@@ -2255,7 +2626,9 @@ SlashCmdList["SURVIVORUI"] = function(msg)
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui tally  switches between the kills and gold line under the bar and the game's own box")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui timer  shows or hides the run timer under the minimap (the clock and the bosses); /sui timer compact  leaves out the list of bosses")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui xp  shows or hides the run's level bar")
-		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui build  shows or hides the build (spells and jewelry)")
+		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui build  shows or hides the build (spells and jewelry); /sui lexicon  opens the Lexicon")
+		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui loot  shows or hides the loot log; /sui caches  lists what the cache arrow is made from")
+		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui inspect  names the frame under the mouse; /sui find words  names the frames showing those words")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui hover  switches the white outline around what the mouse is on")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui scale 0.85  sizes the panels, 0.6 to 1.4, for smaller screens")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui meter  switches between the addon's damage meter, with the crits, and the game's own")
@@ -2298,6 +2671,8 @@ loader:SetScript("OnEvent", function()
 		StyleChat()
 		StyleTooltips()
 		ApplyDamageText()
+		ApplyEventsText()
+		ApplyCamera()
 		UpdatePortrait(player)
 	elseif event == "PLAYER_TARGET_CHANGED" then
 		UpdatePortrait(target)

@@ -191,9 +191,18 @@ local lastClock
 
 local function Rates(seconds, kills, gold)
 	seconds = seconds or 0
+	-- The samples live in the run's memory, so a reload keeps the rates going.
+	if SurvivorUI_RunMemory then
+		local memory = SurvivorUI_RunMemory("tally")
+		memory.samples = memory.samples or {}
+		samples = memory.samples
+	end
 	-- The clock going back means a new run: sample afresh.
 	if lastClock and seconds + 3 < lastClock then
 		samples = {}
+		if SurvivorUI_RunMemory then
+			SurvivorUI_RunMemory("tally").samples = samples
+		end
 	end
 	lastClock = seconds
 	local newest = samples[table.getn(samples)]
@@ -324,7 +333,7 @@ end
 
 if SurvivorUI_RegisterOption then
 	SurvivorUI_RegisterOption({
-		section = "Panels",
+		section = "Interface",
 		label = "Kills and gold line",
 		tip = "Kills, gold and the next cache's price under the experience bar, in place of the game's own box.",
 		command = "/sui tally",
@@ -332,7 +341,7 @@ if SurvivorUI_RegisterOption then
 		toggle = SurvivorUI_Tally,
 	})
 	SurvivorUI_RegisterOption({
-		section = "Panels",
+		section = "Interface",
 		label = "Simplified",
 		parent = "Kills and gold line",
 		tip = "The kills and gold line keeps one row: kills, gold and the cache, without the rates and the gold to the next cache.",
@@ -344,7 +353,7 @@ if SurvivorUI_RegisterOption then
 		end,
 	})
 	SurvivorUI_RegisterOption({
-		section = "Panels",
+		section = "Interface",
 		kind = "slider",
 		label = "Kills and gold size",
 		parent = "Kills and gold line",
