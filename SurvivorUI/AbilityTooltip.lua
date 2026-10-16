@@ -318,11 +318,11 @@ local FACTS = {
 	{ NUMBER.." (%a+) damage", function(n, school) return DAMAGE, n, Capital(school).." Damage", school end },
 	{ NUMBER.." damage", function(n) return DAMAGE, n, "Damage" end },
 	-- "doubled to 1506 against an enemy below 30% health": under the damage,
-	-- "x2 damage on targets below 30%".
+	-- "2x damage on targets below 30%".
 	{ "doubled to [%d%.]+ against an? enem%a* below (%d+)%%[%a ]*",
-		function(p) return DAMAGE, nil, nil, nil, "x2 damage on targets below "..p.."%" end },
+		function(p) return DAMAGE, nil, nil, nil, "2x damage on targets below "..p.."%" end },
 	{ "tripled to [%d%.]+ against an? enem%a* below (%d+)%%[%a ]*",
-		function(p) return DAMAGE, nil, nil, nil, "x3 damage on targets below "..p.."%" end },
+		function(p) return DAMAGE, nil, nil, nil, "3x damage on targets below "..p.."%" end },
 	{ "within "..NUMBER.." yds?", function(n) return REACH, n.." yd", "" end },
 	{ NUMBER.." yds? radius", function(n) return REACH, n.." yd", "radius" end },
 	{ NUMBER.." yds? range", function(n) return REACH, n.." yd", "range" end },
