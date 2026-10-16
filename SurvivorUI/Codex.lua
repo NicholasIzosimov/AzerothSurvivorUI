@@ -243,9 +243,12 @@ local function Learn()
 				piece.icon = GetInventoryItemTexture("player", slot) or piece.icon
 				piece.classes = piece.classes or {}
 				piece.classes[class] = true
-				if piece.link ~= item or not piece.lines then
+				-- Its tooltip is kept once the game has sent it in full (more
+				-- than the name: until then the slot shows only that), and read
+				-- again while it is worn until it is.
+				if piece.link ~= item or table.getn(piece.lines or {}) < 2 then
 					local lines, only = ReadSlot(slot)
-					if table.getn(lines) > 0 then
+					if table.getn(lines) > 1 then
 						piece.lines, piece.only = lines, only
 					end
 				end
@@ -278,6 +281,11 @@ end
 
 -- A kind's pieces, once each by name without rank, at the highest rank seen,
 -- by name; the classes that wore any rank of it together.
+-- A kept tooltip is whole once it holds more than the piece's name.
+local function Whole(lines)
+	return lines and table.getn(lines) > 1
+end
+
 local function Pieces(kind)
 	local best = {}
 	local function Consider(name, info)
@@ -287,15 +295,21 @@ local function Pieces(kind)
 		for class in pairs(info.classes or {}) do
 			classes[class] = true
 		end
+		local entry = known
 		if not known or rank > known.rank or (rank == known.rank and info.icon and not known.icon) then
-			best[base] = {
+			entry = {
 				base = base, name = name, rank = rank, hex = info.hex, link = info.link, icon = info.icon,
-				lines = info.lines or (known and known.lines), only = info.only or (known and known.only),
-				classes = classes,
+				classes = classes, lines = known and known.lines, linesRank = known and known.linesRank,
+				only = known and known.only,
 			}
-		else
-			known.lines = known.lines or info.lines
-			known.only = known.only or info.only
+			best[base] = entry
+		end
+		-- Its description: its own rank's where kept whole, else the highest
+		-- rank's that is (linesRank says which, and the card says so).
+		if Whole(info.lines) and (not Whole(entry.lines) or rank == entry.rank
+			or (entry.linesRank ~= entry.rank and rank > (entry.linesRank or 0))) then
+			entry.lines, entry.linesRank = info.lines, rank
+			entry.only = info.only or entry.only
 		end
 	end
 	local old = Settings().seenGear and Settings().seenGear[kind]
@@ -718,7 +732,7 @@ local function PieceTooltip(owner, piece)
 	local slot = WornSlot(piece)
 	if slot then
 		GameTooltip:SetInventoryItem("player", slot)
-	elseif piece.lines and table.getn(piece.lines) > 0 then
+	elseif Whole(piece.lines) then
 		for index = 1, table.getn(piece.lines) do
 			local line = piece.lines[index]
 			if index == 1 then
@@ -728,6 +742,11 @@ local function PieceTooltip(owner, piece)
 			else
 				GameTooltip:AddLine(line[1], line[2], line[3], line[4], 1)
 			end
+		end
+		-- Borrowed from a lower rank: said so, as its numbers are that rank's.
+		if piece.linesRank and piece.linesRank ~= piece.rank then
+			GameTooltip:AddLine("Details of rank "..piece.linesRank..": rank "..piece.rank
+				.."'s are kept once you wear it.", 0.6, 0.6, 0.6, 1)
 		end
 	elseif piece.link then
 		GameTooltip:SetHyperlink(piece.link)
@@ -1162,4 +1181,6 @@ learner:SetScript("OnUpdate", function()
 	end
 	learned = 0
 	LearnRun()
+	-- Worn jewelry whose tooltip the game had not yet sent in full is read again.
+	Learn()
 end)
