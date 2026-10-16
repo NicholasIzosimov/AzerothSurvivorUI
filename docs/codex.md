@@ -195,7 +195,7 @@ Per class. *Twice* and *Crit* say whether the ability's tooltip has the cast-twi
 | Deep Wound *(not in spell book)* | – | – | – | 0 | 3,674 | – |
 | Escape Artist | no | yes | 1 | 39 | 238 (rank 1) | – |
 | Eviscerate | yes | yes | 18 | 37 | 222,321 (rank 16) | -62% cooldown, +493% damage |
-| Ghostly Strike | yes | yes | 10 | 35 | 8,215 (rank 10) | -60% cooldown, +1 target, +6 targets, +522% damage |
+| Ghostly Strike | yes | yes | 10 | 35 | 8,215 (rank 10) | -60% cooldown, +6 targets, +522% damage |
 | Gouge | – | – | – | 0 | – | – |
 | Kidney Shot | – | – | 1 | 1 | – | – |
 | Melee *(not in spell book)* | – | – | – | 0 | 215 | – |
@@ -210,23 +210,23 @@ Per class. *Twice* and *Crit* say whether the ability's tooltip has the cast-twi
 
 | Boss | Best |
 | --- | --- |
-| Doomguard Commander | 0:21 |
-| Edwin VanCleef | 0:25 |
-| High Priest Venoxis | 0:14 |
-| High Priestess Jeklik | 0:16 |
-| Hogger | 0:21 |
-| Mor'Ladim | 0:26 |
-| Morbent Fel | 1:19 |
-| Mother Fang | 0:16 |
-| Mr. Smite | 0:21 |
-| Naraxis | 0:16 |
-| Patchwerk | 0:07 |
-| Rhahk'Zor | 0:20 |
+| Doomguard Commander | 0:21 (nicho) |
+| Edwin VanCleef | 0:25 (nicho) |
+| High Priest Venoxis | 0:14 (nicho) |
+| High Priestess Jeklik | 0:16 (nicho) |
+| Hogger | 0:21 (nicho) |
+| Mor'Ladim | 0:26 (nicho) |
+| Morbent Fel | 1:19 (nicho) |
+| Mother Fang | 0:16 (nicho) |
+| Mr. Smite | 0:21 (nicho) |
+| Naraxis | 0:16 (nicho) |
+| Patchwerk | 0:07 (nicho) |
+| Rhahk'Zor | 0:20 (nicho) |
 
 ### Warrior
 
 | Boss | Best |
 | --- | --- |
-| Ivus the Forest Lord | 0:26 |
-| Korrak the Bloodrager | 0:43 |
-| Lokholar the Ice Lord | 2:31 |
+| Ivus the Forest Lord | 0:26 (nicho) |
+| Korrak the Bloodrager | 0:43 (nicho) |
+| Lokholar the Ice Lord | 2:31 (nicho) |

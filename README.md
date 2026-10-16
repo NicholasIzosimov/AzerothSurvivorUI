@@ -74,7 +74,7 @@ The options window has five tabs: **General** (the panels), **Ability Bar** (too
 
 Everything is saved per account in `SurvivorUIDB` (the game's saved variables). Delete that file to start from the defaults.
 
-The recorded jewelry, abilities and boss times are compiled into [docs/codex.md](docs/codex.md) (and `docs/codex.json`) by `node tools/build-codex.js [path\to\SurvivorUI.lua]`; rerun it after playing.
+The recorded jewelry, abilities and boss times are compiled into [docs/codex.md](docs/codex.md) (and `docs/codex.json`) by `node tools/build-codex.js [path\to\SurvivorUI.lua] [--as NAME]`; rerun it after playing. Each run is merged into the codex so far, so other players' saved files can be added (`--as` names them) without losing anything.
 
 ## License
 

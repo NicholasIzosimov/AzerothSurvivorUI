@@ -2,12 +2,26 @@
 // Builds docs/codex.md and docs/codex.json from Survivor UI's saved variables.
 //
 // Usage:
-//   node tools/build-codex.js [path\to\SurvivorUI.lua]
+//   node tools/build-codex.js [path\to\SurvivorUI.lua] [--as NAME] [--fresh]
 //
 // The saved-variables file defaults to
-// C:\Git\wenilla\benilla-config\saved\SurvivorUI.lua. Rerun it after playing:
-// the codex is rebuilt from scratch each time, from the player's own collected
-// data only (worn jewelry tooltips, ability book, best boss times).
+// C:\Git\wenilla\benilla-config\saved\SurvivorUI.lua. Rerun it after playing.
+//
+// The file is merged into the codex already in docs/codex.json, never over
+// it, so anyone's saved file can be added and nothing seen before is lost:
+//   jewelry      every piece and rank anyone saw; a rank's first whole
+//                tooltip is kept, a missing one filled in; classes joined
+//   abilities    cast twice / crit: yes if anyone's tooltip showed it;
+//                highest rank, best average cast and each upgrade's best
+//                value: the highest anyone reached
+//   runs         kept per contributor (--as NAME, by default this computer's
+//                user name), so merging the same player's file again updates
+//                their count rather than adding it twice
+//   boss times   the fastest anyone reached, with who reached it
+// --fresh rebuilds from this one file alone.
+//
+// It uses the player's own collected data only (worn jewelry tooltips,
+// ability book, best boss times).
 //
 // Read from SurvivorUIDB: codex, seenGear, abilityBook, bossBests.
 // Ignored: runMemory, gearLog and every setting.
@@ -18,6 +32,7 @@
 "use strict";
 
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 
 const DEFAULT_INPUT = "C:\\Git\\wenilla\\benilla-config\\saved\\SurvivorUI.lua";
@@ -295,12 +310,24 @@ function buildJewelry(db) {
   return jewelry;
 }
 
+// "+# target" and "+# targets" are one kind: the plural.
+function foldKind(kind) {
+  return kind.replace(/\btarget\b/g, "targets");
+}
+
 function upgradeText(kind, value) {
   const shown = Number.isInteger(value) ? String(value) : String(Math.round(value * 10) / 10);
   return kind.includes("#") ? kind.replace("#", shown) : `${kind} ${shown}`;
 }
 
-function buildAbilities(db) {
+// Each upgrade kind (folded) with its best value, sorted, with its text.
+function upgradeList(bests) {
+  return Object.keys(bests)
+    .sort(byName)
+    .map((kind) => ({ kind, best: bests[kind], text: upgradeText(kind, bests[kind]) }));
+}
+
+function buildAbilities(db, contributor) {
   const book = db.abilityBook || {};
   const out = {};
   for (const cls of Object.keys(book).sort(byName)) {
@@ -308,9 +335,12 @@ function buildAbilities(db) {
       .sort(byName)
       .map((name) => {
         const info = book[cls][name];
-        const upgrades = Object.keys(info.upgrades || {})
-          .sort(byName)
-          .map((kind) => ({ kind, best: info.upgrades[kind], text: upgradeText(kind, info.upgrades[kind]) }));
+        const bests = {};
+        for (const kind of Object.keys(info.upgrades || {})) {
+          const folded = foldKind(kind);
+          bests[folded] = Math.max(bests[folded] ?? -Infinity, info.upgrades[kind]);
+        }
+        const runs = info.runs ?? 0;
         return {
           name,
           icon: info.icon ?? null,
@@ -318,23 +348,125 @@ function buildAbilities(db) {
           castsTwice: typeof info.echoLine === "boolean" ? info.echoLine : null,
           crits: typeof info.critLine === "boolean" ? info.critLine : null,
           highestRank: info.rank ?? null,
-          runs: info.runs ?? 0,
+          runs,
+          runsBy: runs > 0 ? { [contributor]: runs } : {},
           bestAverageCast: info.best ?? null,
           bestAverageCastRank: info.bestRank ?? null,
-          upgrades,
+          upgrades: upgradeList(bests),
         };
       });
   }
   return out;
 }
 
-function buildBosses(db) {
+function buildBosses(db, contributor) {
   const bests = db.bossBests || {};
   const out = {};
   for (const cls of Object.keys(bests).sort(byName)) {
     out[cls] = Object.keys(bests[cls])
       .sort(byName)
-      .map((boss) => ({ boss, seconds: bests[cls][boss], time: formatTime(bests[cls][boss]) }));
+      .map((boss) => ({ boss, seconds: bests[cls][boss], time: formatTime(bests[cls][boss]), by: contributor }));
+  }
+  return out;
+}
+
+// ------------------------------------------------------------------- merging
+// Each merge folds `fresh` (from one saved file) into `old` (the codex so far)
+// and returns the result; nothing in either is dropped.
+
+function mergeJewelry(old, fresh) {
+  const out = {};
+  for (const kind of KINDS) {
+    const pieces = new Map();
+    for (const piece of old?.[kind] || []) pieces.set(piece.name, JSON.parse(JSON.stringify(piece)));
+    for (const piece of fresh[kind] || []) {
+      const known = pieces.get(piece.name);
+      if (!known) {
+        pieces.set(piece.name, piece);
+        continue;
+      }
+      known.classes = [...new Set([...(known.classes || []), ...(piece.classes || [])])].sort(byName);
+      known.only = known.only || piece.only;
+      known.icon = known.icon || piece.icon;
+      for (const rank of piece.ranks) {
+        const had = known.ranks.find((r) => r.numeral === rank.numeral);
+        if (!had) {
+          known.ranks.push(rank);
+          continue;
+        }
+        // The first whole tooltip stands; a missing one is filled in.
+        if (!had.tooltip && rank.tooltip) {
+          had.lines = rank.lines;
+          had.tooltip = true;
+        }
+        for (const field of ["hex", "quality", "icon", "link"]) if (had[field] == null && rank[field] != null) had[field] = rank[field];
+      }
+      known.ranks.sort(rankOrder);
+      known.quality = known.ranks[known.ranks.length - 1].quality || known.quality;
+    }
+    out[kind] = [...pieces.values()].sort((a, b) => byName(a.name, b.name));
+  }
+  return out;
+}
+
+// Yes if either says yes; no if either says no; else unknown.
+function eitherYes(a, b) {
+  if (a === true || b === true) return true;
+  if (a === false || b === false) return false;
+  return null;
+}
+
+function mergeAbility(known, a) {
+  known.icon = known.icon || a.icon;
+  known.inBook = known.inBook || a.inBook;
+  known.castsTwice = eitherYes(known.castsTwice, a.castsTwice);
+  known.crits = eitherYes(known.crits, a.crits);
+  if (a.highestRank != null && (known.highestRank == null || a.highestRank > known.highestRank)) known.highestRank = a.highestRank;
+  if (a.bestAverageCast != null && (known.bestAverageCast == null || a.bestAverageCast > known.bestAverageCast)) {
+    known.bestAverageCast = a.bestAverageCast;
+    known.bestAverageCastRank = a.bestAverageCastRank;
+  }
+  // Runs per contributor: the larger count of the two for each.
+  known.runsBy = { ...(known.runsBy || {}) };
+  for (const who of Object.keys(a.runsBy || {})) known.runsBy[who] = Math.max(known.runsBy[who] || 0, a.runsBy[who]);
+  known.runs = Object.values(known.runsBy).reduce((n, v) => n + v, 0);
+  const bests = {};
+  for (const u of [...(known.upgrades || []), ...(a.upgrades || [])]) {
+    const kind = foldKind(u.kind);
+    bests[kind] = Math.max(bests[kind] ?? -Infinity, u.best);
+  }
+  known.upgrades = upgradeList(bests);
+  return known;
+}
+
+function mergeAbilities(old, fresh) {
+  const out = {};
+  for (const cls of [...new Set([...Object.keys(old || {}), ...Object.keys(fresh)])].sort(byName)) {
+    const byAbility = new Map();
+    for (const a of old?.[cls] || []) {
+      const copy = JSON.parse(JSON.stringify(a));
+      // A codex from before runs were kept per contributor: its count stands as one.
+      if (!copy.runsBy) copy.runsBy = copy.runs > 0 ? { earlier: copy.runs } : {};
+      byAbility.set(copy.name, mergeAbility(copy, { ...copy, upgrades: [] }));
+    }
+    for (const a of fresh[cls] || []) {
+      const known = byAbility.get(a.name);
+      byAbility.set(a.name, known ? mergeAbility(known, a) : a);
+    }
+    out[cls] = [...byAbility.values()].sort((x, y) => byName(x.name, y.name));
+  }
+  return out;
+}
+
+function mergeBosses(old, fresh) {
+  const out = {};
+  for (const cls of [...new Set([...Object.keys(old || {}), ...Object.keys(fresh)])].sort(byName)) {
+    const byBoss = new Map();
+    for (const b of [...(old?.[cls] || []), ...(fresh[cls] || [])]) {
+      const known = byBoss.get(b.boss);
+      if (!known || b.seconds < known.seconds) byBoss.set(b.boss, { ...b });
+    }
+    out[cls] = [...byBoss.values()].sort((x, y) => byName(x.boss, y.boss));
   }
   return out;
 }
@@ -429,7 +561,7 @@ function renderMarkdown(data) {
   for (const cls of bossClasses) {
     out.push(`### ${className(cls)}`, "");
     out.push("| Boss | Best |", "| --- | --- |");
-    for (const b of data.bossBests[cls]) out.push(`| ${md(b.boss)} | ${b.time} |`);
+    for (const b of data.bossBests[cls]) out.push(`| ${md(b.boss)} | ${b.time}${b.by ? ` (${md(b.by)})` : ""} |`);
     out.push("");
   }
   return out.join("\n");
@@ -438,16 +570,31 @@ function renderMarkdown(data) {
 // ---------------------------------------------------------------------- main
 
 function main() {
-  const input = process.argv[2] || DEFAULT_INPUT;
+  const args = process.argv.slice(2);
+  const fresh = args.includes("--fresh");
+  const asAt = args.indexOf("--as");
+  const contributor = asAt >= 0 && args[asAt + 1] ? args[asAt + 1] : os.userInfo().username;
+  const input = args.find((arg, index) => !arg.startsWith("--") && index !== asAt + 1) || DEFAULT_INPUT;
   const globals = parseLua(fs.readFileSync(input, "utf8"));
   const db = globals.SurvivorUIDB;
   if (!db) throw new Error(`${input} has no SurvivorUIDB table`);
 
-  const data = {
+  const built = {
     jewelry: buildJewelry(db),
-    abilities: buildAbilities(db),
-    bossBests: buildBosses(db),
+    abilities: buildAbilities(db, contributor),
+    bossBests: buildBosses(db, contributor),
   };
+
+  // Merged into the codex so far, unless asked to start over.
+  const jsonPath = path.join(OUT_DIR, "codex.json");
+  const old = !fresh && fs.existsSync(jsonPath) ? JSON.parse(fs.readFileSync(jsonPath, "utf8")) : null;
+  const data = old
+    ? {
+        jewelry: mergeJewelry(old.jewelry, built.jewelry),
+        abilities: mergeAbilities(old.abilities, built.abilities),
+        bossBests: mergeBosses(old.bossBests, built.bossBests),
+      }
+    : built;
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
   fs.writeFileSync(path.join(OUT_DIR, "codex.json"), JSON.stringify(data, null, 2) + "\n");
@@ -456,7 +603,7 @@ function main() {
   const pieces = KINDS.reduce((n, kind) => n + data.jewelry[kind].length, 0);
   const abilities = Object.values(data.abilities).reduce((n, l) => n + l.length, 0);
   const bosses = Object.values(data.bossBests).reduce((n, l) => n + l.length, 0);
-  console.log(`Codex built: ${pieces} jewelry pieces, ${abilities} abilities, ${bosses} boss times -> docs/codex.md, docs/codex.json`);
+  console.log(`Codex ${old ? "merged" : "built"} from ${input} as ${contributor}: ${pieces} jewelry pieces, ${abilities} abilities, ${bosses} boss times -> docs/codex.md, docs/codex.json`);
 }
 
 main();

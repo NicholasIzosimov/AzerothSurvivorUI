@@ -1830,6 +1830,9 @@
         "crits": false,
         "highestRank": 4,
         "runs": 38,
+        "runsBy": {
+          "nicho": 38
+        },
         "bestAverageCast": null,
         "bestAverageCastRank": null,
         "upgrades": [
@@ -1853,6 +1856,9 @@
         "crits": true,
         "highestRank": 16,
         "runs": 38,
+        "runsBy": {
+          "nicho": 38
+        },
         "bestAverageCast": 29157,
         "bestAverageCastRank": 16,
         "upgrades": [
@@ -1876,6 +1882,7 @@
         "crits": null,
         "highestRank": null,
         "runs": 0,
+        "runsBy": {},
         "bestAverageCast": null,
         "bestAverageCastRank": null,
         "upgrades": []
@@ -1888,6 +1895,7 @@
         "crits": null,
         "highestRank": null,
         "runs": 0,
+        "runsBy": {},
         "bestAverageCast": 15424.8,
         "bestAverageCastRank": null,
         "upgrades": []
@@ -1900,6 +1908,7 @@
         "crits": null,
         "highestRank": null,
         "runs": 0,
+        "runsBy": {},
         "bestAverageCast": 3674.478260869565,
         "bestAverageCastRank": null,
         "upgrades": []
@@ -1912,6 +1921,9 @@
         "crits": true,
         "highestRank": 1,
         "runs": 39,
+        "runsBy": {
+          "nicho": 39
+        },
         "bestAverageCast": 238,
         "bestAverageCastRank": 1,
         "upgrades": []
@@ -1924,6 +1936,9 @@
         "crits": true,
         "highestRank": 18,
         "runs": 37,
+        "runsBy": {
+          "nicho": 37
+        },
         "bestAverageCast": 222320.8,
         "bestAverageCastRank": 16,
         "upgrades": [
@@ -1947,6 +1962,9 @@
         "crits": true,
         "highestRank": 10,
         "runs": 35,
+        "runsBy": {
+          "nicho": 35
+        },
         "bestAverageCast": 8214.6,
         "bestAverageCastRank": 10,
         "upgrades": [
@@ -1954,11 +1972,6 @@
             "kind": "-#% cooldown",
             "best": 60,
             "text": "-60% cooldown"
-          },
-          {
-            "kind": "+# target",
-            "best": 1,
-            "text": "+1 target"
           },
           {
             "kind": "+# targets",
@@ -1980,6 +1993,7 @@
         "crits": null,
         "highestRank": null,
         "runs": 0,
+        "runsBy": {},
         "bestAverageCast": null,
         "bestAverageCastRank": null,
         "upgrades": []
@@ -1992,6 +2006,9 @@
         "crits": null,
         "highestRank": 1,
         "runs": 1,
+        "runsBy": {
+          "nicho": 1
+        },
         "bestAverageCast": null,
         "bestAverageCastRank": null,
         "upgrades": []
@@ -2004,6 +2021,7 @@
         "crits": null,
         "highestRank": null,
         "runs": 0,
+        "runsBy": {},
         "bestAverageCast": 215.4,
         "bestAverageCastRank": null,
         "upgrades": []
@@ -2016,6 +2034,9 @@
         "crits": false,
         "highestRank": 11,
         "runs": 37,
+        "runsBy": {
+          "nicho": 37
+        },
         "bestAverageCast": 222165,
         "bestAverageCastRank": 9,
         "upgrades": [
@@ -2049,6 +2070,9 @@
         "crits": null,
         "highestRank": 3,
         "runs": 2,
+        "runsBy": {
+          "nicho": 2
+        },
         "bestAverageCast": null,
         "bestAverageCastRank": null,
         "upgrades": []
@@ -2061,6 +2085,9 @@
         "crits": true,
         "highestRank": 21,
         "runs": 39,
+        "runsBy": {
+          "nicho": 39
+        },
         "bestAverageCast": 28807.166666666668,
         "bestAverageCastRank": 17,
         "upgrades": [
@@ -2089,6 +2116,7 @@
         "crits": null,
         "highestRank": null,
         "runs": 0,
+        "runsBy": {},
         "bestAverageCast": null,
         "bestAverageCastRank": null,
         "upgrades": []
@@ -2100,79 +2128,94 @@
       {
         "boss": "Doomguard Commander",
         "seconds": 21.263960899710668,
-        "time": "0:21"
+        "time": "0:21",
+        "by": "nicho"
       },
       {
         "boss": "Edwin VanCleef",
         "seconds": 25.172718998976052,
-        "time": "0:25"
+        "time": "0:25",
+        "by": "nicho"
       },
       {
         "boss": "High Priest Venoxis",
         "seconds": 14.457513399869185,
-        "time": "0:14"
+        "time": "0:14",
+        "by": "nicho"
       },
       {
         "boss": "High Priestess Jeklik",
         "seconds": 16.764795899689233,
-        "time": "0:16"
+        "time": "0:16",
+        "by": "nicho"
       },
       {
         "boss": "Hogger",
         "seconds": 21.434280999973424,
-        "time": "0:21"
+        "time": "0:21",
+        "by": "nicho"
       },
       {
         "boss": "Mor'Ladim",
         "seconds": 26.826313999891283,
-        "time": "0:26"
+        "time": "0:26",
+        "by": "nicho"
       },
       {
         "boss": "Morbent Fel",
         "seconds": 79.61636609844857,
-        "time": "1:19"
+        "time": "1:19",
+        "by": "nicho"
       },
       {
         "boss": "Mother Fang",
         "seconds": 16.615526598952727,
-        "time": "0:16"
+        "time": "0:16",
+        "by": "nicho"
       },
       {
         "boss": "Mr. Smite",
         "seconds": 21.660786799751236,
-        "time": "0:21"
+        "time": "0:21",
+        "by": "nicho"
       },
       {
         "boss": "Naraxis",
         "seconds": 16.40153860069813,
-        "time": "0:16"
+        "time": "0:16",
+        "by": "nicho"
       },
       {
         "boss": "Patchwerk",
         "seconds": 7.691620199941099,
-        "time": "0:07"
+        "time": "0:07",
+        "by": "nicho"
       },
       {
         "boss": "Rhahk'Zor",
         "seconds": 20.93747740220283,
-        "time": "0:20"
+        "time": "0:20",
+        "by": "nicho"
       }
     ],
     "WARRIOR": [
       {
         "boss": "Ivus the Forest Lord",
         "seconds": 26.077995600625854,
-        "time": "0:26"
+        "time": "0:26",
+        "by": "nicho"
       },
       {
         "boss": "Korrak the Bloodrager",
         "seconds": 43.60741139981894,
-        "time": "0:43"
+        "time": "0:43",
+        "by": "nicho"
       },
       {
         "boss": "Lokholar the Ice Lord",
         "seconds": 151.04230739869183,
-        "time": "2:31"
+        "time": "2:31",
+        "by": "nicho"
       }
     ]
   }
