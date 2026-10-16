@@ -270,14 +270,15 @@ local function CritTooltip(row)
 		count = count + 1
 		TipLine(count, kind, label, value, color)
 	end
-	-- The line's own rate, from the meter: since Reset, or the whole run.
-	if not casts[ability] then
-		if source then
-			Add("row", "Proc of", source)
-		end
-		Add("row", TOTAL_LABEL[view] or "Damage", Short(Num(row.damage)))
+	-- The line's own rate, from the meter (since Reset, or the whole run),
+	-- first; a proc's card has its source over it and its damage under it.
+	if not casts[ability] and source then
+		Add("row", "Proc of", source)
 	end
 	Add("row", RATE_LABEL[view] or "DPS", Short(Num(row.rate)))
+	if not casts[ability] then
+		Add("row", TOTAL_LABEL[view] or "Damage", Short(Num(row.damage)))
+	end
 	-- As wide as its words need, never narrower than the bars.
 	local wide = math.max(critTip.title:GetStringWidth() + 4, TIP_WIDTH)
 	for index = 1, count do
