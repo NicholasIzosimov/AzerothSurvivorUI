@@ -873,7 +873,6 @@ Draw = function()
 		local name = line.name
 		-- A talent's or amulet's own damage says "(proc)", a shield's soak "(absorb)".
 		local proc = line.proc or line.absorb
-		bar.tag:SetText(line.absorb and "(absorb)" or "(proc)")
 		-- A spell of the build wears its rarity's color, as in the build; a
 		-- proc or melee keeps a palette color of its own. With Distinguishing
 		-- Colors on, every line takes a palette color of its own instead, each
@@ -884,6 +883,7 @@ Draw = function()
 		end
 		color = color or ColorOf(name)
 		local bar = Bar(index)
+		bar.tag:SetText(line.absorb and "(absorb)" or "(proc)")
 
 		bar:ClearAllPoints()
 		bar:SetPoint("TOPLEFT", meter, "TOPLEFT", 4 + ICON, -20 - (index - 1) * (BAR_HEIGHT + BAR_GAP))
