@@ -56,7 +56,6 @@ If Windows warns about the file the first time, choose **More info → Run anywa
 | `/sui nodamage` | Hide all damage numbers (the game's and the addon's) |
 | `/sui combattext` | Quick damage numbers or the game's floating combat text |
 | `/sui errors` | The game's red error text on/off |
-| `/sui hover` | The hover outline on/off |
 | `/sui loot` | Loot log on/off |
 | `/sui bosses` | Boss bars on/off (`/sui bosses elites` lists elites too) |
 | `/sui scale 0.85` | Size of the panels, 0.6 to 1.4 |

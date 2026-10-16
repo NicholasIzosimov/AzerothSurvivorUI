@@ -5,7 +5,6 @@
 ## SavedVariables: SurvivorUIDB
 SurvivorUI.lua
 Mover.lua
-Hover.lua
 Tally.lua
 CharacterPane.lua
 TalentIcons.lua

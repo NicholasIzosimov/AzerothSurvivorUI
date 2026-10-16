@@ -2559,10 +2559,6 @@ SlashCmdList["SURVIVORUI"] = function(msg)
 		if SurvivorUI_ResetLayout then
 			SurvivorUI_ResetLayout()
 		end
-	elseif msg == "hover" then
-		if SurvivorUI_ToggleHover then
-			SurvivorUI_ToggleHover()
-		end
 	elseif msg == "loot" then
 		if SurvivorUI_ToggleLoot then
 			SurvivorUI_ToggleLoot()
@@ -2637,7 +2633,6 @@ SlashCmdList["SURVIVORUI"] = function(msg)
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui build  shows or hides the build (spells and jewelry); /sui lexicon  opens the Lexicon")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui loot  shows or hides the loot log; /sui caches  lists what the cache arrow is made from")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui inspect  names the frame under the mouse; /sui find words  names the frames showing those words")
-		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui hover  switches the white outline around what the mouse is on")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui scale 0.85  sizes the panels, 0.6 to 1.4, for smaller screens")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui meter  switches between the addon's damage meter, with the crits, and the game's own")
 	end
