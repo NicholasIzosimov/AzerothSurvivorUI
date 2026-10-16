@@ -167,12 +167,18 @@ local function Read()
 					break
 				end
 			end
-			local _, _, critChance, critDamage = string.find(text, "^(%d+%%) chance to crit for (%d+%%) damage")
+			local _, critEnd, critChance, critDamage = string.find(text, "^(%d+%%) chance to crit for (%d+%%) damage")
 			if section then
 				table.insert(ability.sections, { info = section, items = List(string.sub(text, string.len(section.prefix) + 1)) })
 			elseif critChance then
 				ability.crit = critChance.." crit"..DOT..critDamage
 				ability.critChance, ability.critDamage = critChance, critDamage
+				-- The game writes the chance to cast twice on the same line,
+				-- after the crit: kept as a line of its own.
+				local rest = string.gsub(string.sub(text, critEnd + 1), "^[%s%.,;\194\183]+", "")
+				if string.find(rest, "chance to cast", 1, true) or string.find(rest, "^Casts ") then
+					table.insert(ability.other, { text = rest, color = ECHO_COLOR })
+				end
 			elseif text ~= "" then
 				-- The description is the first text below the cast line; the
 				-- rest ("Not learned yet", a racial's note) keep their color.
@@ -256,9 +262,9 @@ local function Thing(text)
 	return Capital((string.gsub(string.gsub(text, "^your ", ""), "^the ", "")))
 end
 
--- Each fact: its place in the list (targets, then reach, the cast twice and
--- crit lines, damage, then everything else), its value and its label.
-local TARGETS, REACH, ECHO, CRIT, DAMAGE, EFFECT, OTHER = 1, 2, 3, 4, 5, 6, 7
+-- Each fact: its place in the list (reach, damage, targets, the crit line,
+-- the chance to cast twice, then everything else), its value and its label.
+local REACH, DAMAGE, TARGETS, CRIT, ECHO, EFFECT, OTHER = 1, 2, 3, 4, 5, 6, 7
 
 local FACTS = {
 	{ "up to (%d+) enem%a*", function(n) return TARGETS, n, "Targets" end },
@@ -356,7 +362,9 @@ local function AllFacts(ability)
 	for index = 1, table.getn(ability.stats) do
 		local stat = ability.stats[index]
 		local _, _, yards = string.find(stat, "^([%d%.]+) yds?")
-		table.insert(facts, { place = REACH, text = stat })
+		-- The line under the name holds the reach, and may hold the targets.
+		local place = string.find(string.lower(stat), "target", 1, true) and TARGETS or REACH
+		table.insert(facts, { place = place, text = stat })
 		if yards then
 			seen[yards.." yd"] = true
 		end
@@ -498,6 +506,18 @@ end
 -- Watching for the game's text.
 
 local written                   -- the signature of the last layout written
+
+-- Other cards on the game's tooltip (the build's) draw rules the same way:
+-- SurvivorUI_TooltipRules({ { line, color }, ... }) once the card is shown,
+-- each line a blank one to draw across. The layout then counts as written,
+-- so the watcher below leaves it be.
+function SurvivorUI_TooltipRules(list)
+	HideRules()
+	for index = 1, table.getn(list) do
+		Rule(list[index][1], list[index][2])
+	end
+	written = Signature()
+end
 
 local watcher = CreateFrame("Frame")
 watcher:SetScript("OnUpdate", function()

@@ -339,11 +339,29 @@ end
 -- every worn piece. "Increases the area of Consecration by 50%." adds to that
 -- stat ("Reduces" takes away), the same stat from several pieces added up;
 -- any other line naming it is an effect of its own ("Enemies Consecration
--- kills explode for 30% of their max health").
+-- kills explode for 30% of their max health"). An effect that is a count the
+-- upgrades also have is read as that stat: "Sinister Strike strikes 6 more
+-- targets" is targets +6, beside the upgrades' own targets.
 local GEAR_STAT = "^(%a+) the (.-) of .- by ([%d%.]+)%%"
+local GEAR_COUNTS = {           -- pattern, stat
+	{ "(%d+) more targets?", "targets" },
+	{ "(%d+) additional targets?", "targets" },
+	{ "(%d+) more enem%a+", "targets" },
+	{ "(%d+) additional enem%a+", "targets" },
+}
+
+-- unit: "%" for a percentage, "" for a count.
+local function AddGearStat(gear, stat, value, unit)
+	if not gear.stats[stat] then
+		gear.stats[stat] = 0
+		gear.units[stat] = unit
+		table.insert(gear.order, stat)
+	end
+	gear.stats[stat] = gear.stats[stat] + value
+end
 
 local function GearForSpell(spell)
-	local gear = { stats = {}, order = {}, effects = {} }
+	local gear = { stats = {}, order = {}, effects = {}, units = {} }
 	local wanted = string.lower(spell or "")
 	if wanted == "" then
 		return gear
@@ -358,19 +376,27 @@ local function GearForSpell(spell)
 				local text = texts[index]
 				if string.find(string.lower(text), wanted, 1, true) then
 					local body = string.gsub(text, "^Equip: ", "")
-					local _, _, verb, stat, value = string.find(string.lower(body), GEAR_STAT)
+					local lower = string.lower(body)
+					local _, _, verb, stat, value = string.find(lower, GEAR_STAT)
 					value = tonumber(value)
 					if value and (verb == "increases" or verb == "reduces") then
 						if verb == "reduces" then
 							value = -value
 						end
-						if not gear.stats[stat] then
-							gear.stats[stat] = 0
-							table.insert(gear.order, stat)
-						end
-						gear.stats[stat] = gear.stats[stat] + value
+						AddGearStat(gear, stat, value, "%")
 					else
-						table.insert(gear.effects, (string.gsub(body, "%.$", "")))
+						local counted = false
+						for count = 1, table.getn(GEAR_COUNTS) do
+							local _, _, number = string.find(lower, GEAR_COUNTS[count][1])
+							if number then
+								AddGearStat(gear, GEAR_COUNTS[count][2], tonumber(number), "")
+								counted = true
+								break
+							end
+						end
+						if not counted then
+							table.insert(gear.effects, (string.gsub(body, "%.$", "")))
+						end
 					end
 				end
 			end
@@ -380,8 +406,9 @@ local function GearForSpell(spell)
 end
 
 -- +50%, -10%
-local function Signed(value)
-	local text = string.format("%g", value).."%"
+-- unit: "%" (the default) or "" for a count ("+6").
+local function Signed(value, unit)
+	local text = string.format("%g", value)..(unit or "%")
 	if value > 0 then
 		text = "+"..text
 	end
@@ -525,7 +552,10 @@ local function GearScore(name)
 	local gear = GearForSpell(name)
 	local score = 0
 	for index = 1, table.getn(gear.order) do
-		score = score + math.abs(gear.stats[gear.order[index]])
+		local stat = gear.order[index]
+		-- Extra targets from gear weigh as the upgrades' own do.
+		local weight = stat == "targets" and TARGET_POINTS or 1
+		score = score + math.abs(gear.stats[stat]) * weight
 	end
 	return score
 end
@@ -568,6 +598,14 @@ local function ShowCard(owner, title, color, rank, heading, entries, empty, scor
 	if score then
 		GameTooltip:AddDoubleLine("Upgrade score", math.floor(score + 0.5), 0.62, 0.62, 0.62, color[1], color[2], color[3])
 	end
+	-- Thin rules part the card's sections: over the upgrades, and over the
+	-- gear's effects. Each sits on a blank line of its own.
+	local rules = {}
+	local function Rule(rule)
+		GameTooltip:AddLine(" ")
+		table.insert(rules, { GameTooltip:NumLines(), rule })
+	end
+	Rule(color)
 	local gearStats = gear and table.getn(gear.order) > 0
 	if table.getn(entries) == 0 and not gearStats then
 		GameTooltip:AddLine(empty, 0.55, 0.55, 0.55)
@@ -580,7 +618,7 @@ local function ShowCard(owner, title, color, rank, heading, entries, empty, scor
 			if value then
 				local stat = string.lower(label)
 				if gear and gear.stats[stat] then
-					value = value.."  "..GEAR_HEX..Signed(gear.stats[stat]).."|r"
+					value = value.."  "..GEAR_HEX..Signed(gear.stats[stat], gear.units[stat]).."|r"
 					merged[stat] = true
 				end
 				GameTooltip:AddDoubleLine("  "..Capital(label), value, 0.8, 0.8, 0.8, 0.45, 1, 0.45)
@@ -592,19 +630,25 @@ local function ShowCard(owner, title, color, rank, heading, entries, empty, scor
 			for index = 1, table.getn(gear.order) do
 				local stat = gear.order[index]
 				if not merged[stat] then
-					GameTooltip:AddDoubleLine("  "..Capital(stat), GEAR_HEX..Signed(gear.stats[stat]).."|r", 0.8, 0.8, 0.8, 1, 1, 1)
+					GameTooltip:AddDoubleLine("  "..Capital(stat), GEAR_HEX..Signed(gear.stats[stat], gear.units[stat]).."|r", 0.8, 0.8, 0.8, 1, 1, 1)
 				end
 			end
 		end
 	end
 	if gear and table.getn(gear.effects) > 0 then
+		Rule({ 1, 0.63, 0.25 })
 		GameTooltip:AddLine("Gear Effects", 1, 0.63, 0.25)
 		for index = 1, table.getn(gear.effects) do
-			GameTooltip:AddLine("  "..gear.effects[index], 0.8, 0.8, 0.8, 1)
+			-- Its percentages in the gear's orange, as in the upgrades.
+			local effect = string.gsub(gear.effects[index], "([%+%-]?%d[%d%.]*%%)", GEAR_HEX.."%1|r")
+			GameTooltip:AddLine("  "..effect, 0.8, 0.8, 0.8, 1)
 		end
 	end
 	GameTooltip:AddLine("Click to open the Lexicon.", 0.45, 0.45, 0.45)
 	GameTooltip:Show()
+	if SurvivorUI_TooltipRules then
+		SurvivorUI_TooltipRules(rules)
+	end
 end
 
 -- What could fill an empty slot: a heading, one line per choice, and a note

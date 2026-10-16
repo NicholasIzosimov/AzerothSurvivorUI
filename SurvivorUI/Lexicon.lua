@@ -339,13 +339,18 @@ local function ReadSpellTip(ability)
 	local learned, echo, crit = true, false, false
 	for index = 1, table.getn(texts) do
 		local text = texts[index]
+		-- The crit and the chance to cast twice share one line, so each is
+		-- looked for on its own.
 		if string.find(text, "^Not learned") then
 			learned = false
-		elseif string.find(text, "chance to cast", 1, true) or string.find(text, "^Casts ") then
+		end
+		if string.find(text, "chance to cast", 1, true) or string.find(text, "Casts ", 1, true) then
 			echo = true
-		elseif string.find(text, "chance to crit for", 1, true) then
+		end
+		if string.find(text, "chance to crit for", 1, true) then
 			crit = true
-		elseif string.sub(text, 1, 10) == "Upgrades: " then
+		end
+		if string.sub(text, 1, 10) == "Upgrades: " then
 			for item in string.gfind(string.sub(text, 11), "[^,]+") do
 				item = string.gsub(string.gsub(item, "^%s+", ""), "%s+$", "")
 				if item ~= "" then
