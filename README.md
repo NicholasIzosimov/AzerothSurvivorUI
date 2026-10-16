@@ -6,9 +6,18 @@ A lightweight interface addon for **Azeroth Survivors**: flat, dark unit frames,
 
 ## Install
 
-### With the installer (Windows)
+### With the installer app (Windows)
 
-Run **`install.bat`** from the repository folder (double-click it). It pulls the latest changes when the folder is a git checkout, then copies `SurvivorUI` into `C:\Git\wenilla\benilla-config\AddOns`.
+Double-click **`Install Survivor UI.cmd`** in the repository folder. A small window opens with the AddOns folder filled in (`C:\Git\wenilla\benilla-config\AddOns`, or the last one you used; **Browse...** picks another) and what is installed there now. Pick how to install and press **Install**:
+
+- **Copy the files**: copies `SurvivorUI` into the AddOns folder.
+- **Link to this repository**: makes `AddOns\SurvivorUI` a link to this folder, so every `git pull` is in the game after `/reload`.
+
+With **Pull the latest changes first** ticked (in a git checkout), it runs `git pull` before installing. It runs on the PowerShell that comes with Windows; nothing to install. Without the window: `powershell -ExecutionPolicy Bypass -File installer\SurvivorUIInstaller.ps1 -Quiet` (add `-Link`, `-NoPull` or `-AddOns "D:\Path"`).
+
+### From the command line (Windows)
+
+Run **`install.bat`** from the repository folder. It pulls the latest changes when the folder is a git checkout, then copies `SurvivorUI` into `C:\Git\wenilla\benilla-config\AddOns`.
 
 | Command | What it does |
 | --- | --- |
