@@ -1,4 +1,4 @@
--- Survivor UI: the Lexicon, a book of every piece of jewelry the hero has
+-- Survivor UI: the Codex, a book of every piece of jewelry the hero has
 -- worn, in any run, and of the hero's abilities. A wide button at the foot of
 -- the build opens it, and so does a click on one of the build's rows, at its
 -- kind; a bookmark per kind (amulets, rings, trinkets, then abilities) down
@@ -8,7 +8,7 @@
 -- Jewelry: each piece shows once, at the highest rank seen ("Quick Strike
 -- Ring III"), in its quality's color, with the classes that wore it; hover it
 -- for its tooltip. The book learns a piece the moment it is worn and keeps it
--- in SurvivorUIDB.lexicon, across runs, its tooltip's lines with it: a piece
+-- in SurvivorUIDB.codex, across runs, its tooltip's lines with it: a piece
 -- no longer in the game's item cache still shows its description. The names
 -- the build remembered before the book existed (seenGear) are read too; they
 -- get their icon and tooltip once worn again. The book never asks the game
@@ -66,26 +66,48 @@ local MIN_CASTS = 5
 
 local function Settings()
 	SurvivorUIDB = SurvivorUIDB or {}
-	return SurvivorUIDB
+	-- The book was the Lexicon before it was the Codex, and kept its pages and
+	-- class filter under that name: they move over, merged into what the Codex
+	-- already has (an older version run in between may have added pieces).
+	local settings = SurvivorUIDB
+	if settings.lexicon then
+		settings.codex = settings.codex or {}
+		for kind, pieces in pairs(settings.lexicon) do
+			settings.codex[kind] = settings.codex[kind] or {}
+			for name, piece in pairs(pieces) do
+				if not settings.codex[kind][name] then
+					settings.codex[kind][name] = piece
+				end
+			end
+		end
+		settings.lexicon = nil
+	end
+	if settings.lexiconClassOnly ~= nil then
+		if settings.codexClassOnly == nil then
+			settings.codexClassOnly = settings.lexiconClassOnly
+		end
+		settings.lexiconClassOnly = nil
+	end
+	return settings
 end
 
 -- The book, holding only the jewelry kinds above: anything else it once kept
 -- (the armor and weapons of its first version) is let go.
 local function Book()
 	local settings = Settings()
-	settings.lexicon = settings.lexicon or {}
+	settings.codex = settings.codex or {}
 	local keep = {}
 	for index = 1, table.getn(KINDS) do
 		if KINDS[index].slots then
 			keep[KINDS[index].kind] = true
 		end
 	end
-	for kind in pairs(settings.lexicon) do
+	for kind in pairs(settings.codex) do
 		if not keep[kind] then
-			settings.lexicon[kind] = nil
+			settings.codex[kind] = nil
 		end
 	end
-	return settings.lexicon
+	return settings.codex
 end
 
 local function ClassToken()
@@ -173,7 +195,7 @@ end
 -- Learning jewelry: every worn slot, whenever the gear changes, its tooltip
 -- read with it while the game still holds it.
 
-local scan = CreateFrame("GameTooltip", "SurvivorUILexiconScan", nil, "GameTooltipTemplate")
+local scan = CreateFrame("GameTooltip", "SurvivorUICodexScan", nil, "GameTooltipTemplate")
 
 -- The lines of a worn piece's tooltip, as { text, r, g, b, right }, and the
 -- class it is kept to ("Classes: Rogue"), if any.
@@ -183,8 +205,8 @@ local function ReadSlot(slot)
 	scan:SetInventoryItem("player", slot)
 	local lines, only = {}, nil
 	for index = 1, math.min(LINES_KEPT, scan:NumLines()) do
-		local left = getglobal("SurvivorUILexiconScanTextLeft"..index)
-		local right = getglobal("SurvivorUILexiconScanTextRight"..index)
+		local left = getglobal("SurvivorUICodexScanTextLeft"..index)
+		local right = getglobal("SurvivorUICodexScanTextRight"..index)
 		local text = left and left:GetText()
 		if text then
 			local r, g, b = left:GetTextColor()
@@ -234,7 +256,7 @@ local function Learn()
 end
 
 local function ClassOnly()
-	return Settings().lexiconClassOnly == true
+	return Settings().codexClassOnly == true
 end
 
 -- Whether a piece belongs on the page with the class filter as it stands.
@@ -308,7 +330,7 @@ end
 local function ScanTexts()
 	local texts = {}
 	for index = 1, scan:NumLines() do
-		local left = getglobal("SurvivorUILexiconScanTextLeft"..index)
+		local left = getglobal("SurvivorUICodexScanTextLeft"..index)
 		for piece in string.gfind((left and left:GetText() or "").."\n", "([^\n]*)\n") do
 			local text = string.gsub(string.gsub(piece, "|c%x%x%x%x%x%x%x%x", ""), "|r", "")
 			if text ~= "" then
@@ -403,7 +425,7 @@ local function LearnRun()
 	if not phase or phase == "ready" then
 		return
 	end
-	local counted = SurvivorUI_RunMemory and SurvivorUI_RunMemory("lexicon") or {}
+	local counted = SurvivorUI_RunMemory and SurvivorUI_RunMemory("codex") or {}
 	for index = 1, table.getn(AZS_SPELLS) do
 		local entry = AZS_SPELLS[index]
 		local name = SurvivorUI_SpellName(Field(entry, "key", 1))
@@ -442,7 +464,7 @@ end
 
 -- From the damage meter's cards (CritCard.lua): an ability's average cast so
 -- far this run, over this many casts.
-function SurvivorUI_LexiconAverage(name, average, casts)
+function SurvivorUI_CodexAverage(name, average, casts)
 	if not (name and average and casts and casts >= MIN_CASTS) then
 		return
 	end
@@ -515,7 +537,7 @@ end
 ------------------------------------------------------------------------------
 -- The book.
 
-local book = CreateFrame("Frame", "SurvivorUILexicon", UIParent)
+local book = CreateFrame("Frame", "SurvivorUICodex", UIParent)
 book:SetWidth(WIDTH)
 book:SetHeight(HEIGHT)
 book:SetPoint("CENTER", UIParent, "CENTER", 0, 40)
@@ -533,7 +555,7 @@ book:RegisterForDrag("LeftButton")
 book:SetScript("OnDragStart", function() this:StartMoving() end)
 book:SetScript("OnDragStop", function() this:StopMovingOrSizing() end)
 book:Hide()
-table.insert(UISpecialFrames, "SurvivorUILexicon")
+table.insert(UISpecialFrames, "SurvivorUICodex")
 
 book.title = book:CreateFontString(nil, "OVERLAY")
 book.title:SetFont(FONT, 18 + FONT_BUMP)
@@ -541,7 +563,7 @@ book.title:SetPoint("TOPLEFT", book, "TOPLEFT", PAD, -PAD + 2)
 book.title:SetTextColor(GOLD_TEXT[1], GOLD_TEXT[2], GOLD_TEXT[3])
 book.title:SetShadowColor(0, 0, 0, 1)
 book.title:SetShadowOffset(1, -1)
-book.title:SetText("Lexicon")
+book.title:SetText("Codex")
 
 book.note = book:CreateFontString(nil, "OVERLAY")
 book.note:SetFont(FONT, 11 + FONT_BUMP)
@@ -563,13 +585,13 @@ filter:SetWidth(110)
 filter:SetHeight(20)
 filter:SetPoint("RIGHT", close, "LEFT", -6, 0)
 filter:SetScript("OnClick", function()
-	Settings().lexiconClassOnly = not ClassOnly()
+	Settings().codexClassOnly = not ClassOnly()
 	Draw()
 end)
 filter:SetScript("OnEnter", function()
 	GameTooltip:SetOwner(this, "ANCHOR_BOTTOM")
 	GameTooltip:SetText("Class filter", 1, 1, 1)
-	GameTooltip:AddLine("Show every piece, or only those your "..ClassName().." has worn or is kept to. Pieces from before the Lexicon kept classes show only under every class.", 0.7, 0.7, 0.7, 1)
+	GameTooltip:AddLine("Show every piece, or only those your "..ClassName().." has worn or is kept to. Pieces from before the Codex kept classes show only under every class.", 0.7, 0.7, 0.7, 1)
 	GameTooltip:Show()
 end)
 filter:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -712,7 +734,7 @@ local function PieceTooltip(owner, piece)
 	else
 		local color = HexColor(piece.hex)
 		GameTooltip:SetText(piece.name, color[1], color[2], color[3])
-		GameTooltip:AddLine("Seen before the Lexicon kept details. Wear it again for its tooltip.", 0.6, 0.6, 0.6, 1)
+		GameTooltip:AddLine("Seen before the Codex kept details. Wear it again for its tooltip.", 0.6, 0.6, 0.6, 1)
 	end
 	local worn = {}
 	for class in pairs(CLASS_KINDS[piece.kind] and piece.classes or {}) do
@@ -1062,7 +1084,7 @@ function SurvivorUI_SpellReport()
 	say("? = not learned in any run read yet. Upgrades fill in as runs show them.")
 end
 
-function SurvivorUI_ToggleLexicon()
+function SurvivorUI_ToggleCodex()
 	if book:IsShown() then
 		book:Hide()
 	else
@@ -1072,7 +1094,7 @@ end
 
 -- The book open at a kind ("Ring", "Ability"); for an ability, at the page
 -- that holds the one named.
-function SurvivorUI_OpenLexicon(kind, name)
+function SurvivorUI_OpenCodex(kind, name)
 	local known = false
 	for index = 1, table.getn(KINDS) do
 		known = known or KINDS[index].kind == kind
@@ -1105,14 +1127,14 @@ end
 
 local build = getglobal("SurvivorUIBuild")
 if build then
-	local open = GoldButton(build, "Lexicon", 14)
+	local open = GoldButton(build, "Codex", 14)
 	open:SetHeight(BUTTON_HEIGHT)
 	SurvivorUI_BuildFooter = open
-	open:SetScript("OnClick", SurvivorUI_ToggleLexicon)
+	open:SetScript("OnClick", SurvivorUI_ToggleCodex)
 	open:SetScript("OnEnter", function()
 		GameTooltip:SetOwner(this, "ANCHOR_LEFT")
-		GameTooltip:SetText("Lexicon", 1, 1, 1)
-		GameTooltip:AddLine("Every piece of gear you have worn, in any run, by kind, and your abilities with their best average cast (/sui lexicon).", 0.7, 0.7, 0.7, 1)
+		GameTooltip:SetText("Codex", 1, 1, 1)
+		GameTooltip:AddLine("Every piece of gear you have worn, in any run, by kind, and your abilities with their best average cast (/sui codex).", 0.7, 0.7, 0.7, 1)
 		GameTooltip:Show()
 	end)
 	open:SetScript("OnLeave", function() GameTooltip:Hide() end)

@@ -16,7 +16,7 @@
 -- fill it: the spells not learned yet (from the spellbook), or the jewelry of
 -- that kind worn in earlier runs (the game shares no list of its own, so the
 -- build remembers every piece it sees). Each box folds away with the button
--- in its heading's corner; click a row to open the Lexicon at its kind. From
+-- in its heading's corner; click a row to open the Codex at its kind. From
 -- the game's addon API (AZS_SPELLS); without it
 -- nothing shows. Hold Alt and drag to move; /sui build hides it.
 
@@ -644,7 +644,7 @@ local function ShowCard(owner, title, color, rank, heading, entries, empty, scor
 			GameTooltip:AddLine("  "..effect, 0.8, 0.8, 0.8, 1)
 		end
 	end
-	GameTooltip:AddLine("Click to open the Lexicon.", 0.45, 0.45, 0.45)
+	GameTooltip:AddLine("Click to open the Codex.", 0.45, 0.45, 0.45)
 	GameTooltip:Show()
 	if SurvivorUI_TooltipRules then
 		SurvivorUI_TooltipRules(rules)
@@ -666,7 +666,7 @@ local function ShowPool(owner, title, entries, empty, note)
 		end
 	end
 	GameTooltip:AddLine(note, 0.55, 0.55, 0.55, 1)
-	GameTooltip:AddLine("Click to open the Lexicon.", 0.45, 0.45, 0.45)
+	GameTooltip:AddLine("Click to open the Codex.", 0.45, 0.45, 0.45)
 	GameTooltip:Show()
 end
 
@@ -847,17 +847,17 @@ local function Row(pool, index)
 	row:EnableMouse(true)
 	row:SetScript("OnEnter", RowEnter)
 	row:SetScript("OnLeave", function() GameTooltip:Hide() end)
-	-- A click opens the Lexicon at this row's kind: the jewelry's own page,
+	-- A click opens the Codex at this row's kind: the jewelry's own page,
 	-- or the abilities for a spell.
 	row:SetScript("OnMouseUp", function()
-		if arg1 ~= "LeftButton" or not SurvivorUI_OpenLexicon then
+		if arg1 ~= "LeftButton" or not SurvivorUI_OpenCodex then
 			return
 		end
 		GameTooltip:Hide()
 		if this.gearKind then
-			SurvivorUI_OpenLexicon(this.gearKind)
+			SurvivorUI_OpenCodex(this.gearKind)
 		elseif this.ability or this.emptySpell then
-			SurvivorUI_OpenLexicon("Ability", this.ability)
+			SurvivorUI_OpenCodex("Ability", this.ability)
 		end
 	end)
 
@@ -1090,7 +1090,7 @@ Draw = function()
 	Fold(gearHeading)
 	y = DrawGear(y - HEADER_HEIGHT)
 
-	-- The Lexicon's button, at the foot inside the box.
+	-- The Codex's button, at the foot inside the box.
 	local footer = SurvivorUI_BuildFooter
 	if footer then
 		y = y - SECTION_GAP

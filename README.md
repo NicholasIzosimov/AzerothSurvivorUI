@@ -1,8 +1,8 @@
 # Azeroth Survivor UI
 
-A lightweight interface addon for **Azeroth Survivors**: flat, dark unit frames, a compact action bar and a set of run panels (damage meter, build, tally, timer, Lexicon) in place of the stock 1.12 look. Everything can be moved, resized and switched off.
+A lightweight interface addon for **Azeroth Survivors**: flat, dark unit frames, a compact action bar and a set of run panels (damage meter, build, tally, timer, Codex) in place of the stock 1.12 look. Everything can be moved, resized and switched off.
 
-![Survivor UI in a run: build, run timer, Lexicon, damage meter and the options window](screenshots/showcase.png)
+![Survivor UI in a run: build, run timer, Codex, damage meter and the options window](screenshots/showcase.png)
 
 ## Install and update
 
@@ -30,7 +30,7 @@ If Windows warns about the file the first time, choose **More info → Run anywa
 - **Buffs**: a centered buff row above the player frame with an optional clock sweep that darkens as a buff runs out; shields with no timer show what they have left to absorb.
 - **Damage meter**: muted bars, spell icons and a hover card per line with the average cast and the targets hit.
 - **Build**: your spells colored by the rarity their upgrades add up to, your jewelry, and hover cards with upgrades and gear stats.
-- **Lexicon**: a book of every amulet, ring and trinket you have worn, across runs, with the classes that wore them, and of your class's abilities with the best average cast each has reached. Click a row of the build to open it at that kind.
+- **Codex**: a book of every amulet, ring and trinket you have worn, across runs, with the classes that wore them, and of your class's abilities with the best average cast each has reached. Click a row of the build to open it at that kind.
 - **Tally**: kills, gold, gold per second and gold needed; **Tracker**: run timer with per-class best boss times, speedrun style; **XP bar** with a next-level estimate; **Boss bars**; **Loot log**.
 - **Caches**: a reminder and an arrow to the nearest cache (it keeps to one cache until another is 10 yards nearer), plus cache pins on the minimap.
 - **Reloads**: boss fight times, the meter's casts and colors, the loot log and the rates are kept through a `/reload` in the middle of a run.
@@ -43,7 +43,7 @@ If Windows warns about the file the first time, choose **More info → Run anywa
 | `/sui reload` | Reload the interface |
 | `/sui frames` | Addon unit frames on/off |
 | `/sui build` | Build panel on/off |
-| `/sui lexicon` | Open the Lexicon |
+| `/sui codex` | Open the Codex |
 | `/sui spells` | Each of your spells: whether its tooltip says it casts twice or crits, and every upgrade seen on it |
 | `/sui gear` | Your jewelry slots as the game sees them, and a log of when any slot lost or regained its piece |
 | `/sui meter` | Damage meter on/off |

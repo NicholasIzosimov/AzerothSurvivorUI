@@ -958,7 +958,7 @@ local function PlaceButton(prefix, id, position)
 		button.survivorKept = true
 		-- Above what the game draws over the field (nameplates among it), so
 		-- the mouse always reaches the button and its tooltip; the options
-		-- window, the Lexicon and the tooltips stand higher still. Its
+		-- window, the Codex and the tooltips stand higher still. Its
 		-- cooldown sweep and numbers come with it.
 		button:SetFrameStrata(BAR_STRATA)
 		StyleButton(button)
@@ -2630,9 +2630,9 @@ SlashCmdList["SURVIVORUI"] = function(msg)
 		if SurvivorUI_SpellReport then
 			SurvivorUI_SpellReport()
 		end
-	elseif msg == "lexicon" then
-		if SurvivorUI_ToggleLexicon then
-			SurvivorUI_ToggleLexicon()
+	elseif msg == "codex" then
+		if SurvivorUI_ToggleCodex then
+			SurvivorUI_ToggleCodex()
 		end
 	elseif msg == "center" then
 		if SurvivorUI_CenterRow then
@@ -2685,7 +2685,7 @@ SlashCmdList["SURVIVORUI"] = function(msg)
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui tally  switches between the kills and gold line under the bar and the game's own box")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui timer  shows or hides the run timer under the minimap (the clock and the bosses); /sui timer compact  leaves out the list of bosses")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui xp  shows or hides the run's level bar")
-		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui build  shows or hides the build (spells and jewelry); /sui lexicon  opens the Lexicon")
+		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui build  shows or hides the build (spells and jewelry); /sui codex  opens the Codex")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui loot  shows or hides the loot log; /sui caches  lists what the cache arrow is made from")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui inspect  names the frame under the mouse; /sui find words  names the frames showing those words")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui scale 0.85  sizes the panels, 0.6 to 1.4, for smaller screens")

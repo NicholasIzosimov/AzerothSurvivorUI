@@ -17,5 +17,5 @@ AbilityTooltip.lua
 BossBars.lua
 LootLog.lua
 BuildList.lua
-Lexicon.lua
+Codex.lua
 Options.lua

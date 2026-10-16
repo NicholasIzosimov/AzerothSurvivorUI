@@ -8,8 +8,8 @@
 -- hit you with (melee and each spell). The meter's Reset clears its view's
 -- tally (SurvivorUI_ResetRun); a new run clears them all. The tally is kept in the run's
 -- memory (SurvivorUI_RunMemory), so a reload in the middle of a run keeps it.
--- Each ability's average cast also goes to the Lexicon, which keeps the best
--- one a run has reached (SurvivorUI_LexiconAverage).
+-- Each ability's average cast also goes to the Codex, which keeps the best
+-- one a run has reached (SurvivorUI_CodexAverage).
 
 local FLAT = "Interface\\ChatFrame\\ChatFrameBackground"
 local FONT = SurvivorUI_FONT or "Fonts\\FRIZQT__.TTF"
@@ -430,8 +430,8 @@ local function Record(message)
 				cast = Add(casts, ability, amount)
 			end
 			cast.at = now
-			if SurvivorUI_LexiconAverage then
-				SurvivorUI_LexiconAverage(ability, cast.sum / cast.count, cast.count)
+			if SurvivorUI_CodexAverage then
+				SurvivorUI_CodexAverage(ability, cast.sum / cast.count, cast.count)
 			end
 			targetDamage[ability] = targetDamage[ability] or {}
 			targetDamage[ability][target] = (targetDamage[ability][target] or 0) + amount
