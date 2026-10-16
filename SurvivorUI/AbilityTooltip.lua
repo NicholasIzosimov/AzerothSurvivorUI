@@ -54,6 +54,7 @@ local REACH_HEX = "|cff99f2bf"      -- mint
 local CRIT_HEX = "|cffffc214"       -- the gold of a critical strike's number
 local MUTED = { 0.62, 0.62, 0.62 }
 local ECHO_COLOR = { 1, 0.82, 0 }   -- the game's own gold for "chance to cast twice"
+local ECHO_HEX = "|cffffd100"       -- the same, for its percentage within a line
 
 ------------------------------------------------------------------------------
 -- Rules: thin lines drawn across the tooltip, each over a blank line.
@@ -268,10 +269,11 @@ local function Thing(text)
 	return Capital((string.gsub(string.gsub(text, "^your ", ""), "^the ", "")))
 end
 
--- Each fact: its place in the list (damage, reach, targets, everything
--- else, then the two that hold for every spell together at the foot: the
--- chance to cast twice and the crit chance), its value and its label.
-local DAMAGE, REACH, TARGETS, EFFECT, OTHER, ECHO, CRIT = 1, 2, 3, 4, 5, 6, 7
+-- Each fact: its place in the list (damage, the spell's main effect, reach,
+-- targets, everything else, then the two that hold for every spell together
+-- at the foot: the chance to cast twice and the crit chance), its value and
+-- its label.
+local DAMAGE, MAIN, REACH, TARGETS, EFFECT, OTHER, ECHO, CRIT = 1, 2, 3, 4, 5, 6, 7, 8
 
 -- How many targets a spell hits, in the colors of gear rarity, each mixed a
 -- quarter of the way to white, softened but still plainly colored: 1 white,
@@ -287,17 +289,17 @@ local TARGET_TIERS = {          -- from the top: targets reached, color
 local function TargetsText(count)
 	for index = 1, table.getn(TARGET_TIERS) do
 		if count >= TARGET_TIERS[index][1] then
-			return "|cff"..TARGET_TIERS[index][2].."+"..count.."|r"
+			return "|cff"..TARGET_TIERS[index][2]..count.."|r"
 		end
 	end
-	return "+"..count
+	return tostring(count)
 end
 
 -- A rule may give a line's words in full as its fifth value, the number in
 -- white in it, in place of value and label; a rule giving no place drops what
 -- it reads from the list (the full description, with Shift, still has it).
 local FACTS = {
-	-- What a hit gives back, by the spot of the x2 damage line, ahead of the
+	-- What a hit gives back, by the spot of the 2x damage line, ahead of the
 	-- damage and heal rules that would take its numbers: "Shields you against
 	-- 58 damage for every enemy hit, up to 292" is "58 Shield on hit, max
 	-- 292"; "Heals you for 50, plus 10 for every enemy hit" is "50 Heal, +10
@@ -307,6 +309,15 @@ local FACTS = {
 	{ "heals you for (%d+), plus (%d+) for every enemy hit",
 		function(n, more) return OTHER, n, "Heal, +"..more.." per enemy hit" end },
 	{ "each hit heals you for (%d+)", function(n) return OTHER, n, "Heal on hit" end },
+	-- Effects worded around "damage" or "sec", read whole before the damage
+	-- and duration rules would take their numbers and drop the rest.
+	{ "deals? "..NUMBER.."%% less damage", function(p) return EFFECT, "-"..p.."%", "enemy damage" end },
+	{ "damage increased by "..NUMBER.."%%", function(p) return EFFECT, "+"..p.."%", "damage" end },
+	{ "attackers take "..NUMBER.." damage", function(n) return EFFECT, n, "damage to melee attackers" end },
+	{ "immune to all damage for "..NUMBER.." sec", function(t) return EFFECT, t.." sec", "Immunity" end },
+	{ "immune to all damage", function() return EFFECT, nil, "Immunity", nil, "Immune to all damage" end },
+	{ "flee for "..NUMBER.." sec", function(t) return EFFECT, t.." sec", "Fear" end },
+	{ "healing "..NUMBER.." over "..NUMBER.." sec", function(n, t) return EFFECT, n, "Healing over "..t.." sec" end },
 	-- "Stacks up to 3 times on one enemy" is "Stacks up to 3 times".
 	{ "stacks up to (%d+) times?[^,;:]*", function(n) return EFFECT, n, "", nil, "Stacks up to "..n.." times" end },
 	-- "Afflicts the 4 healthiest enemies", "the 3 nearest enemies", "the
@@ -329,12 +340,12 @@ local FACTS = {
 	{ NUMBER.." (%a+) damage", function(n, school) return DAMAGE, n, Capital(school).." Damage", school end },
 	{ NUMBER.." damage", function(n) return DAMAGE, n, "Damage" end },
 	-- "doubled to 1506 against an enemy below 30% health": near the bottom,
-	-- over the chance to cast twice, "x2 damage on targets below 30%", the x2
-	-- in white as a value, as "+2 Targets" is.
+	-- over the chance to cast twice, "2x damage on targets below 30%", the 2x
+	-- in white as a value, as "2 Targets" is.
 	{ "doubled to [%d%.]+ against an? enem%a* below (%d+)%%[%a ]*",
-		function(p) return OTHER, "x2", "damage on targets below "..p.."%" end },
+		function(p) return OTHER, "2x", "damage on targets below "..p.."%" end },
 	{ "tripled to [%d%.]+ against an? enem%a* below (%d+)%%[%a ]*",
-		function(p) return OTHER, "x3", "damage on targets below "..p.."%" end },
+		function(p) return OTHER, "3x", "damage on targets below "..p.."%" end },
 	{ "within "..NUMBER.." yds?", function(n) return REACH, n.." yd", "" end },
 	{ NUMBER.." yds? radius", function(n) return REACH, n.." yd", "radius" end },
 	{ NUMBER.." yds? range", function(n) return REACH, n.." yd", "range" end },
@@ -425,7 +436,7 @@ local function FactText(fact, school, tint)
 	end
 	local shown = fact.place == TARGETS and fact.value or Thousands(fact.value)
 	local value = "|cffffffff"..shown.."|r"
-	-- Targets as a count to add ("+3"), colored by how many.
+	-- Targets as a count ("3"), colored by how many.
 	local _, _, count = string.find(fact.place == TARGETS and fact.value or "", "^%+?(%d+)$")
 	if count then
 		value = TargetsText(tonumber(count))
@@ -474,6 +485,16 @@ local function AllFacts(ability)
 			table.insert(facts, fact)
 		end
 	end
+	-- The spell's main effect, its first that is more than a duration or an
+	-- interval ("-38% cooldown", an absorb, "-20% enemy damage"), comes right
+	-- under the damage, or at the top for a spell that deals none.
+	for index = 1, table.getn(facts) do
+		local fact = facts[index]
+		if fact.place == EFFECT and fact.label ~= "Duration" and fact.label ~= "Interval" then
+			fact.place = MAIN
+			break
+		end
+	end
 	-- In their places, each place in the order read.
 	for index = 1, table.getn(facts) do
 		facts[index].order = index
@@ -520,7 +541,9 @@ local function Compose(ability)
 			for index = 1, table.getn(facts) do
 				local fact = facts[index]
 				if fact.echo then
-					Line(fact.echo, ECHO_COLOR)
+					-- Its percentage in the game's gold, the words muted as
+					-- the other lines' are.
+					Line((string.gsub(fact.echo, "(%d+%%)", ECHO_HEX.."%1|r")), MUTED)
 				elseif fact.crit then
 					Line(CRIT_HEX..ability.critChance.."|r crit", MUTED)
 				else
