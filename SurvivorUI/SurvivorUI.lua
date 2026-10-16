@@ -1432,11 +1432,14 @@ local function AbsorbShown()
 	return Settings().absorbBar ~= false
 end
 
--- What a buff's tooltip says it absorbs, or nil.
+-- What a buff's tooltip says it absorbs, or nil, and the buff's name (its
+-- tooltip's first line).
 local function BuffAbsorb(buffIndex)
 	buffScan:SetOwner(WorldFrame, "ANCHOR_NONE")
 	buffScan:ClearLines()
 	buffScan:SetPlayerBuff(buffIndex)
+	local first = getglobal("SurvivorUIBuffScanTextLeft1")
+	local name = first and first:GetText()
 	for line = 1, buffScan:NumLines() do
 		local text = getglobal("SurvivorUIBuffScanTextLeft"..line)
 		text = text and text:GetText()
@@ -1444,7 +1447,7 @@ local function BuffAbsorb(buffIndex)
 			for index = 1, table.getn(ABSORB_PATTERNS) do
 				local _, _, amount = string.find(text, ABSORB_PATTERNS[index])
 				if amount then
-					return tonumber(amount)
+					return tonumber(amount), name
 				end
 			end
 		end
@@ -1458,16 +1461,17 @@ local function ReadShields()
 	for slot = 0, 15 do
 		local buffIndex = GetPlayerBuff(slot, "HELPFUL")
 		if buffIndex and buffIndex >= 0 then
-			local amount = BuffAbsorb(buffIndex)
+			local amount, name = BuffAbsorb(buffIndex)
 			if amount then
 				local key = GetPlayerBuffTexture(buffIndex) or buffIndex
 				seen[key] = true
 				local shield = shields[key]
 				if not shield or amount > shield.now then
 					-- New, or cast again: counted from its full amount.
-					shields[key] = { start = amount, now = amount }
+					shields[key] = { start = amount, now = amount, name = name }
 				else
 					shield.now = amount
+					shield.name = shield.name or name
 				end
 			end
 		end
@@ -1545,11 +1549,46 @@ for _, event in pairs({
 }) do
 	absorbWatch:RegisterEvent(event)
 end
+-- What each shield has absorbed this run, for the damage meter's healing
+-- view: an absorbed amount goes to the shield up when it was absorbed, split
+-- by the shields' sizes when several are, to "Absorbs" when none is known.
+-- Kept in the run's memory, so a reload keeps it. A hit absorbed whole gives
+-- no number in the log and cannot be counted.
+local function AbsorbTotals()
+	if not SurvivorUI_RunMemory then
+		return {}
+	end
+	local memory = SurvivorUI_RunMemory("absorbs")
+	memory.totals = memory.totals or {}
+	return memory.totals
+end
+
+function SurvivorUI_AbsorbTotals()
+	return AbsorbTotals()
+end
+
+local function CountAbsorbed(amount)
+	local totals = AbsorbTotals()
+	local size = 0
+	for _, shield in pairs(shields) do
+		size = size + shield.start
+	end
+	if size <= 0 then
+		totals["Absorbs"] = (totals["Absorbs"] or 0) + amount
+		return
+	end
+	for _, shield in pairs(shields) do
+		local name = shield.name or "Absorbs"
+		totals[name] = (totals[name] or 0) + amount * shield.start / size
+	end
+end
+
 absorbWatch:SetScript("OnEvent", function()
 	-- "Kobold Vermin hits you for 5. (120 absorbed)"
 	local _, _, amount = string.find(arg1 or "", "%((%d+) absorbed%)")
 	if amount then
 		soaked = soaked + tonumber(amount)
+		CountAbsorbed(tonumber(amount))
 	end
 end)
 

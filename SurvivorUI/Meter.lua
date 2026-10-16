@@ -107,11 +107,35 @@ end
 -- shares and rate are worked out here, over the run so far.
 local function GameLines(key)
 	if key == "healing" then
-		if not AZS_GetHealing then
-			return {}, 0, 0
+		local lines, total, rate = {}, 0, 0
+		if AZS_GetHealing then
+			local game
+			game, total, rate = AZS_GetHealing()
+			for index = 1, table.getn(game or {}) do
+				local line = game[index]
+				table.insert(lines, { name = line.name, dmg = Num(line.dmg), dps = Num(line.dps), proc = line.proc })
+			end
+			total, rate = Num(total), Num(rate)
 		end
-		local lines, total, rate = AZS_GetHealing()
-		return lines or {}, Num(total), Num(rate)
+		-- What shields absorbed (SurvivorUI.lua), each a line tagged as an
+		-- absorb, unless the game's own healing already names that shield.
+		local named = {}
+		for index = 1, table.getn(lines) do
+			named[lines[index].name or "?"] = true
+		end
+		local seconds = (AZS_GetRunTime and AZS_GetRunTime()) or 0
+		for name, amount in pairs(SurvivorUI_AbsorbTotals and SurvivorUI_AbsorbTotals() or {}) do
+			if amount > 0 and not named[name] then
+				table.insert(lines, { name = name, dmg = amount, dps = seconds > 0 and amount / seconds or 0, absorb = true })
+				total = total + amount
+				rate = rate + (seconds > 0 and amount / seconds or 0)
+			end
+		end
+		table.sort(lines, function(a, b) return a.dmg > b.dmg end)
+		for index = 1, table.getn(lines) do
+			lines[index].share = total > 0 and lines[index].dmg / total or 0
+		end
+		return lines, total, rate
 	elseif key == "taken" then
 		local list, total = {}, 0
 		for index = 1, table.getn(AZS_TAKEN or {}) do
@@ -788,7 +812,8 @@ local function Lines(key)
 			if rate <= 0 and seconds > 0 then
 				rate = dmg / seconds
 			end
-			table.insert(shown, { name = line.name or "?", dmg = dmg, share = Num(line.share), proc = Num(line.proc) == 1, rate = rate })
+			table.insert(shown, { name = line.name or "?", dmg = dmg, share = Num(line.share), proc = Num(line.proc) == 1,
+				absorb = line.absorb, rate = rate })
 		end
 		return shown, total, dps
 	end
@@ -799,7 +824,7 @@ local function Lines(key)
 		local name = line.name or "?"
 		local dmg = Num(line.dmg) - (base.sources[name] or 0)
 		if dmg > 0 then
-			table.insert(shown, { name = name, dmg = dmg, proc = Num(line.proc) == 1 })
+			table.insert(shown, { name = name, dmg = dmg, proc = Num(line.proc) == 1, absorb = line.absorb })
 			sum = sum + dmg
 		end
 	end
@@ -846,7 +871,9 @@ Draw = function()
 		local place = scrollOffset + index
 		local line = lines[place]
 		local name = line.name
-		local proc = line.proc
+		-- A talent's or amulet's own damage says "(proc)", a shield's soak "(absorb)".
+		local proc = line.proc or line.absorb
+		bar.tag:SetText(line.absorb and "(absorb)" or "(proc)")
 		-- A spell of the build wears its rarity's color, as in the build; a
 		-- proc or melee keeps a palette color of its own. With Distinguishing
 		-- Colors on, every line takes a palette color of its own instead, each

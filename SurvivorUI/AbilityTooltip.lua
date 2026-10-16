@@ -324,6 +324,9 @@ local FACTS = {
 	{ "healing "..NUMBER.." over "..NUMBER.." sec", function(n, t) return EFFECT, n, "Healing over "..t.." sec" end },
 	-- "Stacks up to 3 times on one enemy" is "Stacks up to 3 times".
 	{ "stacks up to (%d+) times?[^,;:]*", function(n) return EFFECT, n, "", nil, "Stacks up to "..n.." times" end },
+	-- "Hits every enemy within 8 yd": no count, everything in reach, "AoE"
+	-- in the targets' place.
+	{ "every enem%a*", function() return TARGETS, "AoE", "" end },
 	-- "Afflicts the 4 healthiest enemies", "the 3 nearest enemies", "the
 	-- nearest enemy": how many it picks.
 	{ "the (%d+) %a+est enem%a*", function(n) return TARGETS, n, "Targets" end },

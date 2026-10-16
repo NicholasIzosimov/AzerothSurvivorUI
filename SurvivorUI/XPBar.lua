@@ -140,6 +140,7 @@ end
 -- over the last minute of the run's clock. That clock stops for a pause or a
 -- card choice, so neither drags the estimate down.
 
+local LEVEL_CAP = 99            -- the run's last level: no next one to foretell
 local WINDOW = 60               -- run seconds the rate is taken over
 local MIN_SPAN = 5              -- run seconds of experience before any estimate
 local EDGE = 20                 -- closer than this to the screen's bottom, it goes over the bar
@@ -260,7 +261,7 @@ ticker:SetScript("OnUpdate", function()
 	StockBar(false)
 
 	local left = Track(game)
-	if Settings().xpEstimate then
+	if Settings().xpEstimate and Num(game.lvl) < LEVEL_CAP then
 		PlaceEstimate()
 		estimate:SetText("Next level in "..(left and Until(left) or "|cff8a8a8a...|r"))
 		estimate:Show()
