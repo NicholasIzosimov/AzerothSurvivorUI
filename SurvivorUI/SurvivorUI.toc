@@ -9,6 +9,7 @@ Mover.lua
 Tally.lua
 CharacterPane.lua
 TalentIcons.lua
+TalentText.lua
 CritCard.lua
 Meter.lua
 Tracker.lua

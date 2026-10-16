@@ -189,7 +189,7 @@ local savedPlace                -- the whole window's place, while the box stand
 -- Each piece's handle, by its label, and the options that are its own (with
 -- their sub-options).
 local ELEMENT_OPTIONS = {
-	["Action bar  -  /sui center"] = { "Simplified Ability Description", "Max abilities per row", "Cooldown numbers" },
+	["Action bar  -  /sui center"] = { "Simplified Ability Description", "Max abilities per row", "Display Racial", "Cooldown numbers" },
 	["Player frame"] = { "Unit frames" },
 	["Target frame"] = { "Unit frames" },
 	["Buffs"] = { "Buff icon size", "Buff sweep" },

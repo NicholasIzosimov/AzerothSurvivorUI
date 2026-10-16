@@ -144,6 +144,118 @@ critTip.title:SetPoint("TOPLEFT", critTip, "TOPLEFT", 8, -8)
 
 critTip.lines = {}
 
+-- A proc, which has no targets to show, has what it comes from instead, under
+-- a rule: a piece of jewelry's own lines ("Equip: ..."), or a talent's text
+-- (TalentText.lua), shortened a little. The words are grey, the numbers in
+-- the source's color: the game's item green, or its talent gold. A talent
+-- number the game's data did not give shows as "?".
+local SOURCE_WIDTH = 230        -- the card's least width with a source's text
+local SOURCE_GREY = { 0.72, 0.72, 0.72 }
+local TALENT_GOLD = "ffd100"
+local ITEM_GREEN = "1eff00"
+-- Words the card leaves out: a talent's kind, the run's starting spell (the
+-- proc is what the card is about), an item line's own label.
+local SOURCE_CUTS = {
+	"^Milestone%. ", "^Capstone%. ", "^You start every run with [^,;]-[,;] and ",
+	"^You start every run with [^,;]-; ", "^Equip: ", "^Chance on hit: ",
+}
+local ITEM_LINES = { "^Equip: ", "^Use: ", "^Chance on hit: " }
+local JEWELRY_SLOTS = { 2, 11, 12, 13, 14 }
+
+critTip.sourceRule = critTip:CreateTexture(nil, "ARTWORK")
+critTip.sourceRule:SetTexture(FLAT)
+critTip.sourceRule:SetHeight(1)
+critTip.sourceText = critTip:CreateFontString(nil, "OVERLAY")
+critTip.sourceText:SetFont(FONT, 10 + FONT_BUMP)
+critTip.sourceText:SetJustifyH("LEFT")
+
+-- One piece's name stands for the other's: the same, or one the start of the
+-- other ("Pendant of the Plaguebringer" and "Pendant of the Plaguebringer:
+-- Seed of Corruption II").
+local function SameItem(a, b)
+	a, b = string.lower(a), string.lower(b)
+	return a == b or string.sub(a, 1, string.len(b)) == b or string.sub(b, 1, string.len(a)) == a
+end
+
+-- What an item's tooltip lines give, as one text, or nil.
+local function ItemLines(lines)
+	local kept = {}
+	for index = 1, table.getn(lines or {}) do
+		local text = lines[index][1] or ""
+		for pattern = 1, table.getn(ITEM_LINES) do
+			if string.find(text, ITEM_LINES[pattern]) then
+				table.insert(kept, text)
+				break
+			end
+		end
+	end
+	return table.getn(kept) > 0 and table.concat(kept, "\n") or nil
+end
+
+-- A proc's jewelry text: the piece worn now, else as the Codex kept it (a
+-- piece taken off since).
+local function ItemText(ability)
+	for index = 1, table.getn(JEWELRY_SLOTS) do
+		local slot = JEWELRY_SLOTS[index]
+		local _, _, name = string.find(GetInventoryItemLink("player", slot) or "", "%[(.-)%]")
+		if name and SameItem(name, ability) and SurvivorUI_WornTooltip then
+			local text = ItemLines(SurvivorUI_WornTooltip(slot))
+			if text then
+				return text
+			end
+		end
+	end
+	local best, bestRank
+	for _, pieces in pairs(SurvivorUIDB and SurvivorUIDB.codex or {}) do
+		for name, piece in pairs(pieces) do
+			if SameItem(name, ability) then
+				local _, rank = SurvivorUI_BaseName and SurvivorUI_BaseName(name)
+				local text = ItemLines(piece.lines)
+				if text and (not bestRank or (rank or 1) > bestRank) then
+					best, bestRank = text, rank or 1
+				end
+			end
+		end
+	end
+	return best
+end
+
+-- A source's text as the card shows it: each line shortened, its first letter
+-- made capital again, and its numbers ("15%", "7", "1.5") in the color.
+local function SourceLines(text, hex)
+	local shown = {}
+	for line in string.gfind(text, "[^\n]+") do
+		for index = 1, table.getn(SOURCE_CUTS) do
+			line = string.gsub(line, SOURCE_CUTS[index], "")
+		end
+		line = string.upper(string.sub(line, 1, 1))..string.sub(line, 2)
+		line = string.gsub(line, "(%d[%d%.]*)(%%?)", function(digits, percent)
+			-- A sentence's closing stop is not part of its number.
+			local stop = ""
+			if percent == "" and string.sub(digits, -1) == "." then
+				digits, stop = string.sub(digits, 1, -2), "."
+			end
+			return "|cff"..hex..digits..percent.."|r"..stop
+		end)
+		line = string.gsub(line, "{v}", "|cff"..hex.."?|r")
+		table.insert(shown, line)
+	end
+	return table.concat(shown, "\n")
+end
+
+-- A proc's source text, by its meter name, or nil: a piece of jewelry first,
+-- then a talent of that name.
+local function SourceText(ability)
+	local item = ItemText(ability)
+	if item then
+		return SourceLines(item, ITEM_GREEN)
+	end
+	local text = (SurvivorUI_TALENT_TEXTS or {})[ability]
+	if text then
+		return SourceLines(text, TALENT_GOLD)
+	end
+end
+
 -- kind: "row" label and value, "head" a section title over a heavier rule.
 local function TipLine(index, kind, label, value, color)
 	local line = critTip.lines[index]
@@ -277,8 +389,11 @@ local function CritTooltip(row)
 	if not casts[ability] then
 		Add("row", TOTAL_LABEL[view] or "Damage", Short(Num(row.damage)))
 	end
-	-- As wide as its words need, never narrower than the bars.
-	local wide = math.max(critTip.title:GetStringWidth() + 4, TIP_WIDTH)
+	local shownTargets = math.min(TARGETS_SHOWN, table.getn(targets))
+	local source = shownTargets == 0 and not casts[ability] and SourceText(ability)
+	-- As wide as its words need, never narrower than the bars (or than a
+	-- source's text needs to read in a few lines).
+	local wide = math.max(critTip.title:GetStringWidth() + 4, source and SOURCE_WIDTH or TIP_WIDTH)
 	for index = 1, count do
 		local line = critTip.lines[index]
 		wide = math.max(wide, line.label:GetStringWidth() + line.value:GetStringWidth() + 16)
@@ -288,7 +403,6 @@ local function CritTooltip(row)
 		critTip.lines[index]:SetWidth(wide)
 	end
 
-	local shownTargets = math.min(TARGETS_SHOWN, table.getn(targets))
 	for index = count + 1, table.getn(critTip.lines) do
 		critTip.lines[index]:Hide()
 	end
@@ -314,6 +428,24 @@ local function CritTooltip(row)
 	local height = 26 + count * TIP_ROW + 8
 	if shownTargets > 0 then
 		height = barsTop + shownTargets * (TARGET_BAR + TARGET_GAP) + 6
+	end
+	if source then
+		local ruleTop = 26 + count * TIP_ROW + 6
+		critTip.sourceRule:ClearAllPoints()
+		critTip.sourceRule:SetPoint("TOPLEFT", critTip, "TOPLEFT", 8, -ruleTop)
+		critTip.sourceRule:SetWidth(wide)
+		critTip.sourceRule:SetVertexColor(color[1], color[2], color[3], 0.75)
+		critTip.sourceRule:Show()
+		critTip.sourceText:ClearAllPoints()
+		critTip.sourceText:SetPoint("TOPLEFT", critTip, "TOPLEFT", 10, -(ruleTop + 7))
+		critTip.sourceText:SetWidth(wide - 4)
+		critTip.sourceText:SetText(source)
+		critTip.sourceText:SetTextColor(SOURCE_GREY[1], SOURCE_GREY[2], SOURCE_GREY[3])
+		critTip.sourceText:Show()
+		height = ruleTop + 7 + critTip.sourceText:GetHeight() + 8
+	else
+		critTip.sourceRule:Hide()
+		critTip.sourceText:Hide()
 	end
 	critTip:SetHeight(height)
 	-- Beside the window the row belongs to, top edges together, on its left

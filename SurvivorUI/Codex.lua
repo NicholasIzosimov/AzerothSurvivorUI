@@ -215,6 +215,20 @@ local function ReadSlot(slot)
 	return lines, only
 end
 
+-- How rare a piece is, by its color: legendary highest, poor lowest.
+local RARITY = {
+	ffff8000 = 5,               -- legendary
+	ffa335ee = 4,               -- epic
+	ff0070dd = 3,               -- rare
+	ff1eff00 = 2,               -- uncommon
+	ffffffff = 1,               -- common
+	ff9d9d9d = 0,               -- poor
+}
+
+local function Rarity(hex)
+	return RARITY[string.lower(hex or "")] or 1
+end
+
 local function Learn()
 	if not GetInventoryItemLink then
 		return
@@ -255,6 +269,12 @@ local function Learn()
 					local lines, only = ReadSlot(slot)
 					if table.getn(lines) > 1 then
 						piece.lines, piece.only = lines, only
+						-- Its least rare version seen too: the same rank can drop
+						-- at a higher rarity with bigger numbers, and the Rank I
+						-- baseline is the least of them.
+						if not piece.low or Rarity(hex) < Rarity(piece.low.hex) then
+							piece.low = { hex = hex, lines = lines }
+						end
 					end
 				end
 				piece.link = item
@@ -286,20 +306,6 @@ end
 
 -- A kind's pieces, once each by name without rank, at the highest rank seen,
 -- by name; the classes that wore any rank of it together.
--- How rare a piece is, by its color: legendary highest, poor lowest.
-local RARITY = {
-	ffff8000 = 5,               -- legendary
-	ffa335ee = 4,               -- epic
-	ff0070dd = 3,               -- rare
-	ff1eff00 = 2,               -- uncommon
-	ffffffff = 1,               -- common
-	ff9d9d9d = 0,               -- poor
-}
-
-local function Rarity(hex)
-	return RARITY[string.lower(hex or "")] or 1
-end
-
 -- A kept tooltip is whole once it holds more than the piece's name.
 local function Whole(lines)
 	return lines and table.getn(lines) > 1
@@ -347,6 +353,12 @@ local function Pieces(kind)
 		end
 		entry.icon = entry.icon or info.icon
 		entry.only = entry.only or info.only
+		-- Its first rank's description too, the baseline its tooltip shows
+		-- under the best.
+		if rank == 1 then
+			local low = info.low and Whole(info.low.lines) and info.low.lines
+			entry.firstLines = low or (Whole(info.lines) and info.lines) or entry.firstLines
+		end
 		if Whole(info.lines) and (not entry.linesRank or rank > entry.linesRank) then
 			entry.lines, entry.linesRank = info.lines, rank
 		end
@@ -773,6 +785,9 @@ local function WornSlot(piece)
 	end
 end
 
+-- The lines of a piece's tooltip that say what it gives.
+local GIVES_LINES = { "^Equip: ", "^Use: ", "^Chance on hit: " }
+
 local function PieceTooltip(owner, piece)
 	GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
 	-- The best description kept, titled with the piece's plain name; else,
@@ -787,6 +802,25 @@ local function PieceTooltip(owner, piece)
 				GameTooltip:AddDoubleLine(line[1], line[5], line[2], line[3], line[4], line[2], line[3], line[4])
 			else
 				GameTooltip:AddLine(line[1], line[2], line[3], line[4], 1)
+			end
+		end
+		-- The baseline: what rank I gives, where the best shown is a higher
+		-- rank and rank I was seen.
+		if piece.firstLines and piece.linesRank and piece.linesRank > 1 then
+			local shown = false
+			for index = 2, table.getn(piece.firstLines) do
+				local line = piece.firstLines[index]
+				for pattern = 1, table.getn(GIVES_LINES) do
+					if string.find(line[1] or "", GIVES_LINES[pattern]) then
+						if not shown then
+							GameTooltip:AddLine(" ")
+							GameTooltip:AddLine("Rank I", 1, 0.82, 0)
+							shown = true
+						end
+						GameTooltip:AddLine(line[1], line[2], line[3], line[4], 1)
+						break
+					end
+				end
 			end
 		end
 	elseif slot then
@@ -983,6 +1017,7 @@ local function FillAbility(row, ability)
 end
 
 local TAG_GAP = 10              -- between a row's name and its tags
+local RIGHT_PAD = 6             -- between a row's right edge and its rightmost tag
 
 local function FillRow(row, entry)
 	row.entry = entry
@@ -991,12 +1026,27 @@ local function FillRow(row, entry)
 	else
 		FillPiece(row, entry)
 	end
+	-- The class tags sit left of the rank, or at the row's right edge where
+	-- there is none (an empty rank's width is not to be trusted).
+	local hasRank = (row.rank:GetText() or "") ~= ""
+	row.classes:ClearAllPoints()
+	if hasRank then
+		row.classes:SetPoint("RIGHT", row.rank, "LEFT", -12, 0)
+	else
+		row.classes:SetPoint("RIGHT", row, "RIGHT", -RIGHT_PAD, 0)
+	end
 	-- The name runs up to the tags on its right, as wide as they are now, and
 	-- is cut short ("...") before them; its tooltip has it whole.
-	local tags = row.rank:GetStringWidth() + row.classes:GetStringWidth()
+	local tags = 0
+	if hasRank then
+		tags = tags + row.rank:GetStringWidth() + 12
+	end
+	if (row.classes:GetText() or "") ~= "" then
+		tags = tags + row.classes:GetStringWidth()
+	end
 	row.name:ClearAllPoints()
 	row.name:SetPoint("LEFT", row, "LEFT", ROW_HEIGHT + 4, 0)
-	row.name:SetPoint("RIGHT", row, "RIGHT", tags > 0 and -(6 + 12 + tags + TAG_GAP) or -6, 0)
+	row.name:SetPoint("RIGHT", row, "RIGHT", tags > 0 and -(RIGHT_PAD + tags + TAG_GAP) or -RIGHT_PAD, 0)
 	row:Show()
 end
 

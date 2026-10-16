@@ -424,15 +424,31 @@ block:SetPoint("TOPLEFT", row, "TOPLEFT", 0, 0)
 block:SetPoint("TOPRIGHT", row, "TOPRIGHT", 0, 0)
 block:SetHeight(BUTTON_SIZE)
 
+-- The buttons the bar shows, in order: all of BAR_BUTTONS, less the racial's
+-- when Display Racial is off (BuildList.lua finds which button holds it).
+-- Worked out again in SizeRows.
+local shownButtons = BAR_BUTTONS
+
+local function ShownButtons()
+	local racial = Settings().showRacial == false and SurvivorUI_RacialSlot and SurvivorUI_RacialSlot()
+	local shown = {}
+	for position = 1, table.getn(BAR_BUTTONS) do
+		if BAR_BUTTONS[position] ~= racial then
+			table.insert(shown, BAR_BUTTONS[position])
+		end
+	end
+	return shown
+end
+
 local function BarPerRow()
-	local count = table.getn(BAR_BUTTONS)
+	local count = table.getn(shownButtons)
 	return math.max(1, math.min(count, tonumber(Settings().barPerRow) or count))
 end
 
 -- A button's place by its position in the bar: its offset from the row's top
 -- middle, row after row, each row centered.
 local function SlotOffset(position)
-	local count, perRow = table.getn(BAR_BUTTONS), BarPerRow()
+	local count, perRow = table.getn(shownButtons), BarPerRow()
 	local line = math.floor((position - 1) / perRow)
 	local column = math.mod(position - 1, perRow)
 	local inLine = math.min(perRow, count - line * perRow)
@@ -456,14 +472,20 @@ end
 -- The row as wide as its first line, the block as tall as all of them, and
 -- the slots in their places (the buttons follow in LayoutBar).
 local function SizeRows()
-	local count, perRow = table.getn(BAR_BUTTONS), BarPerRow()
+	shownButtons = ShownButtons()
+	local count, perRow = table.getn(shownButtons), BarPerRow()
 	local lines = math.ceil(count / perRow)
 	row:SetWidth(math.min(perRow, count) * (BUTTON_SIZE + BUTTON_GAP) - BUTTON_GAP)
 	block:SetHeight(lines * (BUTTON_SIZE + BUTTON_GAP) - BUTTON_GAP)
-	for position = 1, count do
-		local x, y = SlotOffset(position)
-		slots[position]:ClearAllPoints()
-		slots[position]:SetPoint("TOPLEFT", row, "TOP", x, y)
+	for position = 1, table.getn(BAR_BUTTONS) do
+		if position <= count then
+			local x, y = SlotOffset(position)
+			slots[position]:ClearAllPoints()
+			slots[position]:SetPoint("TOPLEFT", row, "TOP", x, y)
+			slots[position]:Show()
+		else
+			slots[position]:Hide()
+		end
 	end
 end
 SizeRows()
@@ -1028,8 +1050,8 @@ end
 
 local function LayoutBar()
 	local positions = {}
-	for position = 1, table.getn(BAR_BUTTONS) do
-		positions[BAR_BUTTONS[position]] = position
+	for position = 1, table.getn(shownButtons) do
+		positions[shownButtons[position]] = position
 	end
 
 	-- A stance bar's buttons, when a class has one, sit where the main bar's do.
@@ -1072,6 +1094,35 @@ function SurvivorUI_SetBarPerRow(count)
 	SizeRows()
 	LayoutBar()
 end
+
+-- Display Racial: off, the racial's button leaves the bar and the rest close
+-- up. Which button holds it can change (a run's spells arrive, a button is
+-- swapped), so it is looked for again every second.
+SurvivorUI_RegisterOption({
+	section = "Ability Bar",
+	label = "Display Racial",
+	tip = "Your racial ability's button on the ability bar. Off, it is left out and the other buttons close up.",
+	get = function() return Settings().showRacial ~= false end,
+	toggle = function()
+		Settings().showRacial = Settings().showRacial == false
+		SizeRows()
+		LayoutBar()
+	end,
+})
+
+local racialWatch = CreateFrame("Frame")
+racialWatch.elapsed = 0
+racialWatch:SetScript("OnUpdate", function()
+	this.elapsed = this.elapsed + arg1
+	if this.elapsed < 1 then
+		return
+	end
+	this.elapsed = 0
+	if table.concat(ShownButtons(), ",") ~= table.concat(shownButtons, ",") then
+		SizeRows()
+		LayoutBar()
+	end
+end)
 
 SurvivorUI_RegisterOption({
 	section = "Ability Bar",

@@ -514,6 +514,17 @@ SurvivorUI_BaseName = BaseName
 SurvivorUI_SpellName = SpellName
 SurvivorUI_SpellSlot = SpellSlot
 
+-- The action button holding the racial, the last of the game's spells, or
+-- nil while the game lists none or no button holds it.
+function SurvivorUI_RacialSlot()
+	local spells = AZS_SPELLS or {}
+	local count = table.getn(spells)
+	if count == 0 then
+		return nil
+	end
+	return SpellSlot(SpellName(Field(spells[count], "key", 1)))
+end
+
 -- Every piece of this kind seen before and not worn now, once per piece
 -- whatever its rank: by its name without the rank, in the color of the
 -- highest rank seen.
