@@ -777,11 +777,18 @@ local function Lines(key)
 		memory.bases[key] = nil
 	end
 	lastSeconds[key] = seconds
+	-- Each line's own rate: the game's per second figure where it gives one,
+	-- else its amount over the run so far.
 	if not base then
 		local shown = {}
 		for index = 1, table.getn(lines) do
 			local line = lines[index]
-			table.insert(shown, { name = line.name or "?", dmg = Num(line.dmg), share = Num(line.share), proc = Num(line.proc) == 1 })
+			local dmg = Num(line.dmg)
+			local rate = Num(line.dps)
+			if rate <= 0 and seconds > 0 then
+				rate = dmg / seconds
+			end
+			table.insert(shown, { name = line.name or "?", dmg = dmg, share = Num(line.share), proc = Num(line.proc) == 1, rate = rate })
 		end
 		return shown, total, dps
 	end
@@ -797,10 +804,12 @@ local function Lines(key)
 		end
 	end
 	table.sort(shown, function(a, b) return a.dmg > b.dmg end)
+	-- Since Reset, each line's rate is its amount over the time since.
+	local span = seconds - base.at
 	for index = 1, table.getn(shown) do
 		shown[index].share = sum > 0 and shown[index].dmg / sum or 0
+		shown[index].rate = span > 0 and shown[index].dmg / span or 0
 	end
-	local span = seconds - base.at
 	return shown, sum, span > 0 and sum / span or 0
 end
 
@@ -858,7 +867,7 @@ Draw = function()
 		bar:SetStatusBarColor(dull[1], dull[2], dull[3], BAR_FILL)
 		bar.ability = name
 		bar.color = color
-		bar.damage, bar.share = line.dmg, line.share
+		bar.damage, bar.share, bar.rate = line.dmg, line.share, line.rate
 		bar.mode = mode.key
 		if mode.key == "taken" then
 			bar.icon:SetTexture(TAKEN_ICON)

@@ -232,8 +232,9 @@ end
 
 local critHovered = nil
 
--- Each view's words: its average's and, from the meter line, its total's.
-local AVERAGE_LABEL = { damage = "Avg cast", healing = "Avg heal", taken = "Avg hit" }
+-- Each view's words: its rate's, and for a line with nothing in the log (a
+-- proc), its total's.
+local RATE_LABEL = { damage = "DPS", healing = "HPS", taken = "DTPS" }
 local TOTAL_LABEL = { damage = "Damage", healing = "Healing", taken = "Damage taken" }
 
 local function CritTooltip(row)
@@ -269,15 +270,14 @@ local function CritTooltip(row)
 		count = count + 1
 		TipLine(count, kind, label, value, color)
 	end
-	if casts[ability] then
-		Add("row", AVERAGE_LABEL[view] or "Avg cast", Average(casts[ability]))
-	else
+	-- The line's own rate, from the meter: since Reset, or the whole run.
+	if not casts[ability] then
 		if source then
 			Add("row", "Proc of", source)
 		end
 		Add("row", TOTAL_LABEL[view] or "Damage", Short(Num(row.damage)))
-		Add("row", "Share", math.floor(Num(row.share) * 100 + 0.5).."%")
 	end
+	Add("row", RATE_LABEL[view] or "DPS", Short(Num(row.rate)))
 	-- As wide as its words need, never narrower than the bars.
 	local wide = math.max(critTip.title:GetStringWidth() + 4, TIP_WIDTH)
 	for index = 1, count do
