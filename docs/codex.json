@@ -56,9 +56,145 @@
         ]
       },
       {
+        "name": "Amulet of Vek'nilash",
+        "quality": "Epic",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_01",
+        "classes": [],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Amulet of Vek'nilash",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_01",
+            "link": "item:900007:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Amulet of Vek'nilash",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Your spells strike 1 more target.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases all damage you deal by 5%.",
+                "color": "00ff00"
+              }
+            ]
+          }
+        ],
+        "anyClass": true
+      },
+      {
+        "name": "Choker of Enlightenment",
+        "quality": "Epic",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_10",
+        "classes": [],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Choker of Enlightenment",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_10",
+            "link": "item:900071:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Choker of Enlightenment",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Your hits leap to 1 more enemy for 30%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Choker of Enlightenment II",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_10",
+            "link": "item:900072:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Choker of Enlightenment II",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Your hits leap to 1 more enemy for 41%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Choker of Enlightenment III",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_10",
+            "link": "item:900074:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Choker of Enlightenment III",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Your hits leap to 1 more enemy for 49%.",
+                "color": "00ff00"
+              }
+            ]
+          }
+        ],
+        "anyClass": true
+      },
+      {
         "name": "Choker of the Fire Lord",
         "quality": "Legendary",
-        "icon": null,
+        "icon": "Interface\\Icons\\INV_Jewelry_Amulet_05",
         "classes": [],
         "only": null,
         "ranks": [
@@ -68,8 +204,27 @@
             "name": "Choker of the Fire Lord",
             "quality": "Legendary",
             "hex": "ffff8000",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Choker of the Fire Lord",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Enemies you kill explode for 15% of their max health.",
+                "color": "00ff00"
+              }
+            ],
+            "icon": "Interface\\Icons\\INV_Jewelry_Amulet_05",
+            "link": "item:900043:0:0:0"
           },
           {
             "numeral": "II",
@@ -77,8 +232,27 @@
             "name": "Choker of the Fire Lord II",
             "quality": "Legendary",
             "hex": "ffff8000",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Choker of the Fire Lord II",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Enemies you kill explode for 19% of their max health.",
+                "color": "00ff00"
+              }
+            ],
+            "icon": "Interface\\Icons\\INV_Jewelry_Amulet_05",
+            "link": "item:900033:0:0:0"
           },
           {
             "numeral": "III",
@@ -86,8 +260,27 @@
             "name": "Choker of the Fire Lord III",
             "quality": "Legendary",
             "hex": "ffff8000",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Choker of the Fire Lord III",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Enemies you kill explode for 22% of their max health.",
+                "color": "00ff00"
+              }
+            ],
+            "icon": "Interface\\Icons\\INV_Jewelry_Amulet_05",
+            "link": "item:900017:0:0:0"
           },
           {
             "numeral": "IV",
@@ -95,8 +288,27 @@
             "name": "Choker of the Fire Lord IV",
             "quality": "Legendary",
             "hex": "ffff8000",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Choker of the Fire Lord IV",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Enemies you kill explode for 25% of their max health.",
+                "color": "00ff00"
+              }
+            ],
+            "icon": "Interface\\Icons\\INV_Jewelry_Amulet_05",
+            "link": "item:900018:0:0:0"
           },
           {
             "numeral": "V",
@@ -104,8 +316,27 @@
             "name": "Choker of the Fire Lord V",
             "quality": "Legendary",
             "hex": "ffff8000",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Choker of the Fire Lord V",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Enemies you kill explode for 27% of their max health.",
+                "color": "00ff00"
+              }
+            ],
+            "icon": "Interface\\Icons\\INV_Jewelry_Amulet_05",
+            "link": "item:900019:0:0:0"
           },
           {
             "numeral": "VI",
@@ -113,8 +344,27 @@
             "name": "Choker of the Fire Lord VI",
             "quality": "Legendary",
             "hex": "ffff8000",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Choker of the Fire Lord VI",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Enemies you kill explode for 30% of their max health.",
+                "color": "00ff00"
+              }
+            ],
+            "icon": "Interface\\Icons\\INV_Jewelry_Amulet_05",
+            "link": "item:900020:0:0:0"
           },
           {
             "numeral": "VII",
@@ -122,8 +372,27 @@
             "name": "Choker of the Fire Lord VII",
             "quality": "Legendary",
             "hex": "ffff8000",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Choker of the Fire Lord VII",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Enemies you kill explode for 32% of their max health.",
+                "color": "00ff00"
+              }
+            ],
+            "icon": "Interface\\Icons\\INV_Jewelry_Amulet_05",
+            "link": "item:900026:0:0:0"
           },
           {
             "numeral": "VIII",
@@ -131,8 +400,449 @@
             "name": "Choker of the Fire Lord VIII",
             "quality": "Legendary",
             "hex": "ffff8000",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Choker of the Fire Lord VIII",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Enemies you kill explode for 33% of their max health.",
+                "color": "00ff00"
+              }
+            ],
+            "icon": "Interface\\Icons\\INV_Jewelry_Amulet_05",
+            "link": "item:900027:0:0:0"
+          },
+          {
+            "numeral": "IX",
+            "rank": 9,
+            "name": "Choker of the Fire Lord IX",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Amulet_05",
+            "link": "item:900031:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Choker of the Fire Lord IX",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Enemies you kill explode for 35% of their max health.",
+                "color": "00ff00"
+              }
+            ]
+          }
+        ],
+        "anyClass": true
+      },
+      {
+        "name": "Eye of the Splitting Sky: Fear",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+        "classes": [
+          "WARLOCK"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Eye of the Splitting Sky: Fear",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+            "link": "item:900162:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Eye of the Splitting Sky: Fear",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Fear strikes 1 more target.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Fear by 20%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Fear's hits leap to 2 more enemies for 30%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Eye of the Splitting Sky: Fear II",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+            "link": "item:900163:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Eye of the Splitting Sky: Fear II",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Fear strikes 1 more target.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Fear by 24%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Fear's hits leap to 2 more enemies for 36%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Eye of the Splitting Sky: Fear III",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+            "link": "item:900164:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Eye of the Splitting Sky: Fear III",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Fear strikes 1 more target.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Fear by 28%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Fear's hits leap to 2 more enemies for 41%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Eye of the Splitting Sky: Fear IV",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+            "link": "item:900165:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Eye of the Splitting Sky: Fear IV",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Fear strikes 1 more target.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Fear by 31%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Fear's hits leap to 2 more enemies for 46%.",
+                "color": "00ff00"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Eye of the Splitting Sky: Shadow Bolt",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+        "classes": [
+          "WARLOCK"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Eye of the Splitting Sky: Shadow Bolt",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+            "link": "item:900004:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Eye of the Splitting Sky: Shadow Bolt",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Shadow Bolt strikes 1 more target.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Shadow Bolt by 20%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Shadow Bolt's hits leap to 2 more enemies for 30%.",
+                "color": "00ff00"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Heart of the Earthshaker: Blade Flurry",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_03",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Heart of the Earthshaker: Blade Flurry",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_03",
+            "link": "item:900110:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Heart of the Earthshaker: Blade Flurry",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the area of Blade Flurry by 60%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Blade Flurry by 35%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Blade Flurry's hits stun for 1.5 sec.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Heart of the Earthshaker: Blade Flurry II",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_03",
+            "link": "item:900112:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Heart of the Earthshaker: Blade Flurry II",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the area of Blade Flurry by 72%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Blade Flurry by 42%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Blade Flurry's hits stun for 1.5 sec.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Heart of the Earthshaker: Blade Flurry III",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_03",
+            "link": "item:900117:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Heart of the Earthshaker: Blade Flurry III",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the area of Blade Flurry by 83%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Blade Flurry by 48%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Blade Flurry's hits stun for 1.5 sec.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Heart of the Earthshaker: Blade Flurry IV",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_03",
+            "link": "item:900119:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Heart of the Earthshaker: Blade Flurry IV",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the area of Blade Flurry by 93%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Blade Flurry by 54%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Blade Flurry's hits stun for 1.5 sec.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "V",
+            "rank": 5,
+            "name": "Heart of the Earthshaker: Blade Flurry V",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_03",
+            "link": "item:900121:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Heart of the Earthshaker: Blade Flurry V",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the area of Blade Flurry by 101%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Blade Flurry by 59%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Blade Flurry's hits stun for 1.5 sec.",
+                "color": "00ff00"
+              }
+            ]
           }
         ]
       },
@@ -140,7 +850,9 @@
         "name": "Heart of the Earthshaker: Whirlwind",
         "quality": "Legendary",
         "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_03",
-        "classes": [],
+        "classes": [
+          "WARRIOR"
+        ],
         "only": null,
         "ranks": [
           {
@@ -151,15 +863,364 @@
             "hex": "ffff8000",
             "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_03",
             "link": "item:900021:0:0:0",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Heart of the Earthshaker: Whirlwind",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the area of Whirlwind by 60%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Whirlwind by 35%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Whirlwind's hits stun for 1.5 sec.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Heart of the Earthshaker: Whirlwind II",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_03",
+            "link": "item:900042:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Heart of the Earthshaker: Whirlwind II",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the area of Whirlwind by 72%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Whirlwind by 42%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Whirlwind's hits stun for 1.5 sec.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Heart of the Earthshaker: Whirlwind III",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_03",
+            "link": "item:900045:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Heart of the Earthshaker: Whirlwind III",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the area of Whirlwind by 83%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Whirlwind by 48%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Whirlwind's hits stun for 1.5 sec.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Heart of the Earthshaker: Whirlwind IV",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_03",
+            "link": "item:900050:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Heart of the Earthshaker: Whirlwind IV",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the area of Whirlwind by 93%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Whirlwind by 54%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Whirlwind's hits stun for 1.5 sec.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "V",
+            "rank": 5,
+            "name": "Heart of the Earthshaker: Whirlwind V",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_03",
+            "link": "item:900052:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Heart of the Earthshaker: Whirlwind V",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the area of Whirlwind by 101%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Whirlwind by 59%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Whirlwind's hits stun for 1.5 sec.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "VI",
+            "rank": 6,
+            "name": "Heart of the Earthshaker: Whirlwind VI",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_03",
+            "link": "item:900056:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Heart of the Earthshaker: Whirlwind VI",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the area of Whirlwind by 109%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Whirlwind by 64%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Whirlwind's hits stun for 1.5 sec.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "VII",
+            "rank": 7,
+            "name": "Heart of the Earthshaker: Whirlwind VII",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_03",
+            "link": "item:900057:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Heart of the Earthshaker: Whirlwind VII",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the area of Whirlwind by 116%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Whirlwind by 68%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Whirlwind's hits stun for 1.5 sec.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "VIII",
+            "rank": 8,
+            "name": "Heart of the Earthshaker: Whirlwind VIII",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_03",
+            "link": "item:900058:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Heart of the Earthshaker: Whirlwind VIII",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the area of Whirlwind by 123%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Whirlwind by 72%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Whirlwind's hits stun for 1.5 sec.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "IX",
+            "rank": 9,
+            "name": "Heart of the Earthshaker: Whirlwind IX",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_03",
+            "link": "item:900061:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Heart of the Earthshaker: Whirlwind IX",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the area of Whirlwind by 128%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Whirlwind by 75%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Whirlwind's hits stun for 1.5 sec.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "X",
+            "rank": 10,
+            "name": "Heart of the Earthshaker: Whirlwind X",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_03",
+            "link": "item:900063:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Heart of the Earthshaker: Whirlwind X",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the area of Whirlwind by 134%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Whirlwind by 78%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Whirlwind's hits stun for 1.5 sec.",
+                "color": "00ff00"
+              }
+            ]
           }
         ]
       },
       {
         "name": "Malice Stone Pendant",
         "quality": "Epic",
-        "icon": null,
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_29Naxxramas",
         "classes": [],
         "only": null,
         "ranks": [
@@ -169,8 +1230,31 @@
             "name": "Malice Stone Pendant",
             "quality": "Epic",
             "hex": "ffa335ee",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Malice Stone Pendant",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Gives your spells a 20% chance to cast twice.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 8%.",
+                "color": "00ff00"
+              }
+            ],
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_29Naxxramas",
+            "link": "item:900135:0:0:0"
           },
           {
             "numeral": "II",
@@ -178,8 +1262,31 @@
             "name": "Malice Stone Pendant II",
             "quality": "Epic",
             "hex": "ffa335ee",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Malice Stone Pendant II",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Gives your spells a 25% chance to cast twice.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 10%.",
+                "color": "00ff00"
+              }
+            ],
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_29Naxxramas",
+            "link": "item:900093:0:0:0"
           },
           {
             "numeral": "III",
@@ -187,8 +1294,31 @@
             "name": "Malice Stone Pendant III",
             "quality": "Epic",
             "hex": "ffa335ee",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Malice Stone Pendant III",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Gives your spells a 29% chance to cast twice.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 12%.",
+                "color": "00ff00"
+              }
+            ],
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_29Naxxramas",
+            "link": "item:900096:0:0:0"
           },
           {
             "numeral": "IV",
@@ -196,18 +1326,40 @@
             "name": "Malice Stone Pendant IV",
             "quality": "Epic",
             "hex": "ffa335ee",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Malice Stone Pendant IV",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Gives your spells a 33% chance to cast twice.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 13%.",
+                "color": "00ff00"
+              }
+            ],
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_29Naxxramas",
+            "link": "item:900100:0:0:0"
           }
-        ]
+        ],
+        "anyClass": true
       },
       {
         "name": "Mark of Fordring",
         "quality": "Common",
         "icon": "Interface\\Icons\\INV_Jewelry_Talisman_07",
-        "classes": [
-          "ROGUE"
-        ],
+        "classes": [],
         "only": null,
         "ranks": [
           {
@@ -218,11 +1370,162 @@
             "hex": "ffffffff",
             "icon": "Interface\\Icons\\INV_Jewelry_Talisman_07",
             "link": "item:900005:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Mark of Fordring",
                 "color": "ffffff"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases all damage you deal by 15%.",
+                "color": "00ff00"
+              }
+            ]
+          }
+        ],
+        "anyClass": true
+      },
+      {
+        "name": "Medallion of the Bladestorm: Bloodthirst",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_18",
+        "classes": [
+          "WARRIOR"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Medallion of the Bladestorm: Bloodthirst",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_18",
+            "link": "item:900049:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Medallion of the Bladestorm: Bloodthirst",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Bloodthirst strikes 4 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Bloodthirst by 50%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Bloodthirst's hits burn and bleed for 80% more over 6 sec.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Bloodthirst also shields you for 30% of your max health.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Medallion of the Bladestorm: Bloodthirst II",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_18",
+            "link": "item:900051:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Medallion of the Bladestorm: Bloodthirst II",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Bloodthirst strikes 4 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Bloodthirst by 60%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Bloodthirst's hits burn and bleed for 96% more over 6 sec.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Bloodthirst also shields you for 36% of your max health.",
+                "color": "00ff00"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Medallion of the Bladestorm: Ghostly Strike",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_18",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Medallion of the Bladestorm: Ghostly Strike",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_18",
+            "link": "item:900079:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Medallion of the Bladestorm: Ghostly Strike",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Ghostly Strike strikes 4 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Ghostly Strike by 50%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the absorb of Ghostly Strike by 100%.",
+                "color": "00ff00"
               }
             ]
           }
@@ -403,9 +1706,7 @@
         "name": "Onyxia Tooth Pendant",
         "quality": "Legendary",
         "icon": "Interface\\Icons\\INV_Jewelry_Necklace_09",
-        "classes": [
-          "ROGUE"
-        ],
+        "classes": [],
         "only": null,
         "ranks": [
           {
@@ -416,11 +1717,31 @@
             "hex": "ffff8000",
             "icon": "Interface\\Icons\\INV_Jewelry_Necklace_09",
             "link": "item:900012:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Onyxia Tooth Pendant",
                 "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Improves your chance to get a critical strike by 4%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of your critical strikes by 20%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Your critical hits splash 30% on enemies within 5 yd.",
+                "color": "00ff00"
               }
             ]
           },
@@ -532,7 +1853,8 @@
             "tooltip": false,
             "lines": []
           }
-        ]
+        ],
+        "anyClass": true
       },
       {
         "name": "Pendant of the Fallen Dragon",
@@ -577,15 +1899,491 @@
             "tooltip": false,
             "lines": []
           }
+        ],
+        "anyClass": true
+      },
+      {
+        "name": "Pendant of the Plague: Corruption",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+        "classes": [
+          "WARLOCK"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Pendant of the Plague: Corruption",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+            "link": "item:900153:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pendant of the Plague: Corruption",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Corruption strikes 3 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Corruption by 90%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Enemies that die with Corruption on them explode for 20% of their max health.",
+                "color": "00ff00"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Pendant of the Plague: Drain Life",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+        "classes": [
+          "WARLOCK"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Pendant of the Plague: Drain Life",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+            "link": "item:900045:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pendant of the Plague: Drain Life",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Drain Life strikes 3 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Drain Life by 90%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Enemies that die with Drain Life on them explode for 20% of their max health.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Pendant of the Plague: Drain Life II",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+            "link": "item:900046:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pendant of the Plague: Drain Life II",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Drain Life strikes 3 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Drain Life by 108%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Enemies that die with Drain Life on them explode for 24% of their max health.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Pendant of the Plague: Drain Life III",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+            "link": "item:900049:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pendant of the Plague: Drain Life III",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Drain Life strikes 4 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Drain Life by 124%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Enemies that die with Drain Life on them explode for 28% of their max health.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Pendant of the Plague: Drain Life IV",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+            "link": "item:900015:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pendant of the Plague: Drain Life IV",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Drain Life strikes 4 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Drain Life by 139%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Enemies that die with Drain Life on them explode for 31% of their max health.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "V",
+            "rank": 5,
+            "name": "Pendant of the Plague: Drain Life V",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+            "link": "item:900016:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pendant of the Plague: Drain Life V",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Drain Life strikes 5 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Drain Life by 152%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Enemies that die with Drain Life on them explode for 34% of their max health.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "VI",
+            "rank": 6,
+            "name": "Pendant of the Plague: Drain Life VI",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+            "link": "item:900171:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pendant of the Plague: Drain Life VI",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Drain Life strikes 5 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Drain Life by 164%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Enemies that die with Drain Life on them explode for 36% of their max health.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "VII",
+            "rank": 7,
+            "name": "Pendant of the Plague: Drain Life VII",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+            "link": "item:900172:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pendant of the Plague: Drain Life VII",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Drain Life strikes 5 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Drain Life by 174%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Enemies that die with Drain Life on them explode for 39% of their max health.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "VIII",
+            "rank": 8,
+            "name": "Pendant of the Plague: Drain Life VIII",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+            "link": "item:900173:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pendant of the Plague: Drain Life VIII",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Drain Life strikes 6 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Drain Life by 184%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Enemies that die with Drain Life on them explode for 41% of their max health.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "IX",
+            "rank": 9,
+            "name": "Pendant of the Plague: Drain Life IX",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+            "link": "item:900174:0:0:0",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "X",
+            "rank": 10,
+            "name": "Pendant of the Plague: Drain Life X",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+            "link": "item:900175:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pendant of the Plague: Drain Life X",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Drain Life strikes 6 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Drain Life by 200%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Enemies that die with Drain Life on them explode for 45% of their max health.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "X+",
+            "rank": 10,
+            "name": "Pendant of the Plague: Drain Life X+",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "plus": true,
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+            "link": "item:900186:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pendant of the Plague: Drain Life X+",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Drain Life strikes 6 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Drain Life by 207%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Enemies that die with Drain Life on them explode for 46% of their max health.",
+                "color": "00ff00"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Pendant of the Plague: Immolate",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+        "classes": [
+          "WARLOCK"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Pendant of the Plague: Immolate",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+            "link": "item:900141:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pendant of the Plague: Immolate",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Immolate strikes 3 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Immolate by 90%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Enemies that die with Immolate on them explode for 20% of their max health.",
+                "color": "00ff00"
+              }
+            ]
+          }
         ]
       },
       {
         "name": "Pristine Enchanted South Seas Kelp",
         "quality": "Common",
         "icon": "Interface\\Icons\\INV_Jewelry_Necklace_26",
-        "classes": [
-          "ROGUE"
-        ],
+        "classes": [],
         "only": null,
         "ranks": [
           {
@@ -596,11 +2394,27 @@
             "hex": "ffffffff",
             "icon": "Interface\\Icons\\INV_Jewelry_Necklace_26",
             "link": "item:900002:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Pristine Enchanted South Seas Kelp",
                 "color": "ffffff"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases your luck by 30%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases gold found by 25%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -612,11 +2426,27 @@
             "hex": "ffffffff",
             "icon": "Interface\\Icons\\INV_Jewelry_Necklace_26",
             "link": "item:900005:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Pristine Enchanted South Seas Kelp II",
                 "color": "ffffff"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases your luck by 48%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases gold found by 40%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -628,11 +2458,27 @@
             "hex": "ffffffff",
             "icon": "Interface\\Icons\\INV_Jewelry_Necklace_26",
             "link": "item:900004:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Pristine Enchanted South Seas Kelp III",
                 "color": "ffffff"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases your luck by 61%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases gold found by 51%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -644,6 +2490,209 @@
             "hex": "ffffffff",
             "tooltip": false,
             "lines": []
+          }
+        ],
+        "anyClass": true
+      },
+      {
+        "name": "The Eternal Talisman: Adrenaline Rush",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_21",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "The Eternal Talisman: Adrenaline Rush",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_21",
+            "link": "item:900106:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "The Eternal Talisman: Adrenaline Rush",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the duration of Adrenaline Rush by 100%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of Adrenaline Rush by 35%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the strength of Adrenaline Rush by 100%.",
+                "color": "00ff00"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "The Reaper's Amulet: Backstab",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_27Naxxramas",
+        "classes": [
+          "ROGUE"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "The Reaper's Amulet: Backstab",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_27Naxxramas",
+            "link": "item:900081:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "The Reaper's Amulet: Backstab",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the damage of Backstab by 45%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: A kill with Backstab readies it again at once.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Backstab's hits splash 50% on enemies within 6 yd.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "The Reaper's Amulet: Backstab II",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_27Naxxramas",
+            "link": "item:900082:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "The Reaper's Amulet: Backstab II",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the damage of Backstab by 54%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: A kill with Backstab readies it again at once.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Backstab's hits splash 60% on enemies within 6 yd.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "The Reaper's Amulet: Backstab III",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_27Naxxramas",
+            "link": "item:900083:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "The Reaper's Amulet: Backstab III",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the damage of Backstab by 62%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: A kill with Backstab readies it again at once.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Backstab's hits splash 69% on enemies within 6 yd.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "The Reaper's Amulet: Backstab IV",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_27Naxxramas",
+            "link": "item:900084:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "The Reaper's Amulet: Backstab IV",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the damage of Backstab by 69%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: A kill with Backstab readies it again at once.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Backstab's hits splash 77% on enemies within 6 yd.",
+                "color": "00ff00"
+              }
+            ]
           }
         ]
       },
@@ -823,38 +2872,115 @@
     "Ring": [
       {
         "name": "Archimtiros' Ring of Reckoning",
-        "quality": "Epic",
+        "quality": "Rare",
         "icon": "Interface\\Icons\\INV_Jewelry_Ring_40",
-        "classes": [
-          "ROGUE"
-        ],
+        "classes": [],
         "only": null,
         "ranks": [
           {
             "numeral": "I",
             "rank": 1,
             "name": "Archimtiros' Ring of Reckoning",
-            "quality": "Epic",
-            "hex": "ffa335ee",
+            "quality": "Rare",
+            "hex": "ff0070dd",
             "icon": "Interface\\Icons\\INV_Jewelry_Ring_40",
             "link": "item:900019:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Archimtiros' Ring of Reckoning",
-                "color": "a335ee"
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces all damage taken by 11%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases your maximum health by 42%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Archimtiros' Ring of Reckoning II",
+            "quality": "Rare",
+            "hex": "ff0070dd",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_40",
+            "link": "item:900009:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Archimtiros' Ring of Reckoning II",
+                "color": "0070dd"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces all damage taken by 9.2%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases your maximum health by 37%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Archimtiros' Ring of Reckoning III",
+            "quality": "Rare",
+            "hex": "ff0070dd",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_40",
+            "link": "item:900013:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Archimtiros' Ring of Reckoning III",
+                "color": "0070dd"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces all damage taken by 9.8%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases your maximum health by 39%.",
+                "color": "00ff00"
               }
             ]
           }
-        ]
+        ],
+        "anyClass": true
       },
       {
         "name": "Band of Accuria",
         "quality": "Legendary",
         "icon": "Interface\\Icons\\INV_Jewelry_Ring_15",
-        "classes": [
-          "ROGUE"
-        ],
+        "classes": [],
         "only": null,
         "ranks": [
           {
@@ -893,11 +3019,23 @@
             "hex": "ffff8000",
             "icon": "Interface\\Icons\\INV_Jewelry_Ring_15",
             "link": "item:900011:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Band of Accuria II",
                 "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases all damage you deal by 132%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -909,11 +3047,23 @@
             "hex": "ffff8000",
             "icon": "Interface\\Icons\\INV_Jewelry_Ring_15",
             "link": "item:900013:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Band of Accuria III",
-                "color": "ff8000"
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases all damage you deal by 125%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -949,15 +3099,14 @@
               }
             ]
           }
-        ]
+        ],
+        "anyClass": true
       },
       {
         "name": "Blooddrinker's Band",
         "quality": "Epic",
         "icon": "Interface\\Icons\\INV_Jewelry_Ring_49Naxxramas",
-        "classes": [
-          "ROGUE"
-        ],
+        "classes": [],
         "only": null,
         "ranks": [
           {
@@ -976,7 +3125,8 @@
               }
             ]
           }
-        ]
+        ],
+        "anyClass": true
       },
       {
         "name": "Heavy Dark Iron Ring",
@@ -993,8 +3143,25 @@
             "hex": "ff1eff00",
             "icon": "Interface\\Icons\\INV_Jewelry_Ring_14",
             "link": "item:900001:0:0:0",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Heavy Dark Iron Ring",
+                "color": "0070dd"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases your maximum health by 54%.",
+                "color": "00ff00"
+              }
+            ]
           },
           {
             "numeral": "II",
@@ -1004,18 +3171,34 @@
             "hex": "ff1eff00",
             "icon": "Interface\\Icons\\INV_Jewelry_Ring_14",
             "link": "item:900014:0:0:0",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Heavy Dark Iron Ring II",
+                "color": "0070dd"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases your maximum health by 58%.",
+                "color": "00ff00"
+              }
+            ]
           }
-        ]
+        ],
+        "anyClass": true
       },
       {
         "name": "Quick Strike Ring",
         "quality": "Legendary",
         "icon": "Interface\\Icons\\INV_Jewelry_Ring_07",
-        "classes": [
-          "ROGUE"
-        ],
+        "classes": [],
         "only": null,
         "ranks": [
           {
@@ -1026,11 +3209,23 @@
             "hex": "ffffffff",
             "icon": "Interface\\Icons\\INV_Jewelry_Ring_07",
             "link": "item:900009:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Quick Strike Ring",
+                "color": "1eff00"
+              },
+              {
+                "text": "Binds when picked up",
                 "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 19%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1042,11 +3237,23 @@
             "hex": "ffff8000",
             "icon": "Interface\\Icons\\INV_Jewelry_Ring_07",
             "link": "item:900011:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Quick Strike Ring II",
-                "color": "ff8000"
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 41%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1058,11 +3265,23 @@
             "hex": "ffff8000",
             "icon": "Interface\\Icons\\INV_Jewelry_Ring_07",
             "link": "item:900014:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Quick Strike Ring III",
-                "color": "ff8000"
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 46%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1074,11 +3293,23 @@
             "hex": "ffff8000",
             "icon": "Interface\\Icons\\INV_Jewelry_Ring_07",
             "link": "item:900024:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Quick Strike Ring IV",
-                "color": "ff8000"
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 56%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1090,11 +3321,23 @@
             "hex": "ffff8000",
             "icon": "Interface\\Icons\\INV_Jewelry_Ring_07",
             "link": "item:900026:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Quick Strike Ring V",
-                "color": "ff8000"
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 63%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1106,11 +3349,23 @@
             "hex": "ffff8000",
             "icon": "Interface\\Icons\\INV_Jewelry_Ring_07",
             "link": "item:900027:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Quick Strike Ring VI",
-                "color": "ff8000"
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 78%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1120,8 +3375,27 @@
             "name": "Quick Strike Ring VII",
             "quality": "Legendary",
             "hex": "ffff8000",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Quick Strike Ring VII",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 98%.",
+                "color": "00ff00"
+              }
+            ],
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_07",
+            "link": "item:900046:0:0:0"
           },
           {
             "numeral": "VIII",
@@ -1129,18 +3403,121 @@
             "name": "Quick Strike Ring VIII",
             "quality": "Legendary",
             "hex": "ffff8000",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Quick Strike Ring VIII",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 112%.",
+                "color": "00ff00"
+              }
+            ],
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_07",
+            "link": "item:900047:0:0:0"
+          },
+          {
+            "numeral": "IX",
+            "rank": 9,
+            "name": "Quick Strike Ring IX",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_07",
+            "link": "item:900051:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Quick Strike Ring IX",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 129%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "X",
+            "rank": 10,
+            "name": "Quick Strike Ring X",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_07",
+            "link": "item:900053:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Quick Strike Ring X",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 139%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "X+",
+            "rank": 10,
+            "name": "Quick Strike Ring X+",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "plus": true,
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_07",
+            "link": "item:900054:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Quick Strike Ring X+",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 148%.",
+                "color": "00ff00"
+              }
+            ]
           }
-        ]
+        ],
+        "anyClass": true
       },
       {
         "name": "Ring of Spell Power",
-        "quality": "Rare",
+        "quality": "Legendary",
         "icon": "Interface\\Icons\\INV_Jewelry_Ring_38",
-        "classes": [
-          "ROGUE"
-        ],
+        "classes": [],
         "only": null,
         "ranks": [
           {
@@ -1170,16 +3547,184 @@
                 "color": "00ff00"
               }
             ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Ring of Spell Power II",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_38",
+            "link": "item:900007:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Ring of Spell Power II",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the area of effect of your spells by 91%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Ring of Spell Power III",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_38",
+            "link": "item:900012:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Ring of Spell Power III",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the area of effect of your spells by 129%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "VII",
+            "rank": 7,
+            "name": "Ring of Spell Power VII",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_38",
+            "link": "item:900017:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Ring of Spell Power VII",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the area of effect of your spells by 229%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "IX",
+            "rank": 9,
+            "name": "Ring of Spell Power IX",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_38",
+            "link": "item:900019:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Ring of Spell Power IX",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the area of effect of your spells by 259%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "X",
+            "rank": 10,
+            "name": "Ring of Spell Power X",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_38",
+            "link": "item:900020:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Ring of Spell Power X",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the area of effect of your spells by 273%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "X+",
+            "rank": 10,
+            "name": "Ring of Spell Power X+",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "plus": true,
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_38",
+            "link": "item:900025:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Ring of Spell Power X+",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the area of effect of your spells by 302%.",
+                "color": "00ff00"
+              }
+            ]
           }
-        ]
+        ],
+        "anyClass": true
       },
       {
         "name": "Ring of the Devoured",
         "quality": "Legendary",
         "icon": "Interface\\Icons\\INV_Jewelry_Ring_AhnQiraj_05",
-        "classes": [
-          "ROGUE"
-        ],
+        "classes": [],
         "only": null,
         "ranks": [
           {
@@ -1198,15 +3743,14 @@
               }
             ]
           }
-        ]
+        ],
+        "anyClass": true
       },
       {
         "name": "Seal of the Damned",
         "quality": "Rare",
         "icon": "Interface\\Icons\\INV_Jewelry_Ring_51Naxxramas",
-        "classes": [
-          "ROGUE"
-        ],
+        "classes": [],
         "only": null,
         "ranks": [
           {
@@ -1217,11 +3761,23 @@
             "hex": "ff0070dd",
             "icon": "Interface\\Icons\\INV_Jewelry_Ring_51Naxxramas",
             "link": "item:900014:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Seal of the Damned",
-                "color": "0070dd"
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Your damage over time spells tick 40% faster: more ticks, and more damage, in the same time. 40% at most.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1241,7 +3797,8 @@
               }
             ]
           }
-        ]
+        ],
+        "anyClass": true
       }
     ],
     "Trinket": [
@@ -1249,9 +3806,7 @@
         "name": "Earthstrike",
         "quality": "Legendary",
         "icon": "Interface\\Icons\\Spell_Nature_AbolishMagic",
-        "classes": [
-          "ROGUE"
-        ],
+        "classes": [],
         "only": null,
         "ranks": [
           {
@@ -1270,15 +3825,14 @@
               }
             ]
           }
-        ]
+        ],
+        "anyClass": true
       },
       {
         "name": "Hand of Justice",
         "quality": "Legendary",
         "icon": "Interface\\Icons\\INV_Jewelry_Talisman_01",
-        "classes": [
-          "ROGUE"
-        ],
+        "classes": [],
         "only": null,
         "ranks": [
           {
@@ -1289,11 +3843,23 @@
             "hex": "ff1eff00",
             "icon": "Interface\\Icons\\INV_Jewelry_Talisman_01",
             "link": "item:900000:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Hand of Justice",
-                "color": "1eff00"
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Gives your spells a 22% chance to cast twice.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1305,11 +3871,23 @@
             "hex": "ff1eff00",
             "icon": "Interface\\Icons\\INV_Jewelry_Talisman_01",
             "link": "item:900002:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Hand of Justice II",
-                "color": "1eff00"
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Gives your spells a 32% chance to cast twice.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1321,11 +3899,23 @@
             "hex": "ff1eff00",
             "icon": "Interface\\Icons\\INV_Jewelry_Talisman_01",
             "link": "item:900006:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Hand of Justice III",
-                "color": "1eff00"
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Gives your spells a 44% chance to cast twice.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1337,11 +3927,23 @@
             "hex": "ffff8000",
             "icon": "Interface\\Icons\\INV_Jewelry_Talisman_01",
             "link": "item:900008:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Hand of Justice IV",
-                "color": "ff8000"
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Gives your spells a 56% chance to cast twice.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1370,15 +3972,14 @@
               }
             ]
           }
-        ]
+        ],
+        "anyClass": true
       },
       {
         "name": "Insignia of the Horde",
         "quality": "Epic",
         "icon": "Interface\\Icons\\INV_Jewelry_TrinketPVP_02",
-        "classes": [
-          "ROGUE"
-        ],
+        "classes": [],
         "only": null,
         "ranks": [
           {
@@ -1429,15 +4030,14 @@
               }
             ]
           }
-        ]
+        ],
+        "anyClass": true
       },
       {
         "name": "Lifegiving Gem",
         "quality": "Common",
         "icon": "Interface\\Icons\\INV_Misc_Gem_Pearl_05",
-        "classes": [
-          "ROGUE"
-        ],
+        "classes": [],
         "only": null,
         "ranks": [
           {
@@ -1520,15 +4120,14 @@
               }
             ]
           }
-        ]
+        ],
+        "anyClass": true
       },
       {
         "name": "Mark of the Chosen",
-        "quality": "Epic",
+        "quality": "Rare",
         "icon": "Interface\\Icons\\INV_Jewelry_Talisman_08",
-        "classes": [
-          "ROGUE"
-        ],
+        "classes": [],
         "only": null,
         "ranks": [
           {
@@ -1539,11 +4138,23 @@
             "hex": "ff1eff00",
             "icon": "Interface\\Icons\\INV_Jewelry_Talisman_08",
             "link": "item:900000:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Mark of the Chosen",
                 "color": "1eff00"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases your luck by 32%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1555,11 +4166,23 @@
             "hex": "ffa335ee",
             "icon": "Interface\\Icons\\INV_Jewelry_Talisman_08",
             "link": "item:900001:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Mark of the Chosen II",
-                "color": "a335ee"
+                "color": "0070dd"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases your luck by 47%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1571,11 +4194,23 @@
             "hex": "ffa335ee",
             "icon": "Interface\\Icons\\INV_Jewelry_Talisman_08",
             "link": "item:900007:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Mark of the Chosen III",
-                "color": "a335ee"
+                "color": "0070dd"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases your luck by 57%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1587,11 +4222,23 @@
             "hex": "ffff8000",
             "icon": "Interface\\Icons\\INV_Jewelry_Talisman_08",
             "link": "item:900008:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Mark of the Chosen IV",
                 "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases your luck by 70%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1603,11 +4250,23 @@
             "hex": "ffa335ee",
             "icon": "Interface\\Icons\\INV_Jewelry_Talisman_08",
             "link": "item:900015:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Mark of the Chosen V",
                 "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases your luck by 70%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1619,23 +4278,90 @@
             "hex": "ffa335ee",
             "icon": "Interface\\Icons\\INV_Jewelry_Talisman_08",
             "link": "item:900017:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Mark of the Chosen VI",
                 "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases your luck by 68%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "VII",
+            "rank": 7,
+            "name": "Mark of the Chosen VII",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Talisman_08",
+            "link": "item:900069:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Mark of the Chosen VII",
+                "color": "0070dd"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases your luck by 66%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "VIII",
+            "rank": 8,
+            "name": "Mark of the Chosen VIII",
+            "quality": "Rare",
+            "hex": "ff0070dd",
+            "icon": "Interface\\Icons\\INV_Jewelry_Talisman_08",
+            "link": "item:900046:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Mark of the Chosen VIII",
+                "color": "0070dd"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases your luck by 69%.",
+                "color": "00ff00"
               }
             ]
           }
-        ]
+        ],
+        "anyClass": true
       },
       {
         "name": "Royal Seal of Eldre'Thalas",
         "quality": "Epic",
         "icon": "Interface\\Icons\\INV_Jewelry_Talisman_10",
-        "classes": [
-          "ROGUE"
-        ],
+        "classes": [],
         "only": null,
         "ranks": [
           {
@@ -1646,11 +4372,23 @@
             "hex": "ffa335ee",
             "icon": "Interface\\Icons\\INV_Jewelry_Talisman_10",
             "link": "item:900004:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Royal Seal of Eldre'Thalas",
                 "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases gold found by 90%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1662,11 +4400,23 @@
             "hex": "ffa335ee",
             "icon": "Interface\\Icons\\INV_Jewelry_Talisman_10",
             "link": "item:900006:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Royal Seal of Eldre'Thalas II",
-                "color": "a335ee"
+                "color": "0070dd"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases gold found by 88%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1678,11 +4428,23 @@
             "hex": "ffa335ee",
             "icon": "Interface\\Icons\\INV_Jewelry_Talisman_10",
             "link": "item:900010:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Royal Seal of Eldre'Thalas III",
                 "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases gold found by 113%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1697,15 +4459,14 @@
             "tooltip": false,
             "lines": []
           }
-        ]
+        ],
+        "anyClass": true
       },
       {
         "name": "Talisman of Ephemeral Power",
         "quality": "Legendary",
         "icon": "Interface\\Icons\\INV_Misc_StoneTablet_11",
-        "classes": [
-          "ROGUE"
-        ],
+        "classes": [],
         "only": null,
         "ranks": [
           {
@@ -1744,11 +4505,23 @@
             "hex": "ffff8000",
             "icon": "Interface\\Icons\\INV_Misc_StoneTablet_11",
             "link": "item:900005:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Talisman of Ephemeral Power II",
-                "color": "ff8000"
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 41%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1760,11 +4533,23 @@
             "hex": "ffff8000",
             "icon": "Interface\\Icons\\INV_Misc_StoneTablet_11",
             "link": "item:900006:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Talisman of Ephemeral Power III",
-                "color": "ff8000"
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 49%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1776,11 +4561,23 @@
             "hex": "ffff8000",
             "icon": "Interface\\Icons\\INV_Misc_StoneTablet_11",
             "link": "item:900007:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Talisman of Ephemeral Power IV",
-                "color": "ff8000"
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 63%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1792,11 +4589,23 @@
             "hex": "ffff8000",
             "icon": "Interface\\Icons\\INV_Misc_StoneTablet_11",
             "link": "item:900009:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Talisman of Ephemeral Power V",
                 "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 80%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1808,15 +4617,169 @@
             "hex": "ffff8000",
             "icon": "Interface\\Icons\\INV_Misc_StoneTablet_11",
             "link": "item:900011:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Talisman of Ephemeral Power VI",
                 "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 96%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "VII",
+            "rank": 7,
+            "name": "Talisman of Ephemeral Power VII",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Misc_StoneTablet_11",
+            "link": "item:900145:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Talisman of Ephemeral Power VII",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 107%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "VIII",
+            "rank": 8,
+            "name": "Talisman of Ephemeral Power VIII",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Misc_StoneTablet_11",
+            "link": "item:900148:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Talisman of Ephemeral Power VIII",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 115%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "IX",
+            "rank": 9,
+            "name": "Talisman of Ephemeral Power IX",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Misc_StoneTablet_11",
+            "link": "item:900149:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Talisman of Ephemeral Power IX",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 129%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "X",
+            "rank": 10,
+            "name": "Talisman of Ephemeral Power X",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Misc_StoneTablet_11",
+            "link": "item:900150:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Talisman of Ephemeral Power X",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 139%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "X+",
+            "rank": 10,
+            "name": "Talisman of Ephemeral Power X+",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "plus": true,
+            "icon": "Interface\\Icons\\INV_Misc_StoneTablet_11",
+            "link": "item:900033:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Talisman of Ephemeral Power X+",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 151%.",
+                "color": "00ff00"
               }
             ]
           }
-        ]
+        ],
+        "anyClass": true
       }
     ]
   },
@@ -1828,18 +4791,18 @@
         "inBook": true,
         "castsTwice": true,
         "crits": false,
-        "highestRank": 4,
-        "runs": 38,
+        "highestRank": 5,
+        "runs": 53,
         "runsBy": {
-          "nicho": 38
+          "nicho": 53
         },
         "bestAverageCast": null,
         "bestAverageCastRank": null,
         "upgrades": [
           {
             "kind": "-#% cooldown",
-            "best": 32,
-            "text": "-32% cooldown"
+            "best": 36,
+            "text": "-36% cooldown"
           },
           {
             "kind": "+#% duration",
@@ -1855,17 +4818,17 @@
         "castsTwice": true,
         "crits": true,
         "highestRank": 16,
-        "runs": 38,
+        "runs": 50,
         "runsBy": {
-          "nicho": 38
+          "nicho": 50
         },
         "bestAverageCast": 29157,
         "bestAverageCastRank": 16,
         "upgrades": [
           {
             "kind": "-#% cooldown",
-            "best": 67,
-            "text": "-67% cooldown"
+            "best": 72,
+            "text": "-72% cooldown"
           },
           {
             "kind": "+#% damage",
@@ -1878,40 +4841,32 @@
         "name": "Blade Flurry",
         "icon": "Interface\\Icons\\Ability_Warrior_PunishingBlow",
         "inBook": true,
-        "castsTwice": null,
-        "crits": null,
-        "highestRank": null,
-        "runs": 0,
-        "runsBy": {},
-        "bestAverageCast": null,
-        "bestAverageCastRank": null,
-        "upgrades": []
-      },
-      {
-        "name": "Deadly Poison",
-        "icon": null,
-        "inBook": false,
-        "castsTwice": null,
-        "crits": null,
-        "highestRank": null,
-        "runs": 0,
-        "runsBy": {},
-        "bestAverageCast": 15424.8,
-        "bestAverageCastRank": null,
-        "upgrades": []
-      },
-      {
-        "name": "Deep Wound",
-        "icon": null,
-        "inBook": false,
-        "castsTwice": null,
-        "crits": null,
-        "highestRank": null,
-        "runs": 0,
-        "runsBy": {},
-        "bestAverageCast": 3674.478260869565,
-        "bestAverageCastRank": null,
-        "upgrades": []
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 24,
+        "runs": 4,
+        "runsBy": {
+          "nicho": 4
+        },
+        "bestAverageCast": 64954.142857142855,
+        "bestAverageCastRank": 16,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 60,
+            "text": "-60% cooldown"
+          },
+          {
+            "kind": "+#% area",
+            "best": 204,
+            "text": "+204% area"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 862,
+            "text": "+862% damage"
+          }
+        ]
       },
       {
         "name": "Escape Artist",
@@ -1920,11 +4875,11 @@
         "castsTwice": false,
         "crits": true,
         "highestRank": 1,
-        "runs": 39,
+        "runs": 55,
         "runsBy": {
-          "nicho": 39
+          "nicho": 55
         },
-        "bestAverageCast": 238,
+        "bestAverageCast": 672.4150943396227,
         "bestAverageCastRank": 1,
         "upgrades": []
       },
@@ -1935,9 +4890,9 @@
         "castsTwice": true,
         "crits": true,
         "highestRank": 18,
-        "runs": 37,
+        "runs": 48,
         "runsBy": {
-          "nicho": 37
+          "nicho": 48
         },
         "bestAverageCast": 222320.8,
         "bestAverageCastRank": 16,
@@ -1960,18 +4915,49 @@
         "inBook": true,
         "castsTwice": true,
         "crits": true,
-        "highestRank": 10,
-        "runs": 35,
+        "highestRank": 15,
+        "runs": 47,
         "runsBy": {
-          "nicho": 35
+          "nicho": 47
         },
-        "bestAverageCast": 8214.6,
-        "bestAverageCastRank": 10,
+        "bestAverageCast": 18177.625,
+        "bestAverageCastRank": 15,
         "upgrades": [
           {
             "kind": "-#% cooldown",
-            "best": 60,
-            "text": "-60% cooldown"
+            "best": 64,
+            "text": "-64% cooldown"
+          },
+          {
+            "kind": "+# targets",
+            "best": 8,
+            "text": "+8 targets"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 624,
+            "text": "+624% damage"
+          }
+        ]
+      },
+      {
+        "name": "Gouge",
+        "icon": "Interface\\Icons\\Ability_Gouge",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 13,
+        "runs": 1,
+        "runsBy": {
+          "nicho": 1
+        },
+        "bestAverageCast": 8706.076923076924,
+        "bestAverageCastRank": 13,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 57,
+            "text": "-57% cooldown"
           },
           {
             "kind": "+# targets",
@@ -1980,23 +4966,10 @@
           },
           {
             "kind": "+#% damage",
-            "best": 522,
-            "text": "+522% damage"
+            "best": 679,
+            "text": "+679% damage"
           }
         ]
-      },
-      {
-        "name": "Gouge",
-        "icon": "Interface\\Icons\\Ability_Gouge",
-        "inBook": true,
-        "castsTwice": null,
-        "crits": null,
-        "highestRank": null,
-        "runs": 0,
-        "runsBy": {},
-        "bestAverageCast": null,
-        "bestAverageCastRank": null,
-        "upgrades": []
       },
       {
         "name": "Kidney Shot",
@@ -2014,31 +4987,18 @@
         "upgrades": []
       },
       {
-        "name": "Melee",
-        "icon": null,
-        "inBook": false,
-        "castsTwice": null,
-        "crits": null,
-        "highestRank": null,
-        "runs": 0,
-        "runsBy": {},
-        "bestAverageCast": 215.4,
-        "bestAverageCastRank": null,
-        "upgrades": []
-      },
-      {
         "name": "Rupture",
         "icon": "Interface\\Icons\\Ability_Rogue_Rupture",
         "inBook": true,
         "castsTwice": true,
         "crits": false,
         "highestRank": 11,
-        "runs": 37,
+        "runs": 45,
         "runsBy": {
-          "nicho": 37
+          "nicho": 45
         },
-        "bestAverageCast": 222165,
-        "bestAverageCastRank": 9,
+        "bestAverageCast": 358171.5,
+        "bestAverageCastRank": 8,
         "upgrades": [
           {
             "kind": "-#% cooldown",
@@ -2047,8 +5007,8 @@
           },
           {
             "kind": "+# targets",
-            "best": 4,
-            "text": "+4 targets"
+            "best": 8,
+            "text": "+8 targets"
           },
           {
             "kind": "+#% damage",
@@ -2066,16 +5026,22 @@
         "name": "Seal Fate",
         "icon": null,
         "inBook": false,
-        "castsTwice": null,
-        "crits": null,
+        "castsTwice": false,
+        "crits": true,
         "highestRank": 3,
-        "runs": 2,
+        "runs": 3,
         "runsBy": {
-          "nicho": 2
+          "nicho": 3
         },
         "bestAverageCast": null,
         "bestAverageCastRank": null,
-        "upgrades": []
+        "upgrades": [
+          {
+            "kind": "+#% damage",
+            "best": 18,
+            "text": "+18% damage"
+          }
+        ]
       },
       {
         "name": "Sinister Strike",
@@ -2084,17 +5050,17 @@
         "castsTwice": true,
         "crits": true,
         "highestRank": 21,
-        "runs": 39,
+        "runs": 55,
         "runsBy": {
-          "nicho": 39
+          "nicho": 55
         },
         "bestAverageCast": 28807.166666666668,
         "bestAverageCastRank": 17,
         "upgrades": [
           {
             "kind": "-#% cooldown",
-            "best": 62,
-            "text": "-62% cooldown"
+            "best": 64,
+            "text": "-64% cooldown"
           },
           {
             "kind": "+# targets",
@@ -2112,6 +5078,320 @@
         "name": "Slice and Dice",
         "icon": "Interface\\Icons\\Ability_Rogue_SliceDice",
         "inBook": true,
+        "castsTwice": true,
+        "crits": false,
+        "highestRank": 1,
+        "runs": 3,
+        "runsBy": {
+          "nicho": 3
+        },
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 17,
+            "text": "-17% cooldown"
+          }
+        ]
+      }
+    ],
+    "WARLOCK": [
+      {
+        "name": "Corruption",
+        "icon": "Interface\\Icons\\Spell_Shadow_AbominationExplosion",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": false,
+        "highestRank": 12,
+        "runs": 15,
+        "runsBy": {
+          "nicho": 15
+        },
+        "bestAverageCast": 657046.1666666666,
+        "bestAverageCastRank": 4,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 25,
+            "text": "-25% cooldown"
+          },
+          {
+            "kind": "+# targets",
+            "best": 9,
+            "text": "+9 targets"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 146,
+            "text": "+146% damage"
+          },
+          {
+            "kind": "+#% duration",
+            "best": 130,
+            "text": "+130% duration"
+          }
+        ]
+      },
+      {
+        "name": "Curse of Agony",
+        "icon": "Interface\\Icons\\Spell_Shadow_CurseOfSargeras",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": false,
+        "highestRank": 10,
+        "runs": 15,
+        "runsBy": {
+          "nicho": 15
+        },
+        "bestAverageCast": 11691.39378238342,
+        "bestAverageCastRank": 10,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 47,
+            "text": "-47% cooldown"
+          },
+          {
+            "kind": "+# targets",
+            "best": 4,
+            "text": "+4 targets"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 337,
+            "text": "+337% damage"
+          },
+          {
+            "kind": "+#% duration",
+            "best": 159,
+            "text": "+159% duration"
+          }
+        ]
+      },
+      {
+        "name": "Death Coil",
+        "icon": "Interface\\Icons\\Spell_Shadow_DeathCoil",
+        "inBook": true,
+        "castsTwice": false,
+        "crits": true,
+        "highestRank": 6,
+        "runs": 3,
+        "runsBy": {
+          "nicho": 3
+        },
+        "bestAverageCast": 2746.4615384615386,
+        "bestAverageCastRank": 6,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 35,
+            "text": "-35% cooldown"
+          },
+          {
+            "kind": "+# targets",
+            "best": 2,
+            "text": "+2 targets"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 182,
+            "text": "+182% damage"
+          }
+        ]
+      },
+      {
+        "name": "Drain Life",
+        "icon": "Interface\\Icons\\Spell_Shadow_LifeDrain02",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": false,
+        "highestRank": 17,
+        "runs": 13,
+        "runsBy": {
+          "nicho": 13
+        },
+        "bestAverageCast": 112599.61904761905,
+        "bestAverageCastRank": 13,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 52,
+            "text": "-52% cooldown"
+          },
+          {
+            "kind": "+# targets",
+            "best": 12,
+            "text": "+12 targets"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 727,
+            "text": "+727% damage"
+          },
+          {
+            "kind": "+#% duration",
+            "best": 165,
+            "text": "+165% duration"
+          }
+        ]
+      },
+      {
+        "name": "Escape Artist",
+        "icon": "Interface\\Icons\\Ability_Rogue_Trip",
+        "inBook": true,
+        "castsTwice": false,
+        "crits": true,
+        "highestRank": 1,
+        "runs": 15,
+        "runsBy": {
+          "nicho": 15
+        },
+        "bestAverageCast": 334.2857142857143,
+        "bestAverageCastRank": 1,
+        "upgrades": []
+      },
+      {
+        "name": "Fear",
+        "icon": "Interface\\Icons\\Spell_Shadow_Possession",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 18,
+        "runs": 10,
+        "runsBy": {
+          "nicho": 10
+        },
+        "bestAverageCast": 1125.0483870967741,
+        "bestAverageCastRank": 8,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 69,
+            "text": "-69% cooldown"
+          },
+          {
+            "kind": "+# targets",
+            "best": 12,
+            "text": "+12 targets"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 80,
+            "text": "+80% damage"
+          }
+        ]
+      },
+      {
+        "name": "Hellfire",
+        "icon": "Interface\\Icons\\Spell_Fire_Incinerate",
+        "inBook": true,
+        "castsTwice": null,
+        "crits": null,
+        "highestRank": null,
+        "runs": 0,
+        "runsBy": {},
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": []
+      },
+      {
+        "name": "Immolate",
+        "icon": "Interface\\Icons\\Spell_Fire_Immolation",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": false,
+        "highestRank": 8,
+        "runs": 14,
+        "runsBy": {
+          "nicho": 14
+        },
+        "bestAverageCast": 116453.19047619047,
+        "bestAverageCastRank": 7,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 23,
+            "text": "-23% cooldown"
+          },
+          {
+            "kind": "+# targets",
+            "best": 4,
+            "text": "+4 targets"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 171,
+            "text": "+171% damage"
+          },
+          {
+            "kind": "+#% duration",
+            "best": 165,
+            "text": "+165% duration"
+          }
+        ]
+      },
+      {
+        "name": "Rain of Fire",
+        "icon": "Interface\\Icons\\Spell_Shadow_RainOfFire",
+        "inBook": true,
+        "castsTwice": null,
+        "crits": null,
+        "highestRank": null,
+        "runs": 0,
+        "runsBy": {},
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": []
+      },
+      {
+        "name": "Searing Pain",
+        "icon": "Interface\\Icons\\Spell_Fire_SoulBurn",
+        "inBook": true,
+        "castsTwice": null,
+        "crits": null,
+        "highestRank": null,
+        "runs": 0,
+        "runsBy": {},
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": []
+      },
+      {
+        "name": "Shadow Bolt",
+        "icon": "Interface\\Icons\\Spell_Shadow_ShadowBolt",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 17,
+        "runs": 15,
+        "runsBy": {
+          "nicho": 15
+        },
+        "bestAverageCast": 96215.7168141593,
+        "bestAverageCastRank": 17,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 49,
+            "text": "-49% cooldown"
+          },
+          {
+            "kind": "+# targets",
+            "best": 10,
+            "text": "+10 targets"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 314,
+            "text": "+314% damage"
+          }
+        ]
+      },
+      {
+        "name": "Soul Fire",
+        "icon": "Interface\\Icons\\Spell_Fire_Fireball02",
+        "inBook": true,
         "castsTwice": null,
         "crits": null,
         "highestRank": null,
@@ -2121,10 +5401,298 @@
         "bestAverageCastRank": null,
         "upgrades": []
       }
+    ],
+    "WARRIOR": [
+      {
+        "name": "Battle Shout",
+        "icon": "Interface\\Icons\\Ability_Warrior_BattleShout",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": false,
+        "highestRank": 1,
+        "runs": 76,
+        "runsBy": {
+          "nicho": 76
+        },
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 13,
+            "text": "-13% cooldown"
+          }
+        ]
+      },
+      {
+        "name": "Bloodrage",
+        "icon": "Interface\\Icons\\Ability_Racial_BloodRage",
+        "inBook": true,
+        "castsTwice": null,
+        "crits": null,
+        "highestRank": null,
+        "runs": 0,
+        "runsBy": {},
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": []
+      },
+      {
+        "name": "Bloodthirst",
+        "icon": "Interface\\Icons\\Spell_Nature_BloodLust",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 24,
+        "runs": 73,
+        "runsBy": {
+          "nicho": 73
+        },
+        "bestAverageCast": 130088.69920318725,
+        "bestAverageCastRank": 24,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 67,
+            "text": "-67% cooldown"
+          },
+          {
+            "kind": "+# targets",
+            "best": 12,
+            "text": "+12 targets"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 731,
+            "text": "+731% damage"
+          }
+        ]
+      },
+      {
+        "name": "Cleave",
+        "icon": "Interface\\Icons\\Ability_Warrior_Cleave",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 11,
+        "runs": 76,
+        "runsBy": {
+          "nicho": 76
+        },
+        "bestAverageCast": 24191.006195786864,
+        "bestAverageCastRank": 11,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 51,
+            "text": "-51% cooldown"
+          },
+          {
+            "kind": "+# targets",
+            "best": 6,
+            "text": "+6 targets"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 352,
+            "text": "+352% damage"
+          }
+        ]
+      },
+      {
+        "name": "Demoralizing Shout",
+        "icon": "Interface\\Icons\\Ability_Warrior_WarCry",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 8,
+        "runs": 73,
+        "runsBy": {
+          "nicho": 73
+        },
+        "bestAverageCast": 8755.70707070707,
+        "bestAverageCastRank": 8,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 54,
+            "text": "-54% cooldown"
+          },
+          {
+            "kind": "+#% area",
+            "best": 81,
+            "text": "+81% area"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 45,
+            "text": "+45% damage"
+          }
+        ]
+      },
+      {
+        "name": "Escape Artist",
+        "icon": "Interface\\Icons\\Ability_Rogue_Trip",
+        "inBook": true,
+        "castsTwice": false,
+        "crits": true,
+        "highestRank": 1,
+        "runs": 76,
+        "runsBy": {
+          "nicho": 76
+        },
+        "bestAverageCast": 1044.5925925925926,
+        "bestAverageCastRank": 1,
+        "upgrades": []
+      },
+      {
+        "name": "Execute",
+        "icon": "Interface\\Icons\\INV_Sword_48",
+        "inBook": true,
+        "castsTwice": null,
+        "crits": null,
+        "highestRank": null,
+        "runs": 0,
+        "runsBy": {},
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": []
+      },
+      {
+        "name": "Mortal Strike",
+        "icon": "Interface\\Icons\\Ability_Warrior_SavageBlow",
+        "inBook": true,
+        "castsTwice": null,
+        "crits": null,
+        "highestRank": null,
+        "runs": 0,
+        "runsBy": {},
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": []
+      },
+      {
+        "name": "Rend",
+        "icon": "Interface\\Icons\\Ability_Gouge",
+        "inBook": true,
+        "castsTwice": null,
+        "crits": null,
+        "highestRank": null,
+        "runs": 0,
+        "runsBy": {},
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": []
+      },
+      {
+        "name": "Shield Slam",
+        "icon": "Interface\\Icons\\INV_Shield_05",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 27,
+        "runs": 75,
+        "runsBy": {
+          "nicho": 75
+        },
+        "bestAverageCast": 346271.6808510638,
+        "bestAverageCastRank": 27,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 76,
+            "text": "-76% cooldown"
+          },
+          {
+            "kind": "+# targets",
+            "best": 12,
+            "text": "+12 targets"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 640,
+            "text": "+640% damage"
+          }
+        ]
+      },
+      {
+        "name": "Thunder Clap",
+        "icon": "Interface\\Icons\\Spell_Nature_ThunderClap",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 17,
+        "runs": 1,
+        "runsBy": {
+          "nicho": 1
+        },
+        "bestAverageCast": 91536.10619469026,
+        "bestAverageCastRank": 17,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 57,
+            "text": "-57% cooldown"
+          },
+          {
+            "kind": "+#% area",
+            "best": 138,
+            "text": "+138% area"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 653,
+            "text": "+653% damage"
+          }
+        ]
+      },
+      {
+        "name": "Whirlwind",
+        "icon": "Interface\\Icons\\Ability_Whirlwind",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 70,
+        "runs": 76,
+        "runsBy": {
+          "nicho": 76
+        },
+        "bestAverageCast": 1340799.8271671617,
+        "bestAverageCastRank": 70,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 78,
+            "text": "-78% cooldown"
+          },
+          {
+            "kind": "+#% area",
+            "best": 327,
+            "text": "+327% area"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 2819,
+            "text": "+2819% damage"
+          }
+        ]
+      }
     ]
   },
   "bossBests": {
     "ROGUE": [
+      {
+        "boss": "Azuregos",
+        "seconds": 40.27518920011812,
+        "time": "0:40",
+        "by": "nicho"
+      },
+      {
+        "boss": "C'Thun",
+        "seconds": 44.738668000027474,
+        "time": "0:44",
+        "by": "nicho"
+      },
       {
         "boss": "Doomguard Commander",
         "seconds": 21.263960899710668,
@@ -2135,6 +5703,30 @@
         "boss": "Edwin VanCleef",
         "seconds": 25.172718998976052,
         "time": "0:25",
+        "by": "nicho"
+      },
+      {
+        "boss": "Emperor Dagran Thaurissan",
+        "seconds": 45.608865399211595,
+        "time": "0:45",
+        "by": "nicho"
+      },
+      {
+        "boss": "General Angerforge",
+        "seconds": 55.68711770057678,
+        "time": "0:55",
+        "by": "nicho"
+      },
+      {
+        "boss": "General Rajaxx",
+        "seconds": 50.23451519921423,
+        "time": "0:50",
+        "by": "nicho"
+      },
+      {
+        "boss": "Glacius the Frozen Titan",
+        "seconds": 12.860734199509011,
+        "time": "0:12",
         "by": "nicho"
       },
       {
@@ -2153,6 +5745,24 @@
         "boss": "Hogger",
         "seconds": 21.434280999973424,
         "time": "0:21",
+        "by": "nicho"
+      },
+      {
+        "boss": "Ivus the Forest Lord",
+        "seconds": 16.2107991008088,
+        "time": "0:16",
+        "by": "nicho"
+      },
+      {
+        "boss": "Kurinnaxx",
+        "seconds": 47.398500700779266,
+        "time": "0:47",
+        "by": "nicho"
+      },
+      {
+        "boss": "Lokholar the Ice Lord",
+        "seconds": 13.121134599782522,
+        "time": "0:13",
         "by": "nicho"
       },
       {
@@ -2186,9 +5796,27 @@
         "by": "nicho"
       },
       {
+        "boss": "Nefarian",
+        "seconds": 52.298926100507515,
+        "time": "0:52",
+        "by": "nicho"
+      },
+      {
+        "boss": "Ossirian the Unscarred",
+        "seconds": 28.751510899960977,
+        "time": "0:28",
+        "by": "nicho"
+      },
+      {
         "boss": "Patchwerk",
         "seconds": 7.691620199941099,
         "time": "0:07",
+        "by": "nicho"
+      },
+      {
+        "boss": "Princess Huhuran",
+        "seconds": 34.835597600415326,
+        "time": "0:34",
         "by": "nicho"
       },
       {
@@ -2196,13 +5824,147 @@
         "seconds": 20.93747740220283,
         "time": "0:20",
         "by": "nicho"
+      },
+      {
+        "boss": "Warchief Rend Blackhand",
+        "seconds": 52.231852600350976,
+        "time": "0:52",
+        "by": "nicho"
+      },
+      {
+        "boss": "Zevrim Thornhoof",
+        "seconds": 21.211737100929014,
+        "time": "0:21",
+        "by": "nicho"
+      }
+    ],
+    "WARLOCK": [
+      {
+        "boss": "Azuregos",
+        "seconds": 189.53522820044304,
+        "time": "3:09",
+        "by": "nicho"
+      },
+      {
+        "boss": "Bloodlord Mandokir",
+        "seconds": 37.49952169604603,
+        "time": "0:37",
+        "by": "nicho"
+      },
+      {
+        "boss": "General Angerforge",
+        "seconds": 69.4472228009999,
+        "time": "1:09",
+        "by": "nicho"
+      },
+      {
+        "boss": "Glacius the Frozen Titan",
+        "seconds": 88.29229550052446,
+        "time": "1:28",
+        "by": "nicho"
+      },
+      {
+        "boss": "Hakkar the Soulflayer",
+        "seconds": 54.489113998040466,
+        "time": "0:54",
+        "by": "nicho"
+      },
+      {
+        "boss": "High Priest Venoxis",
+        "seconds": 51.060330100692795,
+        "time": "0:51",
+        "by": "nicho"
+      },
+      {
+        "boss": "High Priestess Jeklik",
+        "seconds": 39.9451367969811,
+        "time": "0:39",
+        "by": "nicho"
+      },
+      {
+        "boss": "Ivus the Forest Lord",
+        "seconds": 51.75013990208504,
+        "time": "0:51",
+        "by": "nicho"
+      },
+      {
+        "boss": "Jin'do the Hexxer",
+        "seconds": 44.53943489901724,
+        "time": "0:44",
+        "by": "nicho"
+      },
+      {
+        "boss": "Korrak the Bloodrager",
+        "seconds": 69.43483729869126,
+        "time": "1:09",
+        "by": "nicho"
+      },
+      {
+        "boss": "Kurinnaxx",
+        "seconds": 60.685491699613664,
+        "time": "1:00",
+        "by": "nicho"
+      },
+      {
+        "boss": "Lokholar the Ice Lord",
+        "seconds": 82.511415398866,
+        "time": "1:22",
+        "by": "nicho"
+      },
+      {
+        "boss": "Nefarian",
+        "seconds": 119.94490829922256,
+        "time": "1:59",
+        "by": "nicho"
+      },
+      {
+        "boss": "Warchief Rend Blackhand",
+        "seconds": 81.69501550130542,
+        "time": "1:21",
+        "by": "nicho"
       }
     ],
     "WARRIOR": [
       {
+        "boss": "Alzzin the Wildshaper",
+        "seconds": 49.976240899190316,
+        "time": "0:49",
+        "by": "nicho"
+      },
+      {
+        "boss": "Anub'Rekhan",
+        "seconds": 23.576022999286693,
+        "time": "0:23",
+        "by": "nicho"
+      },
+      {
+        "boss": "Baron Rivendare",
+        "seconds": 24.982171304076928,
+        "time": "0:24",
+        "by": "nicho"
+      },
+      {
+        "boss": "Doomguard Commander",
+        "seconds": 11.983818400390447,
+        "time": "0:11",
+        "by": "nicho"
+      },
+      {
+        "boss": "Immol'thar",
+        "seconds": 33.935419100224976,
+        "time": "0:33",
+        "by": "nicho"
+      },
+      {
         "boss": "Ivus the Forest Lord",
         "seconds": 26.077995600625854,
         "time": "0:26",
+        "by": "nicho"
+      },
+      {
+        "boss": "King Gordok",
+        "seconds": 58.146634094417095,
+        "time": "0:58",
         "by": "nicho"
       },
       {
@@ -2215,6 +5977,60 @@
         "boss": "Lokholar the Ice Lord",
         "seconds": 151.04230739869183,
         "time": "2:31",
+        "by": "nicho"
+      },
+      {
+        "boss": "Lord Blackwood",
+        "seconds": 19.219605599604563,
+        "time": "0:19",
+        "by": "nicho"
+      },
+      {
+        "boss": "Lord Kazzak",
+        "seconds": 4.074717101454667,
+        "time": "0:04",
+        "by": "nicho"
+      },
+      {
+        "boss": "Lupos",
+        "seconds": 11.208378798626313,
+        "time": "0:11",
+        "by": "nicho"
+      },
+      {
+        "boss": "Mannoroth's Herald",
+        "seconds": 11.329348799437298,
+        "time": "0:11",
+        "by": "nicho"
+      },
+      {
+        "boss": "Mor'Ladim",
+        "seconds": 14.318130399733832,
+        "time": "0:14",
+        "by": "nicho"
+      },
+      {
+        "boss": "Patchwerk",
+        "seconds": 13.934602700397363,
+        "time": "0:13",
+        "by": "nicho"
+      },
+      {
+        "boss": "Tendris Warpwood",
+        "seconds": 38.39701849937444,
+        "time": "0:38",
+        "by": "nicho"
+      },
+      {
+        "boss": "Varimathras",
+        "seconds": 9.561958300359606,
+        "time": "0:09",
+        "by": "nicho"
+      },
+      {
+        "boss": "Zevrim Thornhoof",
+        "seconds": 44.22293799959121,
+        "time": "0:44",
         "by": "nicho"
       }
     ]

@@ -21,29 +21,277 @@ Legendary · ranks I, II, III, IV, V · worn by: not recorded
 
 - *Name only:* I, II, III, IV, V
 
+#### Amulet of Vek'nilash
+
+Epic · ranks I · any class
+
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Your spells strike 1 more target.
+  - Equip: Increases all damage you deal by 5%.
+
+#### Choker of Enlightenment
+
+Epic · ranks I, II, III · any class
+
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Your hits leap to 1 more enemy for 30%.
+- **II**
+  - Binds when picked up
+  - Neck
+  - Equip: Your hits leap to 1 more enemy for 41%.
+- **III**
+  - Binds when picked up
+  - Neck
+  - Equip: Your hits leap to 1 more enemy for 49%.
+
 #### Choker of the Fire Lord
 
-Legendary · ranks I, II, III, IV, V, VI, VII, VIII · worn by: not recorded
+Legendary · ranks I, II, III, IV, V, VI, VII, VIII, IX · any class
 
-- *Name only:* I, II, III, IV, V, VI, VII, VIII
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Enemies you kill explode for 15% of their max health.
+- **II**
+  - Binds when picked up
+  - Neck
+  - Equip: Enemies you kill explode for 19% of their max health.
+- **III**
+  - Binds when picked up
+  - Neck
+  - Equip: Enemies you kill explode for 22% of their max health.
+- **IV**
+  - Binds when picked up
+  - Neck
+  - Equip: Enemies you kill explode for 25% of their max health.
+- **V**
+  - Binds when picked up
+  - Neck
+  - Equip: Enemies you kill explode for 27% of their max health.
+- **VI**
+  - Binds when picked up
+  - Neck
+  - Equip: Enemies you kill explode for 30% of their max health.
+- **VII**
+  - Binds when picked up
+  - Neck
+  - Equip: Enemies you kill explode for 32% of their max health.
+- **VIII**
+  - Binds when picked up
+  - Neck
+  - Equip: Enemies you kill explode for 33% of their max health.
+- **IX**
+  - Binds when picked up
+  - Neck
+  - Equip: Enemies you kill explode for 35% of their max health.
+
+#### Eye of the Splitting Sky: Fear
+
+Legendary · ranks I, II, III, IV · worn by Warlock
+
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Fear strikes 1 more target.
+  - Equip: Increases the damage of Fear by 20%.
+  - Equip: Fear's hits leap to 2 more enemies for 30%.
+- **II**
+  - Binds when picked up
+  - Neck
+  - Equip: Fear strikes 1 more target.
+  - Equip: Increases the damage of Fear by 24%.
+  - Equip: Fear's hits leap to 2 more enemies for 36%.
+- **III**
+  - Binds when picked up
+  - Neck
+  - Equip: Fear strikes 1 more target.
+  - Equip: Increases the damage of Fear by 28%.
+  - Equip: Fear's hits leap to 2 more enemies for 41%.
+- **IV**
+  - Binds when picked up
+  - Neck
+  - Equip: Fear strikes 1 more target.
+  - Equip: Increases the damage of Fear by 31%.
+  - Equip: Fear's hits leap to 2 more enemies for 46%.
+
+#### Eye of the Splitting Sky: Shadow Bolt
+
+Legendary · ranks I · worn by Warlock
+
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Shadow Bolt strikes 1 more target.
+  - Equip: Increases the damage of Shadow Bolt by 20%.
+  - Equip: Shadow Bolt's hits leap to 2 more enemies for 30%.
+
+#### Heart of the Earthshaker: Blade Flurry
+
+Legendary · ranks I, II, III, IV, V · worn by Rogue
+
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases the area of Blade Flurry by 60%.
+  - Equip: Increases the damage of Blade Flurry by 35%.
+  - Equip: Blade Flurry's hits stun for 1.5 sec.
+- **II**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases the area of Blade Flurry by 72%.
+  - Equip: Increases the damage of Blade Flurry by 42%.
+  - Equip: Blade Flurry's hits stun for 1.5 sec.
+- **III**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases the area of Blade Flurry by 83%.
+  - Equip: Increases the damage of Blade Flurry by 48%.
+  - Equip: Blade Flurry's hits stun for 1.5 sec.
+- **IV**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases the area of Blade Flurry by 93%.
+  - Equip: Increases the damage of Blade Flurry by 54%.
+  - Equip: Blade Flurry's hits stun for 1.5 sec.
+- **V**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases the area of Blade Flurry by 101%.
+  - Equip: Increases the damage of Blade Flurry by 59%.
+  - Equip: Blade Flurry's hits stun for 1.5 sec.
 
 #### Heart of the Earthshaker: Whirlwind
 
-Legendary · ranks I · worn by: not recorded
+Legendary · ranks I, II, III, IV, V, VI, VII, VIII, IX, X · worn by Warrior
 
-- *Name only:* I
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases the area of Whirlwind by 60%.
+  - Equip: Increases the damage of Whirlwind by 35%.
+  - Equip: Whirlwind's hits stun for 1.5 sec.
+- **II**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases the area of Whirlwind by 72%.
+  - Equip: Increases the damage of Whirlwind by 42%.
+  - Equip: Whirlwind's hits stun for 1.5 sec.
+- **III**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases the area of Whirlwind by 83%.
+  - Equip: Increases the damage of Whirlwind by 48%.
+  - Equip: Whirlwind's hits stun for 1.5 sec.
+- **IV**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases the area of Whirlwind by 93%.
+  - Equip: Increases the damage of Whirlwind by 54%.
+  - Equip: Whirlwind's hits stun for 1.5 sec.
+- **V**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases the area of Whirlwind by 101%.
+  - Equip: Increases the damage of Whirlwind by 59%.
+  - Equip: Whirlwind's hits stun for 1.5 sec.
+- **VI**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases the area of Whirlwind by 109%.
+  - Equip: Increases the damage of Whirlwind by 64%.
+  - Equip: Whirlwind's hits stun for 1.5 sec.
+- **VII**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases the area of Whirlwind by 116%.
+  - Equip: Increases the damage of Whirlwind by 68%.
+  - Equip: Whirlwind's hits stun for 1.5 sec.
+- **VIII**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases the area of Whirlwind by 123%.
+  - Equip: Increases the damage of Whirlwind by 72%.
+  - Equip: Whirlwind's hits stun for 1.5 sec.
+- **IX**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases the area of Whirlwind by 128%.
+  - Equip: Increases the damage of Whirlwind by 75%.
+  - Equip: Whirlwind's hits stun for 1.5 sec.
+- **X**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases the area of Whirlwind by 134%.
+  - Equip: Increases the damage of Whirlwind by 78%.
+  - Equip: Whirlwind's hits stun for 1.5 sec.
 
 #### Malice Stone Pendant
 
-Epic · ranks I, II, III, IV · worn by: not recorded
+Epic · ranks I, II, III, IV · any class
 
-- *Name only:* I, II, III, IV
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Gives your spells a 20% chance to cast twice.
+  - Equip: Reduces the cooldown of your spells by 8%.
+- **II**
+  - Binds when picked up
+  - Neck
+  - Equip: Gives your spells a 25% chance to cast twice.
+  - Equip: Reduces the cooldown of your spells by 10%.
+- **III**
+  - Binds when picked up
+  - Neck
+  - Equip: Gives your spells a 29% chance to cast twice.
+  - Equip: Reduces the cooldown of your spells by 12%.
+- **IV**
+  - Binds when picked up
+  - Neck
+  - Equip: Gives your spells a 33% chance to cast twice.
+  - Equip: Reduces the cooldown of your spells by 13%.
 
 #### Mark of Fordring
 
-Common · ranks I · worn by Rogue
+Common · ranks I · any class
 
-- *Name only:* I
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases all damage you deal by 15%.
+
+#### Medallion of the Bladestorm: Bloodthirst
+
+Legendary · ranks I, II · worn by Warrior
+
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Bloodthirst strikes 4 more targets.
+  - Equip: Increases the damage of Bloodthirst by 50%.
+  - Equip: Bloodthirst's hits burn and bleed for 80% more over 6 sec.
+  - Equip: Bloodthirst also shields you for 30% of your max health.
+- **II**
+  - Binds when picked up
+  - Neck
+  - Equip: Bloodthirst strikes 4 more targets.
+  - Equip: Increases the damage of Bloodthirst by 60%.
+  - Equip: Bloodthirst's hits burn and bleed for 96% more over 6 sec.
+  - Equip: Bloodthirst also shields you for 36% of your max health.
+
+#### Medallion of the Bladestorm: Ghostly Strike
+
+Legendary · ranks I · worn by Rogue
+
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Ghostly Strike strikes 4 more targets.
+  - Equip: Increases the damage of Ghostly Strike by 50%.
+  - Equip: Increases the absorb of Ghostly Strike by 100%.
 
 #### Medallion of the Bladestorm: Sinister Strike
 
@@ -53,21 +301,170 @@ Legendary · ranks I, II, III, IV, V, VI, VII, VIII, IX, X · worn by Rogue
 
 #### Onyxia Tooth Pendant
 
-Legendary · ranks I, II, III, IV, V, VI, VII, VIII, IX, X · worn by Rogue
+Legendary · ranks I, II, III, IV, V, VI, VII, VIII, IX, X · any class
 
-- *Name only:* I, II, III, IV, V, VI, VII, VIII, IX, X
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Improves your chance to get a critical strike by 4%.
+  - Equip: Increases the damage of your critical strikes by 20%.
+  - Equip: Your critical hits splash 30% on enemies within 5 yd.
+- *Name only:* II, III, IV, V, VI, VII, VIII, IX, X
 
 #### Pendant of the Fallen Dragon
 
-Epic · ranks I, II, III, IV · worn by: not recorded
+Epic · ranks I, II, III, IV · any class
 
 - *Name only:* I, II, III, IV
+
+#### Pendant of the Plague: Corruption
+
+Legendary · ranks I · worn by Warlock
+
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Corruption strikes 3 more targets.
+  - Equip: Increases the damage of Corruption by 90%.
+  - Equip: Enemies that die with Corruption on them explode for 20% of their max health.
+
+#### Pendant of the Plague: Drain Life
+
+Legendary · ranks I, II, III, IV, V, VI, VII, VIII, IX, X, X+ · worn by Warlock
+
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Drain Life strikes 3 more targets.
+  - Equip: Increases the damage of Drain Life by 90%.
+  - Equip: Enemies that die with Drain Life on them explode for 20% of their max health.
+- **II**
+  - Binds when picked up
+  - Neck
+  - Equip: Drain Life strikes 3 more targets.
+  - Equip: Increases the damage of Drain Life by 108%.
+  - Equip: Enemies that die with Drain Life on them explode for 24% of their max health.
+- **III**
+  - Binds when picked up
+  - Neck
+  - Equip: Drain Life strikes 4 more targets.
+  - Equip: Increases the damage of Drain Life by 124%.
+  - Equip: Enemies that die with Drain Life on them explode for 28% of their max health.
+- **IV**
+  - Binds when picked up
+  - Neck
+  - Equip: Drain Life strikes 4 more targets.
+  - Equip: Increases the damage of Drain Life by 139%.
+  - Equip: Enemies that die with Drain Life on them explode for 31% of their max health.
+- **V**
+  - Binds when picked up
+  - Neck
+  - Equip: Drain Life strikes 5 more targets.
+  - Equip: Increases the damage of Drain Life by 152%.
+  - Equip: Enemies that die with Drain Life on them explode for 34% of their max health.
+- **VI**
+  - Binds when picked up
+  - Neck
+  - Equip: Drain Life strikes 5 more targets.
+  - Equip: Increases the damage of Drain Life by 164%.
+  - Equip: Enemies that die with Drain Life on them explode for 36% of their max health.
+- **VII**
+  - Binds when picked up
+  - Neck
+  - Equip: Drain Life strikes 5 more targets.
+  - Equip: Increases the damage of Drain Life by 174%.
+  - Equip: Enemies that die with Drain Life on them explode for 39% of their max health.
+- **VIII**
+  - Binds when picked up
+  - Neck
+  - Equip: Drain Life strikes 6 more targets.
+  - Equip: Increases the damage of Drain Life by 184%.
+  - Equip: Enemies that die with Drain Life on them explode for 41% of their max health.
+- **X**
+  - Binds when picked up
+  - Neck
+  - Equip: Drain Life strikes 6 more targets.
+  - Equip: Increases the damage of Drain Life by 200%.
+  - Equip: Enemies that die with Drain Life on them explode for 45% of their max health.
+- **X+**
+  - Binds when picked up
+  - Neck
+  - Equip: Drain Life strikes 6 more targets.
+  - Equip: Increases the damage of Drain Life by 207%.
+  - Equip: Enemies that die with Drain Life on them explode for 46% of their max health.
+- *Name only:* IX
+
+#### Pendant of the Plague: Immolate
+
+Legendary · ranks I · worn by Warlock
+
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Immolate strikes 3 more targets.
+  - Equip: Increases the damage of Immolate by 90%.
+  - Equip: Enemies that die with Immolate on them explode for 20% of their max health.
 
 #### Pristine Enchanted South Seas Kelp
 
-Common · ranks I, II, III, IV · worn by Rogue
+Common · ranks I, II, III, IV · any class
 
-- *Name only:* I, II, III, IV
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases your luck by 30%.
+  - Equip: Increases gold found by 25%.
+- **II**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases your luck by 48%.
+  - Equip: Increases gold found by 40%.
+- **III**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases your luck by 61%.
+  - Equip: Increases gold found by 51%.
+- *Name only:* IV
+
+#### The Eternal Talisman: Adrenaline Rush
+
+Legendary · ranks I · worn by Rogue
+
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases the duration of Adrenaline Rush by 100%.
+  - Equip: Reduces the cooldown of Adrenaline Rush by 35%.
+  - Equip: Increases the strength of Adrenaline Rush by 100%.
+
+#### The Reaper's Amulet: Backstab
+
+Legendary · ranks I, II, III, IV · worn by Rogue
+
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases the damage of Backstab by 45%.
+  - Equip: A kill with Backstab readies it again at once.
+  - Equip: Backstab's hits splash 50% on enemies within 6 yd.
+- **II**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases the damage of Backstab by 54%.
+  - Equip: A kill with Backstab readies it again at once.
+  - Equip: Backstab's hits splash 60% on enemies within 6 yd.
+- **III**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases the damage of Backstab by 62%.
+  - Equip: A kill with Backstab readies it again at once.
+  - Equip: Backstab's hits splash 69% on enemies within 6 yd.
+- **IV**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases the damage of Backstab by 69%.
+  - Equip: A kill with Backstab readies it again at once.
+  - Equip: Backstab's hits splash 77% on enemies within 6 yd.
 
 #### The Reaper's Amulet: Eviscerate
 
@@ -79,106 +476,304 @@ Legendary · ranks I, II, III, IV, V, VI, VII, VIII, IX, X+ · worn by Rogue
 
 #### Archimtiros' Ring of Reckoning
 
-Epic · ranks I · worn by Rogue
+Rare · ranks I, II, III · any class
 
-- *Name only:* I
+- **I**
+  - Binds when picked up
+  - Finger
+  - Equip: Reduces all damage taken by 11%.
+  - Equip: Increases your maximum health by 42%.
+- **II**
+  - Binds when picked up
+  - Finger
+  - Equip: Reduces all damage taken by 9.2%.
+  - Equip: Increases your maximum health by 37%.
+- **III**
+  - Binds when picked up
+  - Finger
+  - Equip: Reduces all damage taken by 9.8%.
+  - Equip: Increases your maximum health by 39%.
 
 #### Band of Accuria
 
-Legendary · ranks I, II, III, VI, VII · worn by Rogue
+Legendary · ranks I, II, III, VI, VII · any class
 
 - **I (Rare)**
   - Binds when picked up
   - Finger
   - Equip: Increases all damage you deal by 46%.
-- *Name only:* II, III, VI, VII
+- **II**
+  - Binds when picked up
+  - Finger
+  - Equip: Increases all damage you deal by 132%.
+- **III**
+  - Binds when picked up
+  - Finger
+  - Equip: Increases all damage you deal by 125%.
+- *Name only:* VI, VII
 
 #### Blooddrinker's Band
 
-Epic · ranks I · worn by Rogue
+Epic · ranks I · any class
 
 - *Name only:* I
 
 #### Heavy Dark Iron Ring
 
-Uncommon · ranks I, II · worn by: not recorded
-
-- *Name only:* I, II
-
-#### Quick Strike Ring
-
-Legendary · ranks I, II, III, IV, V, VI, VII, VIII · worn by Rogue
-
-- *Name only:* I (Common), II, III, IV, V, VI, VII, VIII
-
-#### Ring of Spell Power
-
-Rare · ranks I · worn by Rogue
+Uncommon · ranks I, II · any class
 
 - **I**
   - Binds when picked up
   - Finger
+  - Equip: Increases your maximum health by 54%.
+- **II**
+  - Binds when picked up
+  - Finger
+  - Equip: Increases your maximum health by 58%.
+
+#### Quick Strike Ring
+
+Legendary · ranks I, II, III, IV, V, VI, VII, VIII, IX, X, X+ · any class
+
+- **I (Common)**
+  - Binds when picked up
+  - Finger
+  - Equip: Reduces the cooldown of your spells by 19%.
+- **II**
+  - Binds when picked up
+  - Finger
+  - Equip: Reduces the cooldown of your spells by 41%.
+- **III**
+  - Binds when picked up
+  - Finger
+  - Equip: Reduces the cooldown of your spells by 46%.
+- **IV**
+  - Binds when picked up
+  - Finger
+  - Equip: Reduces the cooldown of your spells by 56%.
+- **V**
+  - Binds when picked up
+  - Finger
+  - Equip: Reduces the cooldown of your spells by 63%.
+- **VI**
+  - Binds when picked up
+  - Finger
+  - Equip: Reduces the cooldown of your spells by 78%.
+- **VII**
+  - Binds when picked up
+  - Finger
+  - Equip: Reduces the cooldown of your spells by 98%.
+- **VIII**
+  - Binds when picked up
+  - Finger
+  - Equip: Reduces the cooldown of your spells by 112%.
+- **IX**
+  - Binds when picked up
+  - Finger
+  - Equip: Reduces the cooldown of your spells by 129%.
+- **X**
+  - Binds when picked up
+  - Finger
+  - Equip: Reduces the cooldown of your spells by 139%.
+- **X+**
+  - Binds when picked up
+  - Finger
+  - Equip: Reduces the cooldown of your spells by 148%.
+
+#### Ring of Spell Power
+
+Legendary · ranks I, II, III, VII, IX, X, X+ · any class
+
+- **I (Rare)**
+  - Binds when picked up
+  - Finger
   - Equip: Increases the area of effect of your spells by 38%.
+- **II**
+  - Binds when picked up
+  - Finger
+  - Equip: Increases the area of effect of your spells by 91%.
+- **III**
+  - Binds when picked up
+  - Finger
+  - Equip: Increases the area of effect of your spells by 129%.
+- **VII**
+  - Binds when picked up
+  - Finger
+  - Equip: Increases the area of effect of your spells by 229%.
+- **IX**
+  - Binds when picked up
+  - Finger
+  - Equip: Increases the area of effect of your spells by 259%.
+- **X**
+  - Binds when picked up
+  - Finger
+  - Equip: Increases the area of effect of your spells by 273%.
+- **X+**
+  - Binds when picked up
+  - Finger
+  - Equip: Increases the area of effect of your spells by 302%.
 
 #### Ring of the Devoured
 
-Legendary · ranks I · worn by Rogue
+Legendary · ranks I · any class
 
 - *Name only:* I
 
 #### Seal of the Damned
 
-Rare · ranks I, II · worn by Rogue
+Rare · ranks I, II · any class
 
-- *Name only:* I, II
+- **I**
+  - Binds when picked up
+  - Finger
+  - Equip: Your damage over time spells tick 40% faster: more ticks, and more damage, in the same time. 40% at most.
+- *Name only:* II
 
 ### Trinkets
 
 #### Earthstrike
 
-Legendary · ranks I · worn by Rogue
+Legendary · ranks I · any class
 
 - *Name only:* I
 
 #### Hand of Justice
 
-Legendary · ranks I, II, III, IV, V, VI · worn by Rogue
+Legendary · ranks I, II, III, IV, V, VI · any class
 
-- *Name only:* I (Uncommon), II (Uncommon), III (Uncommon), IV, V (Epic), VI
+- **I (Uncommon)**
+  - Binds when picked up
+  - Trinket
+  - Equip: Gives your spells a 22% chance to cast twice.
+- **II (Uncommon)**
+  - Binds when picked up
+  - Trinket
+  - Equip: Gives your spells a 32% chance to cast twice.
+- **III (Uncommon)**
+  - Binds when picked up
+  - Trinket
+  - Equip: Gives your spells a 44% chance to cast twice.
+- **IV**
+  - Binds when picked up
+  - Trinket
+  - Equip: Gives your spells a 56% chance to cast twice.
+- *Name only:* V (Epic), VI
 
 #### Insignia of the Horde
 
-Epic · ranks I, II, III · worn by Rogue
+Epic · ranks I, II, III · any class
 
 - *Name only:* I, II, III
 
 #### Lifegiving Gem
 
-Common · ranks I, II, III, IV, V · worn by Rogue
+Common · ranks I, II, III, IV, V · any class
 
 - *Name only:* I, II, III, IV, V
 
 #### Mark of the Chosen
 
-Epic · ranks I, II, III, IV, V, VI · worn by Rogue
+Rare · ranks I, II, III, IV, V, VI, VII, VIII · any class
 
-- *Name only:* I (Uncommon), II, III, IV (Legendary), V, VI
+- **I (Uncommon)**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases your luck by 32%.
+- **II (Epic)**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases your luck by 47%.
+- **III (Epic)**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases your luck by 57%.
+- **IV (Legendary)**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases your luck by 70%.
+- **V (Epic)**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases your luck by 70%.
+- **VI (Epic)**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases your luck by 68%.
+- **VII (Legendary)**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases your luck by 66%.
+- **VIII**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases your luck by 69%.
 
 #### Royal Seal of Eldre'Thalas
 
-Epic · ranks I, II, III, IV · worn by Rogue
+Epic · ranks I, II, III, IV · any class
 
-- *Name only:* I, II, III, IV
+- **I**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases gold found by 90%.
+- **II**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases gold found by 88%.
+- **III**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases gold found by 113%.
+- *Name only:* IV
 
 #### Talisman of Ephemeral Power
 
-Legendary · ranks I, II, III, IV, V, VI · worn by Rogue
+Legendary · ranks I, II, III, IV, V, VI, VII, VIII, IX, X, X+ · any class
 
 - **I (Uncommon)**
   - Binds when picked up
   - Trinket
   - Equip: Reduces the cooldown of your spells by 15%.
-- *Name only:* II, III, IV, V, VI
+- **II**
+  - Binds when picked up
+  - Trinket
+  - Equip: Reduces the cooldown of your spells by 41%.
+- **III**
+  - Binds when picked up
+  - Trinket
+  - Equip: Reduces the cooldown of your spells by 49%.
+- **IV**
+  - Binds when picked up
+  - Trinket
+  - Equip: Reduces the cooldown of your spells by 63%.
+- **V**
+  - Binds when picked up
+  - Trinket
+  - Equip: Reduces the cooldown of your spells by 80%.
+- **VI**
+  - Binds when picked up
+  - Trinket
+  - Equip: Reduces the cooldown of your spells by 96%.
+- **VII (Epic)**
+  - Binds when picked up
+  - Trinket
+  - Equip: Reduces the cooldown of your spells by 107%.
+- **VIII (Epic)**
+  - Binds when picked up
+  - Trinket
+  - Equip: Reduces the cooldown of your spells by 115%.
+- **IX (Epic)**
+  - Binds when picked up
+  - Trinket
+  - Equip: Reduces the cooldown of your spells by 129%.
+- **X (Epic)**
+  - Binds when picked up
+  - Trinket
+  - Equip: Reduces the cooldown of your spells by 139%.
+- **X+**
+  - Binds when picked up
+  - Trinket
+  - Equip: Reduces the cooldown of your spells by 151%.
 
 ## Abilities
 
@@ -188,21 +783,52 @@ Per class. *Twice* and *Crit* say whether the ability's tooltip has the cast-twi
 
 | Ability | Twice | Crit | Highest rank | Runs | Best cast | Upgrades |
 | --- | --- | --- | --- | --- | --- | --- |
-| Adrenaline Rush | yes | no | 4 | 38 | – | -32% cooldown, +60% duration |
-| Backstab | yes | yes | 16 | 38 | 29,157 (rank 16) | -67% cooldown, +618% damage |
-| Blade Flurry | – | – | – | 0 | – | – |
-| Deadly Poison *(not in spell book)* | – | – | – | 0 | 15,425 | – |
-| Deep Wound *(not in spell book)* | – | – | – | 0 | 3,674 | – |
-| Escape Artist | no | yes | 1 | 39 | 238 (rank 1) | – |
-| Eviscerate | yes | yes | 18 | 37 | 222,321 (rank 16) | -62% cooldown, +493% damage |
-| Ghostly Strike | yes | yes | 10 | 35 | 8,215 (rank 10) | -60% cooldown, +6 targets, +522% damage |
-| Gouge | – | – | – | 0 | – | – |
+| Adrenaline Rush | yes | no | 5 | 53 | – | -36% cooldown, +60% duration |
+| Backstab | yes | yes | 16 | 50 | 29,157 (rank 16) | -72% cooldown, +618% damage |
+| Blade Flurry | yes | yes | 24 | 4 | 64,954 (rank 16) | -60% cooldown, +204% area, +862% damage |
+| Escape Artist | no | yes | 1 | 55 | 672 (rank 1) | – |
+| Eviscerate | yes | yes | 18 | 48 | 222,321 (rank 16) | -62% cooldown, +493% damage |
+| Ghostly Strike | yes | yes | 15 | 47 | 18,178 (rank 15) | -64% cooldown, +8 targets, +624% damage |
+| Gouge | yes | yes | 13 | 1 | 8,706 (rank 13) | -57% cooldown, +6 targets, +679% damage |
 | Kidney Shot | – | – | 1 | 1 | – | – |
-| Melee *(not in spell book)* | – | – | – | 0 | 215 | – |
-| Rupture | yes | no | 11 | 37 | 222,165 (rank 9) | -42% cooldown, +4 targets, +358% damage, +95% duration |
-| Seal Fate *(not in spell book)* | – | – | 3 | 2 | – | – |
-| Sinister Strike | yes | yes | 21 | 39 | 28,807 (rank 17) | -62% cooldown, +11 targets, +633% damage |
-| Slice and Dice | – | – | – | 0 | – | – |
+| Rupture | yes | no | 11 | 45 | 358,172 (rank 8) | -42% cooldown, +8 targets, +358% damage, +95% duration |
+| Seal Fate *(not in spell book)* | no | yes | 3 | 3 | – | +18% damage |
+| Sinister Strike | yes | yes | 21 | 55 | 28,807 (rank 17) | -64% cooldown, +11 targets, +633% damage |
+| Slice and Dice | yes | no | 1 | 3 | – | -17% cooldown |
+
+### Warlock
+
+| Ability | Twice | Crit | Highest rank | Runs | Best cast | Upgrades |
+| --- | --- | --- | --- | --- | --- | --- |
+| Corruption | yes | no | 12 | 15 | 657,046 (rank 4) | -25% cooldown, +9 targets, +146% damage, +130% duration |
+| Curse of Agony | yes | no | 10 | 15 | 11,691 (rank 10) | -47% cooldown, +4 targets, +337% damage, +159% duration |
+| Death Coil | no | yes | 6 | 3 | 2,746 (rank 6) | -35% cooldown, +2 targets, +182% damage |
+| Drain Life | yes | no | 17 | 13 | 112,600 (rank 13) | -52% cooldown, +12 targets, +727% damage, +165% duration |
+| Escape Artist | no | yes | 1 | 15 | 334 (rank 1) | – |
+| Fear | yes | yes | 18 | 10 | 1,125 (rank 8) | -69% cooldown, +12 targets, +80% damage |
+| Hellfire | – | – | – | 0 | – | – |
+| Immolate | yes | no | 8 | 14 | 116,453 (rank 7) | -23% cooldown, +4 targets, +171% damage, +165% duration |
+| Rain of Fire | – | – | – | 0 | – | – |
+| Searing Pain | – | – | – | 0 | – | – |
+| Shadow Bolt | yes | yes | 17 | 15 | 96,216 (rank 17) | -49% cooldown, +10 targets, +314% damage |
+| Soul Fire | – | – | – | 0 | – | – |
+
+### Warrior
+
+| Ability | Twice | Crit | Highest rank | Runs | Best cast | Upgrades |
+| --- | --- | --- | --- | --- | --- | --- |
+| Battle Shout | yes | no | 1 | 76 | – | -13% cooldown |
+| Bloodrage | – | – | – | 0 | – | – |
+| Bloodthirst | yes | yes | 24 | 73 | 130,089 (rank 24) | -67% cooldown, +12 targets, +731% damage |
+| Cleave | yes | yes | 11 | 76 | 24,191 (rank 11) | -51% cooldown, +6 targets, +352% damage |
+| Demoralizing Shout | yes | yes | 8 | 73 | 8,756 (rank 8) | -54% cooldown, +81% area, +45% damage |
+| Escape Artist | no | yes | 1 | 76 | 1,045 (rank 1) | – |
+| Execute | – | – | – | 0 | – | – |
+| Mortal Strike | – | – | – | 0 | – | – |
+| Rend | – | – | – | 0 | – | – |
+| Shield Slam | yes | yes | 27 | 75 | 346,272 (rank 27) | -76% cooldown, +12 targets, +640% damage |
+| Thunder Clap | yes | yes | 17 | 1 | 91,536 (rank 17) | -57% cooldown, +138% area, +653% damage |
+| Whirlwind | yes | yes | 70 | 76 | 1,340,800 (rank 70) | -78% cooldown, +327% area, +2819% damage |
 
 ## Best boss times
 
@@ -210,23 +836,71 @@ Per class. *Twice* and *Crit* say whether the ability's tooltip has the cast-twi
 
 | Boss | Best |
 | --- | --- |
+| Azuregos | 0:40 (nicho) |
+| C'Thun | 0:44 (nicho) |
 | Doomguard Commander | 0:21 (nicho) |
 | Edwin VanCleef | 0:25 (nicho) |
+| Emperor Dagran Thaurissan | 0:45 (nicho) |
+| General Angerforge | 0:55 (nicho) |
+| General Rajaxx | 0:50 (nicho) |
+| Glacius the Frozen Titan | 0:12 (nicho) |
 | High Priest Venoxis | 0:14 (nicho) |
 | High Priestess Jeklik | 0:16 (nicho) |
 | Hogger | 0:21 (nicho) |
+| Ivus the Forest Lord | 0:16 (nicho) |
+| Kurinnaxx | 0:47 (nicho) |
+| Lokholar the Ice Lord | 0:13 (nicho) |
 | Mor'Ladim | 0:26 (nicho) |
 | Morbent Fel | 1:19 (nicho) |
 | Mother Fang | 0:16 (nicho) |
 | Mr. Smite | 0:21 (nicho) |
 | Naraxis | 0:16 (nicho) |
+| Nefarian | 0:52 (nicho) |
+| Ossirian the Unscarred | 0:28 (nicho) |
 | Patchwerk | 0:07 (nicho) |
+| Princess Huhuran | 0:34 (nicho) |
 | Rhahk'Zor | 0:20 (nicho) |
+| Warchief Rend Blackhand | 0:52 (nicho) |
+| Zevrim Thornhoof | 0:21 (nicho) |
+
+### Warlock
+
+| Boss | Best |
+| --- | --- |
+| Azuregos | 3:09 (nicho) |
+| Bloodlord Mandokir | 0:37 (nicho) |
+| General Angerforge | 1:09 (nicho) |
+| Glacius the Frozen Titan | 1:28 (nicho) |
+| Hakkar the Soulflayer | 0:54 (nicho) |
+| High Priest Venoxis | 0:51 (nicho) |
+| High Priestess Jeklik | 0:39 (nicho) |
+| Ivus the Forest Lord | 0:51 (nicho) |
+| Jin'do the Hexxer | 0:44 (nicho) |
+| Korrak the Bloodrager | 1:09 (nicho) |
+| Kurinnaxx | 1:00 (nicho) |
+| Lokholar the Ice Lord | 1:22 (nicho) |
+| Nefarian | 1:59 (nicho) |
+| Warchief Rend Blackhand | 1:21 (nicho) |
 
 ### Warrior
 
 | Boss | Best |
 | --- | --- |
+| Alzzin the Wildshaper | 0:49 (nicho) |
+| Anub'Rekhan | 0:23 (nicho) |
+| Baron Rivendare | 0:24 (nicho) |
+| Doomguard Commander | 0:11 (nicho) |
+| Immol'thar | 0:33 (nicho) |
 | Ivus the Forest Lord | 0:26 (nicho) |
+| King Gordok | 0:58 (nicho) |
 | Korrak the Bloodrager | 0:43 (nicho) |
 | Lokholar the Ice Lord | 2:31 (nicho) |
+| Lord Blackwood | 0:19 (nicho) |
+| Lord Kazzak | 0:04 (nicho) |
+| Lupos | 0:11 (nicho) |
+| Mannoroth's Herald | 0:11 (nicho) |
+| Mor'Ladim | 0:14 (nicho) |
+| Patchwerk | 0:13 (nicho) |
+| Tendris Warpwood | 0:38 (nicho) |
+| Varimathras | 0:09 (nicho) |
+| Zevrim Thornhoof | 0:44 (nicho) |

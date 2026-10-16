@@ -245,6 +245,23 @@ function quality(hex) {
   return (hex && QUALITIES[hex.toLowerCase()]) || null;
 }
 
+// How rare a quality is, poor lowest; unknown counts as common.
+const QUALITY_ORDER = Object.values(QUALITIES);
+function rarity(name) {
+  const at = QUALITY_ORDER.indexOf(name);
+  return at >= 0 ? at : 1;
+}
+
+function toLines(raw) {
+  return list(raw).map((line) => {
+    const out = { text: stripColors(line["1"] ?? "") };
+    const color = colorHex(line["2"], line["3"], line["4"]);
+    if (color) out.color = color;
+    if (line["5"] != null) out.right = stripColors(line["5"]);
+    return out;
+  });
+}
+
 function colorHex(r, g, b) {
   if (typeof r !== "number") return null;
   const part = (v) => Math.round(Math.max(0, Math.min(1, v)) * 255).toString(16).padStart(2, "0");
@@ -276,14 +293,15 @@ function buildJewelry(db) {
       const piece = pieces.get(base);
       for (const cls of Object.keys(info.classes || {})) if (info.classes[cls]) piece.classes.add(cls);
       if (info.only) piece.only = stripColors(info.only);
-      const hex = info.hex || (seen[kind] || {})[fullName] || null;
-      const lines = list(info.lines).map((line) => {
-        const out = { text: stripColors(line["1"] ?? "") };
-        const color = colorHex(line["2"], line["3"], line["4"]);
-        if (color) out.color = color;
-        if (line["5"] != null) out.right = stripColors(line["5"]);
-        return out;
-      });
+      let hex = info.hex || (seen[kind] || {})[fullName] || null;
+      let lines = toLines(info.lines);
+      // Rank I as its least rare version seen (the addon keeps it as low): a
+      // rarer drop of the same rank has bigger numbers, and rank I is the
+      // baseline.
+      if (rank === 1 && info.low && list(info.low.lines).length > 1) {
+        hex = info.low.hex || hex;
+        lines = toLines(info.low.lines);
+      }
       const entry = { numeral, rank, name: stripColors(fullName), quality: quality(hex), hex };
       if (plus) entry.plus = true;
       if (info.icon) entry.icon = info.icon;
@@ -315,9 +333,11 @@ function foldKind(kind) {
   return kind.replace(/\btarget\b/g, "targets");
 }
 
+// A count of one in the singular: "+1 target", "+12 targets".
 function upgradeText(kind, value) {
   const shown = Number.isInteger(value) ? String(value) : String(Math.round(value * 10) / 10);
-  return kind.includes("#") ? kind.replace("#", shown) : `${kind} ${shown}`;
+  const text = kind.includes("#") ? kind.replace("#", shown) : `${kind} ${shown}`;
+  return value === 1 ? text.replace(/\b1 targets\b/, "1 target") : text;
 }
 
 // Each upgrade kind (folded) with its best value, sorted, with its text.
@@ -394,10 +414,16 @@ function mergeJewelry(old, fresh) {
           known.ranks.push(rank);
           continue;
         }
-        // The first whole tooltip stands; a missing one is filled in.
-        if (!had.tooltip && rank.tooltip) {
+        // The first whole tooltip stands; a missing one is filled in. Rank I
+        // takes a less rare version's: the baseline is the least of them.
+        const lessRare = had.rank === 1 && rank.tooltip && rarity(rank.quality) < rarity(had.quality);
+        if ((!had.tooltip && rank.tooltip) || lessRare) {
           had.lines = rank.lines;
           had.tooltip = true;
+        }
+        if (lessRare) {
+          had.hex = rank.hex;
+          had.quality = rank.quality;
         }
         for (const field of ["hex", "quality", "icon", "link"]) if (had[field] == null && rank[field] != null) had[field] = rank[field];
       }
@@ -512,7 +538,8 @@ function renderMarkdown(data) {
       const facts = [];
       if (piece.quality) facts.push(piece.quality);
       facts.push(`ranks ${piece.ranks.map((r) => r.numeral).join(", ")}`);
-      facts.push(piece.classes.length ? `worn by ${piece.classes.map(className).join(", ")}` : "worn by: not recorded");
+      if (piece.anyClass) facts.push("any class");
+      else facts.push(piece.classes.length ? `worn by ${piece.classes.map(className).join(", ")}` : "worn by: not recorded");
       if (piece.only) facts.push(`kept to ${md(piece.only)}`);
       out.push(facts.join(" · "), "");
       const nameOnly = [];
@@ -567,6 +594,41 @@ function renderMarkdown(data) {
   return out.join("\n");
 }
 
+// --------------------------------------------------------------------- rules
+
+// The addon's rules, laid over the merged codex (so entries from older runs
+// of this builder follow them too):
+//   abilities  a class's own only: in its spell book or among a run's spells.
+//              What a talent or a piece of jewelry casts on its own (a proc's
+//              Blast Wave for a Warlock) is left out.
+//   jewelry    an amulet that names an ability ("Heart of the Earthshaker:
+//              Whirlwind") is a class piece: worn by the classes recorded,
+//              less any class the codex has never seen with that ability (a
+//              piece still worn from a run of another class). Every other
+//              piece suits any class and names none.
+function classAbility(a) {
+  return a.inBook || (a.runs ?? 0) > 0 || (a.highestRank ?? 0) > 0;
+}
+
+function applyRules(data) {
+  for (const cls of Object.keys(data.abilities)) {
+    data.abilities[cls] = data.abilities[cls].filter(classAbility);
+  }
+  for (const kind of KINDS) {
+    for (const piece of data.jewelry[kind]) {
+      const named = kind === "Neck" ? /: (.+)$/.exec(piece.name) : null;
+      if (!named) {
+        piece.classes = [];
+        piece.anyClass = true;
+        continue;
+      }
+      delete piece.anyClass;
+      const owners = Object.keys(data.abilities).filter((cls) => data.abilities[cls].some((a) => a.name === named[1]));
+      if (owners.length) piece.classes = piece.classes.filter((cls) => owners.includes(cls));
+    }
+  }
+}
+
 // ---------------------------------------------------------------------- main
 
 function main() {
@@ -596,6 +658,7 @@ function main() {
       }
     : built;
 
+  applyRules(data);
   fs.mkdirSync(OUT_DIR, { recursive: true });
   fs.writeFileSync(path.join(OUT_DIR, "codex.json"), JSON.stringify(data, null, 2) + "\n");
   fs.writeFileSync(path.join(OUT_DIR, "codex.md"), renderMarkdown(data));
