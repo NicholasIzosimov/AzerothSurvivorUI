@@ -9,6 +9,7 @@ A lightweight interface addon for **Azeroth Survivors**: flat, dark unit frames,
 1. Download **[SurvivorUI-Updater.cmd](https://github.com/NicholasIzosimov/AzerothSurvivorUI/raw/main/SurvivorUI-Updater.cmd)** and keep it anywhere.
 2. Double-click it. A small window shows what you have and the latest version.
 3. Press **Update** (it says **Install** the first time).
+4. Press **Launch** to start the game. The first time it looks for `AzerothSurvivors.exe` in your Downloads, Desktop, Documents and `C:\Games`; if it is somewhere else, it asks once and remembers.
 
 It downloads the latest Survivor UI from GitHub and brings `AddOns\SurvivorUI` up to date file by file: changed files replaced, new ones added, old code files removed. Your settings are not touched, and neither is anything else in the folder (such as a font you dropped in). The AddOns folder starts as `C:\Git\wenilla\benilla-config\AddOns`; **Change...** picks another, and it is remembered. Then `/reload` in the game, or restart it when the window says so.
 
@@ -43,6 +44,7 @@ If Windows warns about the file the first time, choose **More info → Run anywa
 | `/sui frames` | Addon unit frames on/off |
 | `/sui build` | Build panel on/off |
 | `/sui lexicon` | Open the Lexicon |
+| `/sui spells` | Each of your spells: whether its tooltip says it casts twice or crits, and every upgrade seen on it |
 | `/sui meter` | Damage meter on/off |
 | `/sui tally` | Tally on/off |
 | `/sui timer` | Run timer on/off (`/sui timer compact` for the small one) |
@@ -62,6 +64,7 @@ If Windows warns about the file the first time, choose **More info → Run anywa
 | `/sui layout` | Put everything back where it started |
 | `/sui inspect` | Name the frame under the mouse (for teaching the addon a new piece of the game's interface) |
 | `/sui find words` | Name the shown frames whose text holds those words |
+| `/sui logwatch words` | For a minute, print every game message holding those words (to see how the game words a proc's hits) |
 
 Hold **Alt** and drag to move any panel; positions snap to a grid.
 

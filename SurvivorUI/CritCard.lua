@@ -2,8 +2,11 @@
 --
 -- Hover a line of the damage meter (Meter.lua) for its card, kept short: what
 -- one cast of it deals on average, and the targets it has hit as small meter
--- bars. Both counted here from the combat log. The meter's Reset clears it
--- (SurvivorUI_ResetRun); a new run does too. The tally is kept in the run's
+-- bars. Both counted here from the combat log. The meter's other views have
+-- cards of their own, from the log too: healing, what one cast heals on
+-- average and who it healed; damage taken, an enemy's average hit and what it
+-- hit you with (melee and each spell). The meter's Reset clears its view's
+-- tally (SurvivorUI_ResetRun); a new run clears them all. The tally is kept in the run's
 -- memory (SurvivorUI_RunMemory), so a reload in the middle of a run keeps it.
 -- Each ability's average cast also goes to the Lexicon, which keeps the best
 -- one a run has reached (SurvivorUI_LexiconAverage).
@@ -19,11 +22,18 @@ local CAST_WINDOW = 0.15
 ------------------------------------------------------------------------------
 -- The tally.
 
-local casts = {}                -- [ability] = { sum, count, at = when its last blow landed }
-local targetDamage = {}         -- [ability] = { [target name] = damage }
+-- A tally per view of the meter, each { casts, targets }:
+--   damage   casts [ability] = { sum, count, at }, targets [ability] = { [target] = damage }
+--   healing  casts [ability] = { sum, count, at }, targets [ability] = { [target] = healing }
+--   taken    casts [enemy] = { sum, count } (its hits), targets [enemy] = { [ability] = damage }
+local VIEWS = { "damage", "healing", "taken" }
+local tallies = { damage = { casts = {}, targets = {} }, healing = { casts = {}, targets = {} },
+	taken = { casts = {}, targets = {} } }
+local casts, targetDamage = tallies.damage.casts, tallies.damage.targets
 local logNames = {}             -- [ability] = blows seen under that name, for /sui icons
 
--- The tally from the run's memory, as it stands.
+-- The tallies from the run's memory, as they stand. The damage tally keeps
+-- the place it had before the other views came, so a reload keeps it.
 local function Remember()
 	if not SurvivorUI_RunMemory then
 		return
@@ -31,7 +41,16 @@ local function Remember()
 	local memory = SurvivorUI_RunMemory("crits")
 	memory.casts = memory.casts or {}
 	memory.targets = memory.targets or {}
-	casts, targetDamage = memory.casts, memory.targets
+	tallies.damage = { casts = memory.casts, targets = memory.targets }
+	for _, view in pairs({ "healing", "taken" }) do
+		memory[view] = memory[view] or { casts = {}, targets = {} }
+		tallies[view] = memory[view]
+	end
+	casts, targetDamage = tallies.damage.casts, tallies.damage.targets
+end
+
+local function Tally(view)
+	return tallies[view] or tallies.damage
 end
 
 -- Every ability name the combat log has given a blow, with how many: a meter
@@ -40,12 +59,22 @@ function SurvivorUI_LogNames()
 	return logNames
 end
 
-local function ResetCrits()
-	casts, targetDamage = {}, {}
-	if SurvivorUI_RunMemory then
-		local memory = SurvivorUI_RunMemory("crits")
-		memory.casts, memory.targets = casts, targetDamage
+-- One view's tally starts over, or every view's with none named.
+local function ResetCrits(view)
+	for _, name in pairs(VIEWS) do
+		if not view or view == name then
+			tallies[name] = { casts = {}, targets = {} }
+			if SurvivorUI_RunMemory then
+				local memory = SurvivorUI_RunMemory("crits")
+				if name == "damage" then
+					memory.casts, memory.targets = tallies[name].casts, tallies[name].targets
+				else
+					memory[name] = tallies[name]
+				end
+			end
+		end
 	end
+	casts, targetDamage = tallies.damage.casts, tallies.damage.targets
 end
 
 local function Num(value)
@@ -189,10 +218,11 @@ local function TargetBar(index)
 	return bar
 end
 
--- The spell's targets, the most damaged first, and the damage over them all.
-local function Targets(ability)
+-- A line's bars, the most first, and the amount over them all: a spell's
+-- targets, or for damage taken an enemy's abilities.
+local function Targets(tally, ability)
 	local list, total = {}, 0
-	for name, damage in pairs(targetDamage[ability] or {}) do
+	for name, damage in pairs(tally.targets[ability] or {}) do
 		table.insert(list, { name = name, damage = damage })
 		total = total + damage
 	end
@@ -202,9 +232,16 @@ end
 
 local critHovered = nil
 
+-- Each view's words: its average's and, from the meter line, its total's.
+local AVERAGE_LABEL = { damage = "Avg cast", healing = "Avg heal", taken = "Avg hit" }
+local TOTAL_LABEL = { damage = "Damage", healing = "Healing", taken = "Damage taken" }
+
 local function CritTooltip(row)
 	local ability = row.ability
-	local targets, targetTotal = Targets(ability)
+	local view = row.mode or "damage"
+	local tally = Tally(view)
+	local casts = tally.casts
+	local targets, targetTotal = Targets(tally, ability)
 	-- A proc's blows reach no combat log, so it has no casts or targets to
 	-- show: its card holds the meter line's own numbers instead.
 	local fromMeter = ability and not casts[ability] and row.damage
@@ -217,7 +254,7 @@ local function CritTooltip(row)
 	-- A proc goes by "The Reaper's Amulet: Eviscerate": the card is titled by
 	-- the ability, as any other line's, and names its source in a row.
 	local title, source = ability, nil
-	if fromMeter then
+	if fromMeter and view ~= "taken" then
 		local _, _, from, name = string.find(ability, "^(.-): (.+)$")
 		if from then
 			title, source = name, from
@@ -233,12 +270,12 @@ local function CritTooltip(row)
 		TipLine(count, kind, label, value, color)
 	end
 	if casts[ability] then
-		Add("row", "Avg cast", Average(casts[ability]))
+		Add("row", AVERAGE_LABEL[view] or "Avg cast", Average(casts[ability]))
 	else
 		if source then
 			Add("row", "Proc of", source)
 		end
-		Add("row", "Damage", Short(Num(row.damage)))
+		Add("row", TOTAL_LABEL[view] or "Damage", Short(Num(row.damage)))
 		Add("row", "Share", math.floor(Num(row.share) * 100 + 0.5).."%")
 	end
 	-- As wide as its words need, never narrower than the bars.
@@ -305,9 +342,9 @@ function SurvivorUI_CritCardHide()
 	critTip:Hide()
 end
 
--- The meter's Reset: the tally starts over.
-function SurvivorUI_ResetRun()
-	ResetCrits()
+-- The meter's Reset: its view's tally starts over (every view's with none named).
+function SurvivorUI_ResetRun(view)
+	ResetCrits(view)
 end
 
 ------------------------------------------------------------------------------
@@ -407,9 +444,90 @@ local function Record(message)
 	end
 end
 
+------------------------------------------------------------------------------
+-- Healing: what the hero's spells heal, and whom ("you" is the hero by name).
+
+local HEALS = {
+	{ "^Your (.+) critically heals (.+) for (%d+)", 1, 2, 3 },
+	{ "^Your (.+) heals (.+) for (%d+)", 1, 2, 3 },
+	{ "^You gain (%d+) health from your (.+)%.", 2, nil, 1 },
+	{ "^You gain (%d+) health from (.+)%.", 2, nil, 1 },
+	{ "^(.+) gains (%d+) health from your (.+)%.", 3, 1, 2 },
+}
+
+local function RecordHeal(message)
+	Remember()
+	for index = 1, table.getn(HEALS) do
+		local shape = HEALS[index]
+		local found = { string.find(message, shape[1]) }
+		if found[1] then
+			local ability = found[shape[2] + 2]
+			local target = shape[3] and found[shape[3] + 2] or "you"
+			local amount = tonumber(found[shape[4] + 2])
+			if not (ability and amount) then
+				return
+			end
+			if target == "you" then
+				target = UnitName("player") or "You"
+			end
+			local tally = tallies.healing
+			local now = GetTime()
+			local cast = tally.casts[ability]
+			if cast and now - cast.at <= CAST_WINDOW then
+				cast.sum = cast.sum + amount
+			else
+				cast = Add(tally.casts, ability, amount)
+			end
+			cast.at = now
+			tally.targets[ability] = tally.targets[ability] or {}
+			tally.targets[ability][target] = (tally.targets[ability][target] or 0) + amount
+			return
+		end
+	end
+end
+
+------------------------------------------------------------------------------
+-- Damage taken: each enemy's hits on the hero, by the ability it used
+-- ("Melee" for a plain blow). The enemy's possessive comes first, so a spell
+-- is never read as a plain blow.
+
+local TAKEN = {
+	{ "^(.+)'s (.+) crits you for (%d+)", 1, 2, 3 },
+	{ "^(.+)'s (.+) hits you for (%d+)", 1, 2, 3 },
+	{ "^You suffer (%d+) .- from (.+)'s (.+)%.", 2, 3, 1 },
+	{ "^(.+) crits you for (%d+)", 1, nil, 2 },
+	{ "^(.+) hits you for (%d+)", 1, nil, 2 },
+}
+
+local function RecordTaken(message)
+	Remember()
+	for index = 1, table.getn(TAKEN) do
+		local shape = TAKEN[index]
+		local found = { string.find(message, shape[1]) }
+		if found[1] then
+			local enemy = found[shape[2] + 2]
+			local ability = shape[3] and found[shape[3] + 2] or "Melee"
+			local amount = tonumber(found[shape[4] + 2])
+			if not (enemy and amount) then
+				return
+			end
+			local tally = tallies.taken
+			Add(tally.casts, enemy, amount)
+			tally.targets[enemy] = tally.targets[enemy] or {}
+			tally.targets[enemy][ability] = (tally.targets[enemy][ability] or 0) + amount
+			return
+		end
+	end
+end
+
 local HIT_EVENTS = {
 	"CHAT_MSG_COMBAT_SELF_HITS", "CHAT_MSG_SPELL_SELF_DAMAGE",
 	"CHAT_MSG_COMBAT_PET_HITS", "CHAT_MSG_SPELL_PET_DAMAGE",
+}
+local HEAL_EVENTS = { CHAT_MSG_SPELL_SELF_BUFF = true, CHAT_MSG_SPELL_PERIODIC_SELF_BUFFS = true }
+local TAKEN_EVENTS = {
+	CHAT_MSG_COMBAT_CREATURE_VS_SELF_HITS = true, CHAT_MSG_SPELL_CREATURE_VS_SELF_DAMAGE = true,
+	CHAT_MSG_SPELL_PERIODIC_SELF_DAMAGE = true,
 }
 
 local events = CreateFrame("Frame")
@@ -418,8 +536,21 @@ for index = 1, table.getn(HIT_EVENTS) do
 end
 events:RegisterEvent("CHAT_MSG_SPELL_PERIODIC_CREATURE_DAMAGE")
 events:RegisterEvent("CHAT_MSG_SYSTEM")
+for name in pairs(HEAL_EVENTS) do
+	events:RegisterEvent(name)
+end
+for name in pairs(TAKEN_EVENTS) do
+	events:RegisterEvent(name)
+end
 events:SetScript("OnEvent", function()
 	local message = arg1 or ""
+	if HEAL_EVENTS[event] then
+		RecordHeal(message)
+		return
+	elseif TAKEN_EVENTS[event] then
+		RecordTaken(message)
+		return
+	end
 	if event == "CHAT_MSG_SYSTEM" then
 		-- "<hero> enters <zone>. Move to begin.": a new run.
 		if string.find(message, "Move to begin", 1, true) then

@@ -12,6 +12,11 @@ exit /b
 # a font you dropped in, is left alone, and so are your settings, which the
 # game keeps in its WTF folder. No addon there yet: it installs it.
 #
+# Under the update button, Launch starts the game (AzerothSurvivors.exe) from
+# its own folder and closes this window. The game is looked for where it was
+# last started from, then in Downloads, the Desktop, Documents and C:\Games
+# or D:\Games, a few folders deep; found nowhere, it is asked for once.
+#
 # It needs nothing installed: the top of this file starts the PowerShell that
 # comes with Windows, which runs the rest.
 
@@ -26,6 +31,8 @@ if ($env:SUI_BRANCH) {
 }
 $DefaultAddOns = 'C:\Git\wenilla\benilla-config\AddOns'
 $Remembered = Join-Path ([Environment]::GetFolderPath('ApplicationData')) 'SurvivorUI-Updater.txt'
+$RememberedGame = Join-Path ([Environment]::GetFolderPath('ApplicationData')) 'SurvivorUI-Updater-game.txt'
+$GameExe = 'AzerothSurvivors.exe'
 
 # GitHub asks for TLS 1.2, which older Windows PowerShell does not offer
 # unless told to.
@@ -160,6 +167,41 @@ function Get-AddOns {
 	return $DefaultAddOns
 }
 
+# The game's exe: where it was last started from, else the first found in
+# the usual places, a few folders deep; $null when none is found.
+function Find-Game {
+	if (Test-Path -LiteralPath $RememberedGame) {
+		$last = Get-Content -LiteralPath $RememberedGame -TotalCount 1
+		if ($last -and (Test-Path -LiteralPath $last.Trim())) {
+			return $last.Trim()
+		}
+	}
+	$profileDir = [Environment]::GetFolderPath('UserProfile')
+	$roots = @(
+		(Join-Path $profileDir 'Downloads'),
+		[Environment]::GetFolderPath('Desktop'),
+		[Environment]::GetFolderPath('MyDocuments'),
+		'C:\Games',
+		'D:\Games'
+	)
+	foreach ($root in $roots) {
+		if ($root -and (Test-Path -LiteralPath $root)) {
+			$found = Get-ChildItem -LiteralPath $root -Filter $GameExe -Recurse -Depth 3 -ErrorAction SilentlyContinue |
+				Select-Object -First 1
+			if ($found) {
+				return $found.FullName
+			}
+		}
+	}
+	return $null
+}
+
+# Starts the game from its own folder, as a double-click on it would.
+function Start-Game($exe) {
+	Set-Content -LiteralPath $RememberedGame -Value $exe
+	Start-Process -FilePath $exe -WorkingDirectory (Split-Path -Parent $exe)
+}
+
 ##############################################################################
 # The window, in the addon's own colors: dark, flat, gold.
 
@@ -177,7 +219,7 @@ function Show-Window {
 
 	$form = New-Object Windows.Forms.Form
 	$form.Text = 'Survivor UI Updater'
-	$form.ClientSize = New-Object Drawing.Size(480, 330)
+	$form.ClientSize = New-Object Drawing.Size(480, 378)
 	$form.StartPosition = 'CenterScreen'
 	$form.FormBorderStyle = 'FixedSingle'
 	$form.MaximizeBox = $false
@@ -219,7 +261,14 @@ function Show-Window {
 	$go.Font = New-Object Drawing.Font('Segoe UI', 14, [Drawing.FontStyle]::Bold)
 	$form.Controls.Add($go)
 
-	foreach ($button in @($change, $go)) {
+	$launch = New-Object Windows.Forms.Button
+	$launch.Text = 'Launch'
+	$launch.Location = New-Object Drawing.Point(20, 170)
+	$launch.Size = New-Object Drawing.Size(440, 40)
+	$launch.Font = New-Object Drawing.Font('Segoe UI', 12, [Drawing.FontStyle]::Bold)
+	$form.Controls.Add($launch)
+
+	foreach ($button in @($change, $go, $launch)) {
 		$button.FlatStyle = 'Flat'
 		$button.FlatAppearance.BorderColor = $edge
 		$button.BackColor = [Drawing.Color]::FromArgb(52, 12, 10)
@@ -228,7 +277,7 @@ function Show-Window {
 	}
 
 	$log = New-Object Windows.Forms.TextBox
-	$log.Location = New-Object Drawing.Point(20, 176)
+	$log.Location = New-Object Drawing.Point(20, 224)
 	$log.Size = New-Object Drawing.Size(440, 136)
 	$log.Multiline = $true
 	$log.ReadOnly = $true
@@ -279,6 +328,29 @@ function Show-Window {
 		$form.Cursor = 'Default'
 		$go.Enabled = $true
 		& $refresh
+	})
+
+	$launch.Add_Click({
+		$form.Cursor = 'WaitCursor'
+		Say 'Looking for the game...'
+		$exe = Find-Game
+		$form.Cursor = 'Default'
+		if (-not $exe) {
+			$dialog = New-Object Windows.Forms.OpenFileDialog
+			$dialog.Title = 'Where is AzerothSurvivors.exe?'
+			$dialog.Filter = 'Azeroth Survivors|AzerothSurvivors.exe|Programs (*.exe)|*.exe'
+			if ($dialog.ShowDialog() -ne 'OK') {
+				Say 'Not launched: no game picked.'
+				return
+			}
+			$exe = $dialog.FileName
+		}
+		try {
+			Start-Game $exe
+			$form.Close()
+		} catch {
+			Say "Could not start the game: $($_.Exception.Message)"
+		}
 	})
 
 	$form.Add_Shown({

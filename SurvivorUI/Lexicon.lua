@@ -14,14 +14,21 @@
 -- get their icon and tooltip once worn again. The book never asks the game
 -- about items it is not holding: each such ask goes to the server, and a
 -- flood of them pushed the worn jewelry out of the game's item cache, its
--- icons gone from the character pane and the build. A button in the
--- corner keeps the page to the jewelry your class has worn.
+-- icons gone from the character pane and the build. On the amulets' page a
+-- button in the corner keeps it to the ones your class has worn; rings and
+-- trinkets suit every class, so their pages always show every piece.
 --
 -- Abilities: every spell of the hero's class (from the spellbook, the ones
 -- not learned yet too) and the best average cast each has reached in a run
 -- (from the damage meter's cards, CritCard.lua), with the highest rank it
 -- reached and how many runs took it. Kept per class in
 -- SurvivorUIDB.abilityBook.
+--
+-- What a spell can become is in no file the game shares, so the book learns
+-- it from the spells' own tooltips (the spellbook's, and the action button's
+-- while a run is on): whether the tooltip says it can cast twice or crit,
+-- and every upgrade its "Upgrades:" line has ever named, with the best number
+-- seen for each. /sui spells lists it all.
 
 local FLAT = "Interface\\ChatFrame\\ChatFrameBackground"
 local FONT = SurvivorUI_FONT or "Fonts\\FRIZQT__.TTF"
@@ -231,8 +238,13 @@ local function ClassOnly()
 end
 
 -- Whether a piece belongs on the page with the class filter as it stands.
+-- The kinds whose pieces belong to classes: amulets. Rings and trinkets
+-- suit every class alike, so their pages always show every piece and name
+-- no classes.
+local CLASS_KINDS = { Neck = true }
+
 local function ForThisClass(piece)
-	if not ClassOnly() then
+	if not (ClassOnly() and CLASS_KINDS[piece.kind]) then
 		return true
 	end
 	local class = ClassToken()
@@ -278,6 +290,7 @@ local function Pieces(kind)
 	end
 	local found = {}
 	for _, piece in pairs(best) do
+		piece.kind = kind
 		if ForThisClass(piece) then
 			table.insert(found, piece)
 		end
@@ -289,6 +302,62 @@ end
 ------------------------------------------------------------------------------
 -- Learning abilities: the spellbook when the book opens, the run's spells as
 -- it goes, and each spell's average cast from the damage meter's cards.
+
+-- The hidden tooltip's lines, each piece of a line with breaks on its own,
+-- without colors.
+local function ScanTexts()
+	local texts = {}
+	for index = 1, scan:NumLines() do
+		local left = getglobal("SurvivorUILexiconScanTextLeft"..index)
+		for piece in string.gfind((left and left:GetText() or "").."\n", "([^\n]*)\n") do
+			local text = string.gsub(string.gsub(piece, "|c%x%x%x%x%x%x%x%x", ""), "|r", "")
+			if text ~= "" then
+				table.insert(texts, text)
+			end
+		end
+	end
+	return texts
+end
+
+-- An upgrade kept by its kind, its numbers as #: "+35% damage" is "+#%
+-- damage", with the biggest number seen.
+local function NoteUpgrade(ability, item)
+	local kind = string.gsub(item, "[%d%.]+", "#")
+	local _, _, number = string.find(item, "([%d%.]+)")
+	number = tonumber(number) or 0
+	ability.upgrades = ability.upgrades or {}
+	if not ability.upgrades[kind] or number > ability.upgrades[kind] then
+		ability.upgrades[kind] = number
+	end
+end
+
+-- What the hidden tooltip says of a spell: whether it can cast twice or
+-- crit, and its upgrades. A spell not learned yet says neither, so only a
+-- learned one's lines count for those two.
+local function ReadSpellTip(ability)
+	local texts = ScanTexts()
+	local learned, echo, crit = true, false, false
+	for index = 1, table.getn(texts) do
+		local text = texts[index]
+		if string.find(text, "^Not learned") then
+			learned = false
+		elseif string.find(text, "chance to cast", 1, true) or string.find(text, "^Casts ") then
+			echo = true
+		elseif string.find(text, "chance to crit for", 1, true) then
+			crit = true
+		elseif string.sub(text, 1, 10) == "Upgrades: " then
+			for item in string.gfind(string.sub(text, 11), "[^,]+") do
+				item = string.gsub(string.gsub(item, "^%s+", ""), "%s+$", "")
+				if item ~= "" then
+					NoteUpgrade(ability, item)
+				end
+			end
+		end
+	end
+	if learned and table.getn(texts) > 0 then
+		ability.echoLine, ability.critLine = echo, crit
+	end
+end
 
 local function ReadSpellbook()
 	if not GetSpellName then
@@ -304,6 +373,10 @@ local function ReadSpellbook()
 		local ability = Ability(name)
 		ability.inBook = true
 		ability.icon = GetSpellTexture and GetSpellTexture(index, bookType) or ability.icon
+		scan:SetOwner(WorldFrame, "ANCHOR_NONE")
+		scan:ClearLines()
+		scan:SetSpell(index, bookType)
+		ReadSpellTip(ability)
 		index = index + 1
 	end
 end
@@ -336,6 +409,14 @@ local function LearnRun()
 			if not counted[name] then
 				counted[name] = true
 				ability.runs = (ability.runs or 0) + 1
+			end
+			-- Its action button's tooltip, which holds the run's upgrades.
+			local slot = SurvivorUI_SpellSlot and SurvivorUI_SpellSlot(name)
+			if slot and HasAction(slot) then
+				scan:SetOwner(WorldFrame, "ANCHOR_NONE")
+				scan:ClearLines()
+				scan:SetAction(slot)
+				ReadSpellTip(ability)
 			end
 		end
 	end
@@ -629,7 +710,7 @@ local function PieceTooltip(owner, piece)
 		GameTooltip:AddLine("Seen before the Lexicon kept details. Wear it again for its tooltip.", 0.6, 0.6, 0.6, 1)
 	end
 	local worn = {}
-	for class in pairs(piece.classes or {}) do
+	for class in pairs(CLASS_KINDS[piece.kind] and piece.classes or {}) do
 		table.insert(worn, ClassText(class))
 	end
 	if table.getn(worn) > 0 then
@@ -637,6 +718,17 @@ local function PieceTooltip(owner, piece)
 		GameTooltip:AddLine("Worn as: "..table.concat(worn, ", "), 0.7, 0.7, 0.7, 1)
 	end
 	GameTooltip:Show()
+end
+
+-- An ability's upgrades seen, each with its best number: "+160% damage".
+local function UpgradeKinds(info)
+	local kinds = {}
+	for kind, best in pairs(info.upgrades or {}) do
+		local shown = math.floor(best) == best and tostring(best) or string.format("%.1f", best)
+		table.insert(kinds, (string.gsub(kind, "#", shown, 1)))
+	end
+	table.sort(kinds)
+	return kinds
 end
 
 local function AbilityTooltip(owner, ability)
@@ -653,6 +745,18 @@ local function AbilityTooltip(owner, ability)
 		GameTooltip:AddDoubleLine("Highest rank", ability.rank, 0.7, 0.7, 0.7, 1, 1, 1)
 	end
 	GameTooltip:AddDoubleLine("Runs taken", ability.runs or 0, 0.7, 0.7, 0.7, 1, 1, 1)
+	local info = Abilities()[ability.name] or {}
+	if info.echoLine ~= nil then
+		GameTooltip:AddDoubleLine("Casts twice", info.echoLine and "|cff4dff4dyes|r" or "|cffff6060no line|r", 0.7, 0.7, 0.7, 1, 1, 1)
+		GameTooltip:AddDoubleLine("Crits", info.critLine and "|cff4dff4dyes|r" or "|cffff6060no line|r", 0.7, 0.7, 0.7, 1, 1, 1)
+	end
+	local kinds = UpgradeKinds(info)
+	if table.getn(kinds) > 0 then
+		GameTooltip:AddLine("Upgrades seen (best)", 1, 0.82, 0)
+		for index = 1, table.getn(kinds) do
+			GameTooltip:AddLine("  "..kinds[index], 0.85, 0.85, 0.85)
+		end
+	end
 	GameTooltip:AddLine("The average cast is the damage meter card's: what one cast dealt on average over a run.", 0.45, 0.45, 0.45, 1)
 	GameTooltip:Show()
 end
@@ -753,7 +857,7 @@ local function FillPiece(row, piece)
 	else
 		row.rank:SetText("")
 	end
-	row.classes:SetText(ClassTags(piece))
+	row.classes:SetText(CLASS_KINDS[piece.kind] and ClassTags(piece) or "")
 	if piece.icon then
 		row.icon:SetTexture(piece.icon)
 		row.icon:SetVertexColor(1, 1, 1)
@@ -878,10 +982,16 @@ Draw = function()
 		filter:Hide()
 	else
 		book.note:SetText("Gear you have worn, in any run")
-		page.empty:SetText(ClassOnly() and "Nothing of this kind worn as "..ClassName().." yet."
+		local byClass = CLASS_KINDS[chosen] and ClassOnly()
+		page.empty:SetText(byClass and "Nothing of this kind worn as "..ClassName().." yet."
 			or "Nothing of this kind worn yet.")
-		filter.text:SetText(ClassOnly() and ClassName().." only" or "Every class")
-		filter:Show()
+		-- The class filter only where classes matter: the amulets.
+		if CLASS_KINDS[chosen] then
+			filter.text:SetText(ClassOnly() and ClassName().." only" or "Every class")
+			filter:Show()
+		else
+			filter:Hide()
+		end
 	end
 
 	local entries = Entries(chosen)
@@ -914,6 +1024,38 @@ book:SetScript("OnShow", function()
 	LearnRun()
 	Draw()
 end)
+
+-- /sui spells: every spell of this class with what its tooltip says: casts
+-- twice, crits, and the upgrades seen on it so far.
+function SurvivorUI_SpellReport()
+	ReadSpellbook()
+	LearnRun()
+	local say = function(text) DEFAULT_CHAT_FRAME:AddMessage("|cffffd100Survivor UI spells:|r "..text) end
+	local names = {}
+	for name, info in pairs(Abilities()) do
+		if info.inBook then
+			table.insert(names, name)
+		end
+	end
+	table.sort(names)
+	if table.getn(names) == 0 then
+		say("no spells read yet; open the spellbook once or start a run.")
+		return
+	end
+	local function Mark(value)
+		if value == nil then
+			return "|cff9a9a9a?|r"
+		end
+		return value and "|cff4dff4dyes|r" or "|cffff6060no|r"
+	end
+	for index = 1, table.getn(names) do
+		local info = Abilities()[names[index]]
+		local kinds = UpgradeKinds(info)
+		say(names[index]..": casts twice "..Mark(info.echoLine)..", crits "..Mark(info.critLine)
+			..(table.getn(kinds) > 0 and ", upgrades seen: "..table.concat(kinds, ", ") or ""))
+	end
+	say("? = not learned in any run read yet. Upgrades fill in as runs show them.")
+end
 
 function SurvivorUI_ToggleLexicon()
 	if book:IsShown() then

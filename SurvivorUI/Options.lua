@@ -815,10 +815,12 @@ function SurvivorUI_ToggleOptions()
 end
 
 ------------------------------------------------------------------------------
--- A round button hugging the minimap's bottom left corner, "UI" on it: a click
--- opens or closes this window. The game's own round minimap ring around a dark
--- middle; it follows the minimap wherever it is moved. A switch in the window
--- hides it.
+-- A round button by the minimap, "UI" on it: a click opens or closes this
+-- window. The game's own round minimap ring around a dark middle; it follows
+-- the minimap wherever it is moved. Drag it to slide it along the minimap's
+-- edge (the minimap is square, so a square path EDGE_OUT pixels outside its
+-- border); where it sits is kept as an angle from the minimap's middle. It
+-- starts by the bottom left corner. A switch in the window hides it.
 
 local function ButtonShown()
 	SurvivorUIDB = SurvivorUIDB or {}
@@ -833,7 +835,6 @@ if Minimap then
 	-- Above the minimap and the panels around it, so nothing covers it.
 	mapButton:SetFrameStrata("HIGH")
 	mapButton:SetFrameLevel(Minimap:GetFrameLevel() + 8)
-	mapButton:SetPoint("BOTTOMRIGHT", Minimap, "BOTTOMLEFT", 4, -6)
 
 	-- The ring's art sits in the top left of its square, its middle at 17, -15.
 	mapButton.fill = mapButton:CreateTexture(nil, "BACKGROUND")
@@ -857,13 +858,73 @@ if Minimap then
 
 	mapButton:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
 
+	-- Its place on the square path around the minimap: the angle from the
+	-- minimap's middle (degrees, 0 east, counterclockwise), the path EDGE_OUT
+	-- pixels outside the border. The ring's art is drawn a little off its
+	-- frame's middle (17, -15 in a 31 square), which RING_X, RING_Y make up.
+	local EDGE_OUT = 10
+	local RING_X, RING_Y = 1.5, 0.5
+
+	-- With no angle kept yet, where it has always stood: EDGE_OUT left of the
+	-- minimap's left edge and EDGE_OUT above its bottom.
+	local function ButtonAngle()
+		SurvivorUIDB = SurvivorUIDB or {}
+		if SurvivorUIDB.minimapAngle then
+			return SurvivorUIDB.minimapAngle
+		end
+		local half = Minimap:GetWidth() / 2
+		return math.deg(math.atan2(-(half - EDGE_OUT), -(half + EDGE_OUT)))
+	end
+
+	local function PlaceButton()
+		local angle = math.rad(ButtonAngle())
+		local c, s = math.cos(angle), math.sin(angle)
+		local halfX = Minimap:GetWidth() / 2 + EDGE_OUT
+		local halfY = Minimap:GetHeight() / 2 + EDGE_OUT
+		-- Out from the middle along the angle until it meets the square path.
+		local reach = math.min(halfX / math.max(math.abs(c), 0.0001), halfY / math.max(math.abs(s), 0.0001))
+		mapButton:ClearAllPoints()
+		mapButton:SetPoint("CENTER", Minimap, "CENTER", c * reach - RING_X, s * reach - RING_Y)
+	end
+
+	-- Dragged, it follows the cursor's angle around the minimap's middle.
+	mapButton:RegisterForDrag("LeftButton")
+	mapButton:SetScript("OnDragStart", function()
+		this.dragging = true
+		this.dragged = true
+		GameTooltip:Hide()
+	end)
+	mapButton:SetScript("OnDragStop", function()
+		this.dragging = nil
+	end)
+	mapButton:SetScript("OnUpdate", function()
+		if not this.dragging then
+			return
+		end
+		local scale = Minimap:GetEffectiveScale()
+		local x, y = GetCursorPosition()
+		local mx, my = Minimap:GetCenter()
+		SurvivorUIDB = SurvivorUIDB or {}
+		SurvivorUIDB.minimapAngle = math.deg(math.atan2(y / scale - my, x / scale - mx))
+		PlaceButton()
+	end)
+	PlaceButton()
+
 	mapButton:RegisterForClicks("LeftButtonUp")
-	mapButton:SetScript("OnClick", function() SurvivorUI_ToggleOptions() end)
+	mapButton:SetScript("OnClick", function()
+		-- The release that ends a drag is no click.
+		if this.dragged then
+			this.dragged = nil
+			return
+		end
+		SurvivorUI_ToggleOptions()
+	end)
 	mapButton:SetScript("OnEnter", function()
 		this.text:SetTextColor(1, 1, 1)
 		GameTooltip:SetOwner(this, "ANCHOR_LEFT")
 		GameTooltip:SetText("Survivor UI", GOLD[1], GOLD[2], GOLD[3])
 		GameTooltip:AddLine("Click to open the options (/sui opt).", 1, 1, 1)
+		GameTooltip:AddLine("Drag to move it along the minimap's edge.", 0.7, 0.7, 0.7)
 		GameTooltip:Show()
 	end)
 	mapButton:SetScript("OnLeave", function()
@@ -872,6 +933,7 @@ if Minimap then
 	end)
 
 	local function ApplyButton()
+		PlaceButton()
 		if ButtonShown() then
 			mapButton:Show()
 		else

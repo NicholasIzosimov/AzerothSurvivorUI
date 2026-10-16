@@ -195,6 +195,30 @@ local function Remember()
 	bossUpAt, bossFight = memory.upAt, memory.fight
 end
 
+-- The bosses' schedule (AZS_SCHEDULE) and the zone's facts (AZS_ZONE) come
+-- from the game when they change, not again after a reload, which left the
+-- timeline without its ticks and the bosses' list empty until the next boss
+-- came. The last ones seen are kept in the run's memory and stand in until
+-- the game sends them again; a new run lets them go with the rest of it.
+local function Kept(name, live)
+	if live and next(live) ~= nil then
+		if SurvivorUI_RunMemory then
+			SurvivorUI_RunMemory("tracker")[name] = live
+		end
+		return live
+	end
+	local memory = SurvivorUI_RunMemory and SurvivorUI_RunMemory("tracker")
+	return memory and memory[name] or live or {}
+end
+
+local function Schedule()
+	return Kept("schedule", AZS_SCHEDULE)
+end
+
+local function Zone()
+	return Kept("zone", AZS_ZONE)
+end
+
 -- Best times are kept per class and boss name: { [class] = { [boss] = seconds } }.
 local function BestsShown()
 	return Settings().trackerBests ~= false
@@ -342,7 +366,7 @@ end
 -- Drawing.
 
 local function Draw(game, phase)
-	local zone = AZS_ZONE or {}
+	local zone = Zone()
 	local seconds = (AZS_GetRunTime and AZS_GetRunTime()) or Num(game.t)
 	-- The run's memory lets the last run's bosses go when a new one starts.
 	Remember()
@@ -420,7 +444,7 @@ local function Draw(game, phase)
 	end
 	y = Put(head.timeline, y, 15)
 
-	local schedule = AZS_SCHEDULE or {}
+	local schedule = Schedule()
 	local count = table.getn(schedule)
 	-- The same number of lines all run long: the zone's bosses, at least five.
 	-- Compact keeps none.
@@ -583,7 +607,7 @@ head:SetScript("OnEnter", function()
 	if not game then
 		return
 	end
-	local zone = AZS_ZONE or {}
+	local zone = Zone()
 	GameTooltip:SetOwner(this, "ANCHOR_LEFT")
 	GameTooltip:SetText(zone.zname or "This run", 1, 0.82, 0)
 	if Num(game.endl) == 1 then
@@ -594,13 +618,14 @@ head:SetScript("OnEnter", function()
 	Pair("Bosses so far", Num(game.bs).." / "..Num(game.bt))
 	Pair("Lairs on the map", Num(game.lairs))
 	-- This class's best fight against each of the zone's bosses.
-	if BestsShown() and AZS_SCHEDULE and table.getn(AZS_SCHEDULE) > 0 then
+	local schedule = Schedule()
+	if BestsShown() and table.getn(schedule) > 0 then
 		local bests = ClassBests()
 		local className = UnitClass("player") or "this class"
 		GameTooltip:AddLine("Best times ("..className..")", 1, 0.82, 0)
 		local listed = {}
-		for index = 1, table.getn(AZS_SCHEDULE) do
-			local name = Field(AZS_SCHEDULE[index], "name", 3)
+		for index = 1, table.getn(schedule) do
+			local name = Field(schedule[index], "name", 3)
 			if name and not listed[name] then
 				listed[name] = true
 				Pair(name, bests[name] and Clock(bests[name]) or "-")

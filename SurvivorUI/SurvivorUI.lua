@@ -2571,6 +2571,12 @@ SlashCmdList["SURVIVORUI"] = function(msg)
 		if SurvivorUI_ToggleBuild then
 			SurvivorUI_ToggleBuild()
 		end
+	elseif command == "logwatch" and argument ~= "" then
+		SurvivorUI_LogWatch(argument)
+	elseif msg == "spells" then
+		if SurvivorUI_SpellReport then
+			SurvivorUI_SpellReport()
+		end
 	elseif msg == "lexicon" then
 		if SurvivorUI_ToggleLexicon then
 			SurvivorUI_ToggleLexicon()
@@ -2633,6 +2639,120 @@ SlashCmdList["SURVIVORUI"] = function(msg)
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui scale 0.85  sizes the panels, 0.6 to 1.4, for smaller screens")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui meter  switches between the addon's damage meter, with the crits, and the game's own")
 	end
+end
+
+------------------------------------------------------------------------------
+-- Worn gear the interface cannot name yet: the game hands the interface an
+-- item's details only when asked. After a reload some worn pieces are not
+-- there yet when the character pane and the build first draw; and a piece
+-- that ranks up becomes a new item (each rank has its own), unknown until
+-- asked for. Either way its slot stands empty. So every GEAR_CHECK seconds,
+-- all the time, a slot that holds a piece the interface cannot name is asked
+-- for again through a hidden tooltip, and the character pane's slots are
+-- drawn again once one comes back. Nothing is asked while every worn piece is
+-- known, and only the hero's own slots are ever asked for.
+
+local GEAR_CHECK = 2            -- seconds between looks at the worn slots
+local GEAR_SLOTS = {
+	"Head", "Neck", "Shoulder", "Shirt", "Chest", "Waist", "Legs", "Feet", "Wrist", "Hands",
+	"Finger0", "Finger1", "Trinket0", "Trinket1", "Back", "MainHand", "SecondaryHand", "Ranged", "Tabard",
+}
+
+local gearScan = CreateFrame("GameTooltip", "SurvivorUIGearScan", nil, "GameTooltipTemplate")
+local gearWatch = CreateFrame("Frame")
+local gearElapsed = 0
+local gearMissing = {}          -- [slot] = true while it holds a piece the interface cannot name
+
+local function RedrawGearSlots()
+	if not PaperDollItemSlotButton_Update then
+		return
+	end
+	local saved = this
+	for index = 1, table.getn(GEAR_SLOTS) do
+		local button = getglobal("Character"..GEAR_SLOTS[index].."Slot")
+		if button then
+			this = button
+			pcall(PaperDollItemSlotButton_Update)
+		end
+	end
+	this = saved
+end
+
+-- A change of gear or a new world is looked at right away.
+gearWatch:RegisterEvent("PLAYER_ENTERING_WORLD")
+gearWatch:RegisterEvent("UNIT_INVENTORY_CHANGED")
+gearWatch:SetScript("OnEvent", function()
+	if event == "UNIT_INVENTORY_CHANGED" and arg1 ~= "player" then
+		return
+	end
+	gearElapsed = GEAR_CHECK
+end)
+gearWatch:SetScript("OnUpdate", function()
+	gearElapsed = gearElapsed + arg1
+	if gearElapsed < GEAR_CHECK then
+		return
+	end
+	gearElapsed = 0
+	local cameBack = false
+	for slot = 1, table.getn(GEAR_SLOTS) do
+		if GetInventoryItemLink("player", slot) then
+			if gearMissing[slot] then
+				gearMissing[slot] = nil
+				cameBack = true
+			end
+		else
+			gearScan:SetOwner(WorldFrame, "ANCHOR_NONE")
+			gearScan:ClearLines()
+			-- True when the slot holds a piece: asked for, it comes in later.
+			-- An empty slot answers false and asks nothing.
+			if gearScan:SetInventoryItem("player", slot) then
+				gearMissing[slot] = true
+			else
+				gearMissing[slot] = nil
+			end
+		end
+	end
+	if cameBack then
+		RedrawGearSlots()
+	end
+end)
+
+------------------------------------------------------------------------------
+-- /sui logwatch words: for a minute, every message the game sends the
+-- interface whose text holds those words is printed with its event, so a
+-- piece the addon cannot read yet (a proc whose hits the damage card never
+-- sees) shows how the game words it.
+
+local LOGWATCH_TIME = 60
+local LOGWATCH_MAX = 15
+
+local logWatch = CreateFrame("Frame")
+local logWords, logUntil, logShown
+
+logWatch:SetScript("OnEvent", function()
+	if not logWords then
+		return
+	end
+	if GetTime() > logUntil or logShown >= LOGWATCH_MAX then
+		this:UnregisterAllEvents()
+		DEFAULT_CHAT_FRAME:AddMessage("|cffffd100Survivor UI logwatch:|r done ("..logShown.." found).")
+		logWords = nil
+		return
+	end
+	for _, value in pairs({ arg1, arg2, arg3, arg4, arg5 }) do
+		if type(value) == "string" and string.find(string.lower(value), logWords, 1, true) then
+			logShown = logShown + 1
+			DEFAULT_CHAT_FRAME:AddMessage("|cffffd100"..event..":|r "..string.sub(value, 1, 200))
+			return
+		end
+	end
+end)
+
+function SurvivorUI_LogWatch(words)
+	logWords, logUntil, logShown = string.lower(words), GetTime() + LOGWATCH_TIME, 0
+	logWatch:RegisterAllEvents()
+	DEFAULT_CHAT_FRAME:AddMessage("|cffffd100Survivor UI logwatch:|r for "..LOGWATCH_TIME.." sec, every game message holding \""
+		..words.."\" is printed here (at most "..LOGWATCH_MAX..").")
 end
 
 ------------------------------------------------------------------------------

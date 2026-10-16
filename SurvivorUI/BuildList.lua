@@ -71,6 +71,25 @@ local function Tier(score, rank)
 	local last = TIERS[table.getn(TIERS)]
 	return last[3], last[4], table.getn(TIERS)
 end
+
+-- A utility spell (no damage on the meter: a shout, a stun, a heal) has fewer
+-- upgrades that carry a number (no extra targets, no damage), so its score,
+-- or its rank where the score cannot be read, counts a little more toward its
+-- tier.
+local UTIL_LENIENCY = 1.25      -- placeholder
+
+local function IsUtility(name)
+	local share = SurvivorUI_MeterShare and SurvivorUI_MeterShare(name)
+	return not share or share <= 0
+end
+
+local function SpellTier(name, score, rank)
+	if IsUtility(name) then
+		score = score and score * UTIL_LENIENCY
+		rank = rank and rank * UTIL_LENIENCY
+	end
+	return Tier(score, rank)
+end
 local UPGRADES = "Upgrades: "   -- how a tooltip begins its list of upgrades
 local GEAR_SLOTS = {            -- inventory slot, label
 	{ 2, "Neck" }, { 11, "Ring" }, { 12, "Ring" }, { 13, "Trinket" }, { 14, "Trinket" },
@@ -442,6 +461,7 @@ end
 
 SurvivorUI_BaseName = BaseName
 SurvivorUI_SpellName = SpellName
+SurvivorUI_SpellSlot = SpellSlot
 
 -- Every piece of this kind seen before and not worn now, once per piece
 -- whatever its rank: by its name without the rank, in the color of the
@@ -865,7 +885,7 @@ local function FillSpell(row, entry, actionSlot)
 	local name = SpellName(key)
 	local rank = tonumber(Field(entry, "rank", 3))
 	local score = SpellScore(name, actionSlot, rank)
-	local color, wash = Tier(score, rank)
+	local color, wash = SpellTier(name, score, rank)
 	row.score = score
 	row.ability, row.color = name, color
 	row.actionSlot, row.rankValue = actionSlot, rank
@@ -922,7 +942,7 @@ local function DrawSpells(y)
 		local name = SpellName(Field(spells[index], "key", 1))
 		slots[index] = SpellSlot(name) or index
 		local score = SpellScore(name, slots[index], rank)
-		local color, _, tier = Tier(score, rank)
+		local color, _, tier = SpellTier(name, score, rank)
 		-- A spell with no damage on the meter is a utility one ("Util").
 		local share = SurvivorUI_MeterShare and SurvivorUI_MeterShare(name)
 		standing[index] = { tier = tier, rank = rank, share = share or 0, util = not share or share <= 0 }

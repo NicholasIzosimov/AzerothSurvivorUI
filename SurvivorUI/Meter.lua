@@ -5,6 +5,11 @@
 -- color of its own, a talent's or amulet's own damage tagged as a proc. Hover a line for its card: its damage, share and damage per second,
 -- and its critical strikes and normal hits from the combat log.
 --
+-- Three views, picked from a menu by the title (the arrow beside it, or a
+-- right click on the title): Damage, Healing (AZS_GetHealing) and Damage
+-- taken (AZS_TAKEN, by the enemy that dealt it). Each keeps its own Reset;
+-- the build's colors read the damage shares whichever view shows.
+--
 -- Reset starts the meter over from that moment and clears the crits. Its
 -- size holds through a run: ten lines unless the grip in its bottom right corner
 -- sets another size, fewer on a small screen. Each line wears its spell's icon. Hold Alt
@@ -79,6 +84,60 @@ local function Running()
 	local phase = AZS_GetPhase()
 	return phase and phase ~= "ready"
 end
+
+-- The meter's views. rate names the per second figure by the title.
+local MODES = {
+	{ key = "damage",  title = "Damage",       rate = "DPS" },
+	{ key = "healing", title = "Healing",      rate = "HPS" },
+	{ key = "taken",   title = "Damage taken", rate = "DTPS" },
+}
+
+local function Mode()
+	local wanted = Settings().meterMode
+	for index = 1, table.getn(MODES) do
+		if MODES[index].key == wanted then
+			return MODES[index]
+		end
+	end
+	return MODES[1]
+end
+
+-- A view's lines as the game shares them ({ name, dmg, share, proc } each),
+-- their total and that per second. Damage taken comes as { source, dmg }: its
+-- shares and rate are worked out here, over the run so far.
+local function GameLines(key)
+	if key == "healing" then
+		if not AZS_GetHealing then
+			return {}, 0, 0
+		end
+		local lines, total, rate = AZS_GetHealing()
+		return lines or {}, Num(total), Num(rate)
+	elseif key == "taken" then
+		local list, total = {}, 0
+		for index = 1, table.getn(AZS_TAKEN or {}) do
+			local entry = AZS_TAKEN[index]
+			local dmg = Num(entry.dmg or entry[2])
+			if dmg > 0 then
+				table.insert(list, { name = entry.source or entry[1] or "?", dmg = dmg })
+				total = total + dmg
+			end
+		end
+		table.sort(list, function(a, b) return a.dmg > b.dmg end)
+		for index = 1, table.getn(list) do
+			list[index].share = total > 0 and list[index].dmg / total or 0
+		end
+		local seconds = (AZS_GetRunTime and AZS_GetRunTime()) or 0
+		return list, total, seconds > 0 and total / seconds or 0
+	end
+	if not AZS_GetMeter then
+		return {}, 0, 0
+	end
+	local lines, total, dps = AZS_GetMeter()
+	return lines or {}, Num(total), Num(dps)
+end
+
+-- An enemy has no spell icon: the lines of damage taken wear a skull.
+local TAKEN_ICON = "Interface\\Icons\\INV_Misc_Bone_HumanSkull_01"
 
 -- On, and the game sharing its meter.
 function SurvivorUI_MeterActive()
@@ -202,11 +261,20 @@ titleHover:SetPoint("TOPLEFT", meter, "TOPLEFT", 0, 0)
 titleHover:SetPoint("TOPRIGHT", meter, "TOPRIGHT", -48, 0)
 titleHover:SetHeight(20)
 titleHover:EnableMouse(true)
+
+-- What each view's lines are, for the title's tooltip.
+local MODE_TIPS = {
+	damage = "The game's own numbers, for the whole run or since you last pressed Reset. Hover a line for its average cast and targets.",
+	healing = "What your spells healed, for the whole run or since Reset. Hover a line for its average heal and whom it healed.",
+	taken = "The damage you took, by the enemy that dealt it, for the whole run or since Reset. Hover a line for its average hit and what it hit you with.",
+}
+
 titleHover:SetScript("OnEnter", function()
+	local mode = Mode()
 	GameTooltip:SetOwner(this, "ANCHOR_TOPLEFT")
-	GameTooltip:SetText("Damage", 1, 0.82, 0)
-	GameTooltip:AddLine("The game's own numbers, for the whole run or since you last pressed Reset. Hover a line for its average cast and targets.", 1, 1, 1, 1)
-	GameTooltip:AddLine("Healing and damage to bosses are in the game's own meter: type /sui meter to switch to it, and again to come back.", 0.7, 0.7, 0.7, 1)
+	GameTooltip:SetText(mode.title, 1, 0.82, 0)
+	GameTooltip:AddLine(MODE_TIPS[mode.key], 1, 1, 1, 1)
+	GameTooltip:AddLine("Right-click the title, or click the arrow beside it, for Damage, Healing or Damage taken.", 0.7, 0.7, 0.7, 1)
 	GameTooltip:AddLine("Drag this title to move the meter; the corner grip sizes it.", 0.7, 0.7, 0.7, 1)
 	GameTooltip:Show()
 end)
@@ -214,6 +282,126 @@ titleHover:SetScript("OnLeave", function() GameTooltip:Hide() end)
 titleHover:RegisterForDrag("LeftButton")
 titleHover:SetScript("OnDragStart", TitleDragStart)
 titleHover:SetScript("OnDragStop", TitleDragStop)
+
+------------------------------------------------------------------------------
+-- The views' menu: a flat list under the title, the view shown in gold. The
+-- arrow beside the title opens it, and so does a right click on the title. It
+-- closes on a pick, a second click, or once the mouse has been off it a
+-- moment.
+
+local MENU_ROW = 18
+local MENU_WIDTH = 110
+local MENU_LINGER = 0.6         -- seconds off the menu before it closes
+
+local Draw
+local menu = CreateFrame("Frame", nil, meter)
+menu:SetFrameStrata("DIALOG")
+menu:SetWidth(MENU_WIDTH)
+menu:SetHeight(table.getn(MODES) * MENU_ROW + 4)
+menu:SetBackdrop({ bgFile = FLAT, edgeFile = FLAT, edgeSize = 1, insets = { left = 1, right = 1, top = 1, bottom = 1 } })
+menu:SetBackdropColor(0.05, 0.05, 0.07, 0.97)
+menu:SetBackdropBorderColor(0.45, 0.45, 0.5, 1)
+menu:EnableMouse(true)
+menu:Hide()
+
+local menuRows = {}
+
+local function PaintMenu()
+	local shown = Mode().key
+	for index = 1, table.getn(menuRows) do
+		local row = menuRows[index]
+		if row.key == shown then
+			row.text:SetTextColor(1, 0.82, 0)
+		else
+			row.text:SetTextColor(0.85, 0.85, 0.85)
+		end
+	end
+end
+
+for index = 1, table.getn(MODES) do
+	local row = CreateFrame("Button", nil, menu)
+	row.key = MODES[index].key
+	row:SetHeight(MENU_ROW)
+	row:SetPoint("TOPLEFT", menu, "TOPLEFT", 2, -2 - (index - 1) * MENU_ROW)
+	row:SetPoint("TOPRIGHT", menu, "TOPRIGHT", -2, -2 - (index - 1) * MENU_ROW)
+	row.hover = row:CreateTexture(nil, "HIGHLIGHT")
+	row.hover:SetTexture(FLAT)
+	row.hover:SetAllPoints(row)
+	row.hover:SetVertexColor(1, 1, 1, 0.08)
+	row.text = row:CreateFontString(nil, "OVERLAY")
+	row.text:SetFont(FONT, 10 + FONT_BUMP, "OUTLINE")
+	row.text:SetPoint("LEFT", row, "LEFT", 6, 0)
+	row.text:SetText(MODES[index].title)
+	row:SetScript("OnClick", function()
+		Settings().meterMode = this.key
+		menu:Hide()
+		if SurvivorUI_CritCardHide then
+			SurvivorUI_CritCardHide()
+		end
+		Draw()
+	end)
+	menuRows[index] = row
+end
+
+local function ToggleMenu()
+	if menu:IsShown() then
+		menu:Hide()
+		return
+	end
+	PaintMenu()
+	menu:ClearAllPoints()
+	menu:SetPoint("TOPLEFT", meter.title, "BOTTOMLEFT", -3, -4)
+	menu.away = 0
+	menu:Show()
+end
+
+-- The arrow beside the title.
+local arrow = CreateFrame("Button", nil, meter)
+arrow:SetWidth(14)
+arrow:SetHeight(14)
+arrow:SetFrameLevel(titleHover:GetFrameLevel() + 2)
+arrow:SetPoint("LEFT", meter.title, "RIGHT", 3, 0)
+arrow.edge = arrow:CreateTexture(nil, "BACKGROUND")
+arrow.edge:SetTexture(FLAT)
+arrow.edge:SetVertexColor(0.45, 0.45, 0.5, 1)
+arrow.edge:SetPoint("TOPLEFT", arrow, "TOPLEFT", -1, 1)
+arrow.edge:SetPoint("BOTTOMRIGHT", arrow, "BOTTOMRIGHT", 1, -1)
+arrow.fill = arrow:CreateTexture(nil, "BORDER")
+arrow.fill:SetTexture(FLAT)
+arrow.fill:SetVertexColor(0.08, 0.08, 0.11, 1)
+arrow.fill:SetAllPoints(arrow)
+arrow.icon = arrow:CreateTexture(nil, "ARTWORK")
+arrow.icon:SetTexture("Interface\\ChatFrame\\UI-ChatIcon-ScrollDown-Up")
+arrow.icon:SetPoint("TOPLEFT", arrow, "TOPLEFT", -3, 3)
+arrow.icon:SetPoint("BOTTOMRIGHT", arrow, "BOTTOMRIGHT", 3, -3)
+arrow:SetScript("OnClick", ToggleMenu)
+arrow:SetScript("OnEnter", function()
+	this.edge:SetVertexColor(1, 0.82, 0, 1)
+	GameTooltip:SetOwner(this, "ANCHOR_TOPLEFT")
+	GameTooltip:SetText("Damage, Healing or Damage taken", 1, 1, 1)
+	GameTooltip:Show()
+end)
+arrow:SetScript("OnLeave", function()
+	this.edge:SetVertexColor(0.45, 0.45, 0.5, 1)
+	GameTooltip:Hide()
+end)
+
+titleHover:SetScript("OnMouseUp", function()
+	if arg1 == "RightButton" then
+		ToggleMenu()
+	end
+end)
+
+menu:SetScript("OnUpdate", function()
+	if MouseIsOver(menu) or MouseIsOver(arrow) then
+		this.away = 0
+		return
+	end
+	this.away = (this.away or 0) + arg1
+	if this.away >= MENU_LINGER then
+		this:Hide()
+	end
+end)
 
 -- Damage per second alone, larger: "491 DPS".
 meter.total = meter:CreateFontString(nil, "OVERLAY")
@@ -260,13 +448,19 @@ end)
 -- and each line's color are kept in the run's memory (SurvivorUI_RunMemory),
 -- so a reload in the middle of a run changes neither.
 
-local base = nil                -- { at = run second, total = damage, [source] = damage }
-local lastSeconds
+-- Each view's Reset point: { at = run second, total, sources = { [source] = amount } }.
+local lastSeconds = {}          -- [view] = the run's clock last seen
 
 local function Memory()
 	local memory = SurvivorUI_RunMemory and SurvivorUI_RunMemory("meter") or {}
 	memory.colors = memory.colors or {}
 	memory.given = memory.given or 0
+	memory.bases = memory.bases or {}
+	-- The one Reset point from before the views came is the damage view's.
+	if memory.base then
+		memory.bases.damage = memory.bases.damage or memory.base
+		memory.base = nil
+	end
 	return memory
 end
 
@@ -274,22 +468,21 @@ local function RunSeconds()
 	return (AZS_GetRunTime and AZS_GetRunTime()) or 0
 end
 
-local function TakeBase()
-	if not AZS_GetMeter then
-		return
-	end
-	local lines, total = AZS_GetMeter()
-	base = { at = RunSeconds(), total = Num(total), sources = {} }
-	for index = 1, table.getn(lines or {}) do
+local function TakeBase(key)
+	local lines, total = GameLines(key)
+	local base = { at = RunSeconds(), total = Num(total), sources = {} }
+	for index = 1, table.getn(lines) do
 		base.sources[lines[index].name or "?"] = Num(lines[index].dmg)
 	end
-	Memory().base = base
+	Memory().bases[key] = base
 end
 
+-- Reset starts the view shown over: its numbers and its cards' tally.
 reset:SetScript("OnClick", function()
-	TakeBase()
+	local key = Mode().key
+	TakeBase(key)
 	if SurvivorUI_ResetRun then
-		SurvivorUI_ResetRun()
+		SurvivorUI_ResetRun(key)
 	end
 end)
 
@@ -547,30 +740,26 @@ local function Bar(index)
 	return bar
 end
 
--- The game's lines, or what came after Reset: each source's damage less what
--- it had then, the most first, shares and damage per second from there.
-local function Lines()
-	if not AZS_GetMeter then
-		return {}, 0, 0
-	end
-	local lines, total, dps = AZS_GetMeter()
-	lines = lines or {}
+-- A view's lines, or what came after its Reset: each source's amount less
+-- what it had then, the most first, shares and the rate from there.
+local function Lines(key)
+	local lines, total, dps = GameLines(key)
 	local seconds = RunSeconds()
 	local memory = Memory()
-	base = memory.base
+	local base = memory.bases[key]
 	-- The clock going back means a new run: the reset goes with the old one.
-	if base and lastSeconds and seconds + 3 < lastSeconds then
+	if base and lastSeconds[key] and seconds + 3 < lastSeconds[key] then
 		base = nil
-		memory.base = nil
+		memory.bases[key] = nil
 	end
-	lastSeconds = seconds
+	lastSeconds[key] = seconds
 	if not base then
 		local shown = {}
 		for index = 1, table.getn(lines) do
 			local line = lines[index]
 			table.insert(shown, { name = line.name or "?", dmg = Num(line.dmg), share = Num(line.share), proc = Num(line.proc) == 1 })
 		end
-		return shown, Num(total), Num(dps)
+		return shown, total, dps
 	end
 
 	local shown, sum = {}, 0
@@ -591,15 +780,19 @@ local function Lines()
 	return shown, sum, span > 0 and sum / span or 0
 end
 
-local function Draw()
-	local lines, total, dps = Lines()
+Draw = function()
+	local mode = Mode()
+	local lines, total, dps = Lines(mode.key)
+	-- The build's colors read the damage shares, whichever view shows.
+	local damageLines = mode.key == "damage" and lines or Lines("damage")
 	for name in pairs(shares) do
 		shares[name] = nil
 	end
-	for index = 1, table.getn(lines) do
-		shares[string.lower(lines[index].name or "?")] = lines[index].share
+	for index = 1, table.getn(damageLines) do
+		shares[string.lower(damageLines[index].name or "?")] = damageLines[index].share
 	end
-	meter.total:SetText(Short(dps).." |cffb0b0b0DPS|r")
+	meter.title:SetText(mode.title)
+	meter.total:SetText(Short(dps).." |cffb0b0b0"..mode.rate.."|r")
 
 	local count = math.min(shownLines, table.getn(lines))
 	local top = count > 0 and lines[1].dmg or 0
@@ -628,7 +821,12 @@ local function Draw()
 		bar.ability = name
 		bar.color = color
 		bar.damage, bar.share = line.dmg, line.share
-		bar.icon:SetTexture(IconOf(name))
+		bar.mode = mode.key
+		if mode.key == "taken" then
+			bar.icon:SetTexture(TAKEN_ICON)
+		else
+			bar.icon:SetTexture(IconOf(name))
+		end
 
 		-- A talent's or amulet's own damage says so, as the game's meter does.
 		-- The spell's rank after its name, as a Roman numeral: "Holy Wrath XII".
@@ -641,7 +839,7 @@ local function Draw()
 		end
 		room = math.max(20, room)
 		bar.name:SetWidth(room)
-		local rank = RankOf(name)
+		local rank = mode.key ~= "taken" and RankOf(name)
 		bar.name:SetText(index..". "..name..(rank and rank > 0 and "  |cffbdbdbd"..Roman(rank).."|r" or ""))
 		if proc then
 			bar.tag:ClearAllPoints()
@@ -666,7 +864,7 @@ end
 
 function SurvivorUI_DebugIcons()
 	local say = function(text) DEFAULT_CHAT_FRAME:AddMessage("|cffffd100Survivor UI icons:|r "..text) end
-	local lines = Lines()
+	local lines = Lines("damage")
 	if table.getn(lines) == 0 then
 		say("the meter has no lines yet.")
 	end
