@@ -320,6 +320,15 @@ local FACTS = {
 	{ "deals? "..NUMBER.."%% less damage", function(p) return EFFECT, "-"..p.."%", "enemy damage" end },
 	{ "damage increased by "..NUMBER.."%%", function(p) return EFFECT, "+"..p.."%", "damage" end },
 	{ "attackers take "..NUMBER.." damage", function(n) return EFFECT, n, "damage to melee attackers" end },
+	-- A shield or heal sized by your health: "Absorbs the next 293 damage
+	-- you take, 42% of your max health" is "293 Absorb Shield (42% of max health)",
+	-- not 293 damage dealt; "Heals you for 120, 15% of your max health" is
+	-- "120 Heal (15% of max health)".
+	{ "absorbs the next "..NUMBER.." damage you take, "..NUMBER.."%% of your max health",
+		function(n, p) return EFFECT, n, "Absorb Shield ("..p.."% of max health)" end },
+	{ "absorbs the next "..NUMBER.." damage[%a ]*", function(n) return EFFECT, n, "Absorb Shield" end },
+	{ "heals you for "..NUMBER..", "..NUMBER.."%% of your max health",
+		function(n, p) return EFFECT, n, "Heal ("..p.."% of max health)" end },
 	{ "immune to all damage for "..NUMBER.." sec", function(t) return EFFECT, t.." sec", "Immunity" end },
 	{ "immune to all damage", function() return EFFECT, nil, "Immunity", nil, "Immune to all damage" end },
 	{ "flee for "..NUMBER.." sec", function(t) return EFFECT, t.." sec", "Fear" end },
@@ -340,9 +349,9 @@ local FACTS = {
 	{ "(%d+) nearby enem%a*", function(n) return TARGETS, n, "Targets" end },
 	{ "(%d+) enem%a*", function(n) return TARGETS, n, "Targets" end },
 	{ "(%d+) targets", function(n) return TARGETS, n, "Targets" end },
-	{ "absorbs? up to "..NUMBER, function(n) return EFFECT, n, "Absorb" end },
-	{ "absorbs? "..NUMBER, function(n) return EFFECT, n, "Absorb" end },
-	{ "absorbing "..NUMBER, function(n) return EFFECT, n, "Absorb" end },
+	{ "absorbs? up to "..NUMBER, function(n) return EFFECT, n, "Absorb Shield" end },
+	{ "absorbs? "..NUMBER, function(n) return EFFECT, n, "Absorb Shield" end },
+	{ "absorbing "..NUMBER, function(n) return EFFECT, n, "Absorb Shield" end },
 	{ "heals? you for "..NUMBER.."%% of the damage[%a ]*", function(n) return EFFECT, n.."%", "Leech" end },
 	{ NUMBER.." (%a+) damage over "..NUMBER.." sec", function(n, school, t)
 		return DAMAGE, n, Capital(school).." Damage over "..t.." sec", school end },
