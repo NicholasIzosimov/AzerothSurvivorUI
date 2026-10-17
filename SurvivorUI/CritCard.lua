@@ -270,6 +270,13 @@ local function SourceLines(text, hex)
 	return table.concat(shown, "\n")
 end
 
+-- A talent's text as the cards show it (shortened, its numbers in gold), or
+-- nil: for a spell's tooltip, under its talents (AbilityTooltip.lua).
+function SurvivorUI_TalentText(name)
+	local text = SurvivorUI_TALENT_TEXTS and SurvivorUI_TALENT_TEXTS[name]
+	return text and SourceLines(text, TALENT_GOLD) or nil
+end
+
 -- A proc's source text, by its meter name, or nil: a piece of jewelry first,
 -- then a talent of that name.
 local function SourceText(ability)

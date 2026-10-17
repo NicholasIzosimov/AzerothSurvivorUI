@@ -539,6 +539,16 @@ local function RankOf(name)
 		return nil
 	end
 	local lower = string.lower(name)
+	-- By the run's spells' real names first (BuildList.lua learns those the
+	-- key's words do not make: "fire_nova" is Fire Nova Totem).
+	if SurvivorUI_SpellName then
+		for index = 1, table.getn(AZS_SPELLS) do
+			local entry = AZS_SPELLS[index]
+			if string.lower(SurvivorUI_SpellName(entry.key or entry[1]) or "") == lower then
+				return tonumber(entry.rank or entry[3])
+			end
+		end
+	end
 	local key = SPELL_KEYS[lower] or string.gsub(string.gsub(lower, "[^%a ]", ""), " ", "_")
 	for index = 1, table.getn(AZS_SPELLS) do
 		local entry = AZS_SPELLS[index]
@@ -652,7 +662,10 @@ local function IconOf(name)
 	elseif name == "Melee" then
 		texture = BookIcon("attack") or MELEE_ICON
 	else
-		texture = BookIcon(wanted) or ItemIcon(wanted) or OwnTalentIcon(wanted)
+		-- The action button holding a spell of that name, where the spellbook
+		-- names it otherwise ("Fire Nova Totem" for the meter's Fire Nova).
+		local slot = SurvivorUI_SpellSlot and SurvivorUI_SpellSlot(name)
+		texture = BookIcon(wanted) or (slot and GetActionTexture(slot)) or ItemIcon(wanted) or OwnTalentIcon(wanted)
 			or (SurvivorUI_TalentOwnerIcon and SurvivorUI_TalentOwnerIcon(name))
 			or TalentIcon(wanted)
 	end
@@ -700,6 +713,29 @@ scrollMark:SetTexture(FLAT)
 scrollMark:SetVertexColor(1, 0.82, 0, 0.6)
 scrollMark:SetWidth(2)
 scrollMark:Hide()
+
+-- A line's card: with Shift held, or for what is not one of the build's
+-- spells (a proc, melee, healing, an enemy), the meter's own (CritCard.lua);
+-- else the build's (BuildList.lua), beside the meter where the crit card
+-- would stand.
+local function ShowBarCard(bar)
+	bar.hovered = true
+	local shift = IsShiftKeyDown() and true or false
+	bar.shiftShown = shift
+	local damage = (bar.mode or "damage") == "damage"
+	if not shift and damage and SurvivorUI_ShowSpellCard and SurvivorUI_ShowSpellCard(bar, bar.ability, meter) then
+		if SurvivorUI_CritCardHide then
+			SurvivorUI_CritCardHide()
+		end
+		return
+	end
+	if GameTooltip:IsOwned(bar) then
+		GameTooltip:Hide()
+	end
+	if SurvivorUI_CritCardShow then
+		SurvivorUI_CritCardShow(bar)
+	end
+end
 
 local function Bar(index)
 	local bar = bars[index]
@@ -763,12 +799,23 @@ local function Bar(index)
 	-- The crit card sits beside the whole meter, on its left, tops together.
 	bar.cardFrame = meter
 	bar:EnableMouse(true)
+	-- A spell of the build has the build's card (its description, upgrades
+	-- and gear); holding Shift swaps it for the meter's own (its rate and
+	-- targets), as any other line has.
 	bar:SetScript("OnEnter", function()
-		if SurvivorUI_CritCardShow then
-			SurvivorUI_CritCardShow(this)
+		this.shiftShown = nil
+		ShowBarCard(this)
+	end)
+	bar:SetScript("OnUpdate", function()
+		if this.hovered and (IsShiftKeyDown() and true or false) ~= this.shiftShown then
+			ShowBarCard(this)
 		end
 	end)
 	bar:SetScript("OnLeave", function()
+		this.hovered = nil
+		if GameTooltip:IsOwned(this) then
+			GameTooltip:Hide()
+		end
 		if SurvivorUI_CritCardHide then
 			SurvivorUI_CritCardHide()
 		end

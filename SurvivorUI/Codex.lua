@@ -450,7 +450,7 @@ end
 -- What the hidden tooltip says of a spell: whether it can cast twice or
 -- crit, and its upgrades. A spell not learned yet says neither, so only a
 -- learned one's lines count for those two.
-local function ReadSpellTip(ability)
+local function ReadSpellTip(ability, fromRun)
 	local texts = ScanTexts()
 	local learned, echo, crit = true, false, false
 	for index = 1, table.getn(texts) do
@@ -475,8 +475,19 @@ local function ReadSpellTip(ability)
 			end
 		end
 	end
+	-- Once a tooltip has shown either line, the ability can: a later one
+	-- without it (the spellbook's, before a run's upgrades add the chance)
+	-- does not take that back.
 	if learned and table.getn(texts) > 0 then
-		ability.echoLine, ability.critLine = echo, crit
+		ability.echoLine = ability.echoLine == true or echo
+		ability.critLine = ability.critLine == true or crit
+	end
+	-- Its description as the game writes it, for the Codex's card: a run's
+	-- (the action button's, at its rank with its upgrades) over the
+	-- spellbook's, which is kept only until a run's is seen.
+	local read = learned and SurvivorUI_ReadAbilityTip and SurvivorUI_ReadAbilityTip(scan, "SurvivorUICodexScan")
+	if read and table.getn(read.description) > 0 and (fromRun or not ability.description) then
+		ability.description = read.description
 	end
 end
 
@@ -509,6 +520,36 @@ local function Field(entry, name, index)
 	return entry[index]
 end
 
+-- One ability's record taken into another's: runs added, the best of each
+-- number kept, what the other lacks filled in.
+local function MergeAbility(into, from)
+	if not from or from == into then
+		return
+	end
+	into.runs = (into.runs or 0) + (from.runs or 0)
+	into.rank = math.max(into.rank or 0, from.rank or 0)
+	if from.best and (not into.best or from.best > into.best) then
+		into.best, into.bestRank = from.best, from.bestRank
+	end
+	for kind, best in pairs(from.upgrades or {}) do
+		into.upgrades = into.upgrades or {}
+		if not into.upgrades[kind] or best > into.upgrades[kind] then
+			into.upgrades[kind] = best
+		end
+	end
+	for kind in pairs(from.plurals or {}) do
+		into.plurals = into.plurals or {}
+		into.plurals[kind] = true
+	end
+	if into.critLine == nil then
+		into.critLine = from.critLine
+	end
+	if into.echoLine == nil then
+		into.echoLine = from.echoLine
+	end
+	into.icon = into.icon or from.icon
+end
+
 -- The run's spells (AZS_SPELLS): each one's highest rank, and one more run
 -- for each spell the first time a run is seen to hold it.
 local function LearnRun()
@@ -520,12 +561,24 @@ local function LearnRun()
 		return
 	end
 	local counted = SurvivorUI_RunMemory and SurvivorUI_RunMemory("codex") or {}
+	if SurvivorUI_LearnSpellNames then
+		SurvivorUI_LearnSpellNames()
+	end
 	for index = 1, table.getn(AZS_SPELLS) do
 		local entry = AZS_SPELLS[index]
-		local name = SurvivorUI_SpellName(Field(entry, "key", 1))
+		local key = Field(entry, "key", 1)
+		local name = SurvivorUI_SpellName(key)
 		local rank = tonumber(Field(entry, "rank", 3)) or 0
 		if name and name ~= "?" then
 			local ability = Ability(name)
+			-- What was kept under the key's own words before the real name
+			-- was known ("Fire Nova" for Fire Nova Totem) joins it.
+			local keyName = SurvivorUI_KeyName and SurvivorUI_KeyName(key)
+			local stray = keyName and keyName ~= name and Abilities()[keyName]
+			if stray and not stray.inBook then
+				MergeAbility(ability, stray)
+				Abilities()[keyName] = nil
+			end
 			ability.rank = math.max(ability.rank or 0, rank)
 			if not counted[name] then
 				counted[name] = true
@@ -537,7 +590,14 @@ local function LearnRun()
 				scan:SetOwner(WorldFrame, "ANCHOR_NONE")
 				scan:ClearLines()
 				scan:SetAction(slot)
-				ReadSpellTip(ability)
+				ReadSpellTip(ability, true)
+			end
+			-- Its icon where the spellbook gives none (the book may name it
+			-- otherwise: "Fire Nova Totem" for a run's Fire Nova): its action
+			-- button's, else, for one with no button, its talent's.
+			if not ability.icon then
+				ability.icon = (slot and GetActionTexture(slot))
+					or (SurvivorUI_TALENT_ICONS and SurvivorUI_TALENT_ICONS[name])
 			end
 		end
 	end
@@ -588,7 +648,7 @@ local function AbilityList()
 	for name, info in pairs(Abilities()) do
 		if ClassAbility(info) then
 			table.insert(found, {
-				base = name, name = name, icon = info.icon, best = info.best, bestRank = info.bestRank,
+				base = name, name = name, icon = info.icon or (SurvivorUI_TALENT_ICONS and SurvivorUI_TALENT_ICONS[name]), best = info.best, bestRank = info.bestRank,
 				rank = info.rank, runs = info.runs or 0, ability = true,
 			})
 		end
@@ -891,6 +951,17 @@ end
 local function AbilityTooltip(owner, ability)
 	GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
 	GameTooltip:SetText(ability.name, 1, 1, 1)
+	-- What it does, as the game writes it, in the game's gold, over a rule
+	-- that closes the block.
+	local info = Abilities()[ability.name] or {}
+	local ruleLine
+	if info.description and table.getn(info.description) > 0 then
+		for index = 1, table.getn(info.description) do
+			GameTooltip:AddLine(info.description[index], 1, 0.82, 0, 1)
+		end
+		GameTooltip:AddLine(" ")
+		ruleLine = GameTooltip:NumLines()
+	end
 	if ability.best then
 		GameTooltip:AddDoubleLine("Best average cast", Short(ability.best)
 			..(ability.bestRank and "  |cffa0a0a0at rank "..ability.bestRank.."|r" or ""),
@@ -902,7 +973,6 @@ local function AbilityTooltip(owner, ability)
 		GameTooltip:AddDoubleLine("Highest rank", ability.rank, 0.7, 0.7, 0.7, 1, 1, 1)
 	end
 	GameTooltip:AddDoubleLine("Runs taken", ability.runs or 0, 0.7, 0.7, 0.7, 1, 1, 1)
-	local info = Abilities()[ability.name] or {}
 	if info.echoLine ~= nil then
 		GameTooltip:AddDoubleLine("Casts twice", info.echoLine and "|cff4dff4dyes|r" or "|cffff6060no line|r", 0.7, 0.7, 0.7, 1, 1, 1)
 		GameTooltip:AddDoubleLine("Crits", info.critLine and "|cff4dff4dyes|r" or "|cffff6060no line|r", 0.7, 0.7, 0.7, 1, 1, 1)
@@ -916,6 +986,9 @@ local function AbilityTooltip(owner, ability)
 	end
 	GameTooltip:AddLine("The average cast is the damage meter card's: what one cast dealt on average over a run.", 0.45, 0.45, 0.45, 1)
 	GameTooltip:Show()
+	if ruleLine and SurvivorUI_TooltipRules then
+		SurvivorUI_TooltipRules({ { ruleLine, { 1, 0.82, 0 } } })
+	end
 end
 
 local function Row(index)

@@ -193,7 +193,7 @@ end
 local ARROW = "Interface\\Minimap\\ROTATING-MINIMAPGUIDEARROW"
 local ARROW_SIZE = 56           -- the arrow's size until one is chosen
 local ARROW_MIN, ARROW_MAX = 24, 96
-local NEAR, FAR = 15, 150       -- yards: fully green at NEAR, fully red from FAR
+local NEAR, FAR = 15, 150       -- yards: green at NEAR, red from FAR, while no heading is known
 local SWITCH_MARGIN = 10        -- yards another cache must be nearer by to take the arrow
 local TURN_RATE = 16            -- how quickly the arrow catches up with its bearing
 local AIM_EVERY = 0.05          -- seconds between readings of the hero and the caches
@@ -476,7 +476,12 @@ end
 -- A chest: the game's own box icon, its edges trimmed so its frame does not
 -- show, with no border of its own.
 local PIN_ICON = "Interface\\Icons\\INV_Box_02"
-local PIN_SIZE = 14
+local PIN_SIZE = 11
+-- The minimap draws the hero's arrow beneath anything set on it, so a pin
+-- over the arrow (within PIN_UNDER pixels of the middle) fades to
+-- PIN_UNDER_ALPHA, letting the arrow show through.
+local PIN_UNDER = 9
+local PIN_UNDER_ALPHA = 0.3
 -- Yards across the minimap at each zoom level, outdoors.
 local MINIMAP_YARDS = { [0] = 466.67, [1] = 400, [2] = 333.33, [3] = 266.67, [4] = 200, [5] = 133.33 }
 
@@ -536,7 +541,8 @@ local function DrawPins()
 			local pin = Pin(shown)
 			pin:ClearAllPoints()
 			pin:SetPoint("CENTER", Minimap, "CENTER", x, y)
-			pin:SetAlpha(outside and 0.55 or 1)
+			local overArrow = math.abs(x) < PIN_UNDER and math.abs(y) < PIN_UNDER
+			pin:SetAlpha(overArrow and PIN_UNDER_ALPHA or outside and 0.55 or 1)
 			pin:Show()
 		end
 	end
@@ -594,12 +600,24 @@ pinTicker:SetScript("OnUpdate", function()
 	end
 end)
 
-local function ArrowColor(yards)
-	local t = math.max(0, math.min(1, (yards - NEAR) / (FAR - NEAR)))
+-- Green through yellow to red as t runs from 0 to 1.
+local function Ramp(t)
+	t = math.max(0, math.min(1, t))
 	if t < 0.5 then
 		return t * 2, 1, 0.1
 	end
 	return 1, 1 - (t - 0.5) * 2, 0.1
+end
+
+-- The arrow's color: by the way the hero faces, green heading straight for
+-- the cache, yellow side on, red heading away (offset: the cache's angle off
+-- the hero's heading, -pi to pi); where no heading is known yet, by how far
+-- the cache is.
+local function ArrowColor(offset, yards)
+	if offset then
+		return Ramp(math.abs(offset) / math.pi)
+	end
+	return Ramp((yards - NEAR) / (FAR - NEAR))
 end
 
 -- The way to point and how far, read every AIM_EVERY seconds; the arrow
@@ -607,6 +625,7 @@ end
 -- set back to the hero's zone (the world map can leave it on another), so the
 -- arrow keeps up even while the hero stands still.
 local aimAngle, aimYards
+local aimOffset                 -- the cache's angle off the hero's heading, for the color
 local shownAngle
 
 -- An angle brought into -pi to pi.
@@ -618,24 +637,28 @@ local aimElapsed, refreshElapsed = AIM_EVERY, 0
 local function Aim()
 	local bearing, yards = NearestCache()
 	if not bearing then
-		aimAngle, aimYards = nil, nil
+		aimAngle, aimYards, aimOffset = nil, nil, nil
 		return
 	end
-	local angle = bearing
-	if not Settings().cacheArrowByMap then
-		local facing = Facing()
-		if facing then
-			-- Facing turns counterclockwise; the hero's heading clockwise is its negative.
-			angle = bearing + facing
-		else
-			-- No facing to read: the way the hero last moved stands in for it.
-			local heading = MovementHeading()
-			if heading then
-				angle = bearing - heading
-			end
+	-- The cache's angle off the way the hero faces, whichever way the arrow
+	-- points: it colors the arrow either way.
+	local offset
+	local facing = Facing()
+	if facing then
+		-- Facing turns counterclockwise; the hero's heading clockwise is its negative.
+		offset = Wrap(bearing + facing)
+	else
+		-- No facing to read: the way the hero last moved stands in for it.
+		local heading = MovementHeading()
+		if heading then
+			offset = Wrap(bearing - heading)
 		end
 	end
-	aimAngle, aimYards = angle, yards
+	local angle = bearing
+	if not Settings().cacheArrowByMap and offset then
+		angle = offset
+	end
+	aimAngle, aimYards, aimOffset = angle, yards, offset
 end
 
 local function DrawArrow(preview, elapsed)
@@ -679,7 +702,7 @@ local function DrawArrow(preview, elapsed)
 		shownAngle = Wrap(shownAngle + turn * (1 - math.exp(-elapsed * TURN_RATE)))
 	end
 	Turn(shownAngle)
-	local r, g, b = ArrowColor(aimYards)
+	local r, g, b = ArrowColor(aimOffset, aimYards)
 	arrow:SetVertexColor(r, g, b)
 	distance:SetText(math.floor(aimYards + 0.5).." yd")
 	distance:SetTextColor(r, g, b)

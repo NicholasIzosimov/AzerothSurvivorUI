@@ -78,8 +78,24 @@ end
 -- tier.
 local UTIL_LENIENCY = 1.25      -- placeholder
 
+-- A spell's other name, where its real one is not its key's words: the
+-- damage meter may name it either way (LearnSpellNames fills this).
+local otherName = {}            -- [lower case real name] = the key's words
+
+-- A spell's share of the meter's damage, under either of its names.
+local function ShareOf(name)
+	if not (SurvivorUI_MeterShare and name) then
+		return nil
+	end
+	local share = SurvivorUI_MeterShare(name)
+	if not share and otherName[string.lower(name)] then
+		share = SurvivorUI_MeterShare(otherName[string.lower(name)])
+	end
+	return share
+end
+
 local function IsUtility(name)
-	local share = SurvivorUI_MeterShare and SurvivorUI_MeterShare(name)
+	local share = ShareOf(name)
 	return not share or share <= 0
 end
 
@@ -130,7 +146,12 @@ local NAMES = {
 -- Justice", "Hammer of the Righteous".
 local SMALL_WORDS = { ["of"] = true, ["the"] = true, ["and"] = true, ["a"] = true, ["to"] = true }
 
-local function SpellName(key)
+-- Names learned from the action bar where the key's own words are not the
+-- spell's name ("fire_nova" is Fire Nova Totem): LearnSpellNames.
+local learnedNames = {}         -- [key] = name
+
+-- The name a key's own words make, whatever the action bar says.
+local function KeyName(key)
 	if NAMES[key] then
 		return NAMES[key]
 	end
@@ -144,6 +165,10 @@ local function SpellName(key)
 		first = false
 		return string.upper(letter)..rest
 	end))
+end
+
+local function SpellName(key)
+	return learnedNames[key] or KeyName(key)
 end
 
 local function Running()
@@ -286,6 +311,7 @@ end
 -- read again only when one of them changes.
 local MAX_ACTION_SLOT = 120
 local slotByName, slotSignature = {}, nil
+local titleBySlot = {}          -- [slot] = the name its tooltip opens with
 
 local function SpellSlot(name)
 	local parts = {}
@@ -297,7 +323,7 @@ local function SpellSlot(name)
 	local signature = table.concat(parts, ";")
 	if signature ~= slotSignature then
 		slotSignature = signature
-		slotByName = {}
+		slotByName, titleBySlot = {}, {}
 		for slot = MAX_ACTION_SLOT, 1, -1 do
 			if HasAction(slot) then
 				scan:SetOwner(WorldFrame, "ANCHOR_NONE")
@@ -307,12 +333,40 @@ local function SpellSlot(name)
 				local text = first and Plain(first:GetText())
 				if text and text ~= "" then
 					slotByName[string.lower(text)] = slot
+					titleBySlot[slot] = text
 				end
 			end
 		end
 	end
 	return name and slotByName[string.lower(name)]
 end
+
+-- The run's spells by their real names. The game names each by a key, and
+-- the key's words are mostly the name ("holy_wrath" is Holy Wrath), but not
+-- always ("fire_nova" is Fire Nova Totem). Where no button holds a spell of
+-- the key's name, the button the game gave that spell (the n-th spell, the
+-- n-th button, as the build lays them out) says its name, unless that name
+-- is another of the run's spells.
+local function LearnSpellNames()
+	local spells = AZS_SPELLS or {}
+	local slotted = math.max(0, table.getn(spells) - 1)
+	SpellSlot(nil)
+	local taken = {}
+	for index = 1, slotted do
+		taken[string.lower(SpellName(Field(spells[index], "key", 1)))] = true
+	end
+	for index = 1, slotted do
+		local key = Field(spells[index], "key", 1)
+		if key and not learnedNames[key] and not SpellSlot(SpellName(key)) then
+			local title = titleBySlot[index]
+			if title and not taken[string.lower(title)] then
+				learnedNames[key] = title
+				otherName[string.lower(title)] = KeyName(key)
+			end
+		end
+	end
+end
+SurvivorUI_LearnSpellNames = LearnSpellNames
 
 -- A worn piece's tooltip texts from its second line on, each piece of a line
 -- with breaks on its own, from the one shared reader (SurvivorUI.lua), which
@@ -518,6 +572,7 @@ end
 
 SurvivorUI_BaseName = BaseName
 SurvivorUI_SpellName = SpellName
+SurvivorUI_KeyName = KeyName
 SurvivorUI_SpellSlot = SpellSlot
 
 -- The action button holding the racial, the last of the game's spells, or
@@ -634,8 +689,16 @@ local GEAR_HEX = "|cffffa040"
 -- simple (optional): the ability's simplified description, as its action
 -- button's tooltip lays it out (AbilityTooltip.lua); given, it stands below
 -- the rule, with the upgrades and the gear under a rule of their own.
-local function ShowCard(owner, title, color, rank, heading, entries, empty, score, gear, simple)
-	GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
+-- beside (optional): a frame the card stands left of, tops together (the
+-- damage meter, at the screen's right edge); else it opens right of owner.
+local function ShowCard(owner, title, color, rank, heading, entries, empty, score, gear, simple, beside)
+	if beside then
+		GameTooltip:SetOwner(owner, "ANCHOR_NONE")
+		GameTooltip:ClearAllPoints()
+		GameTooltip:SetPoint("TOPRIGHT", beside, "TOPLEFT", -6, 0)
+	else
+		GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
+	end
 	GameTooltip:SetText(title, color[1], color[2], color[3])
 	if rank then
 		GameTooltip:AddDoubleLine("Rank", rank, 0.62, 0.62, 0.62, 1, 1, 1)
@@ -761,6 +824,33 @@ local function RowEnter()
 			"None left in your spellbook.",
 			"Not learned yet: a level-up may offer them.")
 	end
+end
+
+-- A run's spell's tooltip as its action button shows it (AbilityTooltip.lua
+-- lays it out: simplified, its gear and talents), for another frame (a
+-- damage meter line), standing left of beside. False where name is none of
+-- the run's spells (a proc, melee, an enemy) or no button holds it, so the
+-- caller shows its own card.
+function SurvivorUI_ShowSpellCard(owner, name, beside)
+	local spells = AZS_SPELLS or {}
+	local wanted = string.lower(name or "")
+	for index = 1, math.max(0, table.getn(spells) - 1) do
+		local spell = SpellName(Field(spells[index], "key", 1))
+		local lower = string.lower(spell)
+		if lower == wanted or otherName[lower] and string.lower(otherName[lower]) == wanted then
+			local slot = SpellSlot(spell) or index
+			if not HasAction(slot) then
+				return false
+			end
+			GameTooltip:SetOwner(owner, "ANCHOR_NONE")
+			GameTooltip:ClearAllPoints()
+			GameTooltip:SetPoint("TOPRIGHT", beside, "TOPLEFT", -6, 0)
+			GameTooltip:SetAction(slot)
+			GameTooltip:Show()
+			return true
+		end
+	end
+	return false
 end
 
 ------------------------------------------------------------------------------
@@ -1018,7 +1108,7 @@ local function FillSpell(row, entry, actionSlot)
 	end
 	-- Its share of the damage: whole percents from 1%, one decimal under that
 	-- ("0.4%"), and "Util" for a spell that deals none (a stun, a heal, a shield).
-	local share = SurvivorUI_MeterShare and SurvivorUI_MeterShare(name)
+	local share = ShareOf(name)
 	if not share or share <= 0 then
 		row.share:SetText("Util")
 	elseif share >= 0.01 then
@@ -1043,6 +1133,7 @@ local function EmptySpell(row)
 end
 
 local function DrawSpells(y)
+	LearnSpellNames()
 	local spells = AZS_SPELLS or {}
 	local count = table.getn(spells)
 	-- The racial comes last in the game's list and takes no slot.
@@ -1065,9 +1156,14 @@ local function DrawSpells(y)
 		local score = SpellScore(name, slots[index], rank)
 		local color, _, tier = SpellTier(name, score, rank)
 		-- A spell with no damage on the meter is a utility one ("Util").
-		local share = SurvivorUI_MeterShare and SurvivorUI_MeterShare(name)
+		local share = ShareOf(name)
 		standing[index] = { tier = tier, rank = rank, share = share or 0, util = not share or share <= 0 }
 		spellColors[string.lower(name)] = tier == table.getn(TIERS) and COMMON_BAR or color
+		-- Under its other name too, which the meter may use.
+		local other = otherName[string.lower(name)]
+		if other then
+			spellColors[string.lower(other)] = spellColors[string.lower(name)]
+		end
 	end
 	if Settings().buildFolded then
 		HideAll(spellRows)

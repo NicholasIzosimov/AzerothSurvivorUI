@@ -57,6 +57,8 @@ local ECHO_COLOR = { 1, 0.82, 0 }   -- the game's own gold for "chance to cast t
 local ECHO_HEX = "|cffffd100"       -- the same, for its percentage within a line
 local GEAR_GREEN = { 0.12, 1, 0 }   -- the game's item green, for the gear's effects
 local GEAR_HEX = "|cff1eff00"
+local TALENT_GOLD = { 1, 0.82, 0 }  -- the game's talent gold, for the talents' rule
+local TALENT_HEX = "|cffffd100"
 
 ------------------------------------------------------------------------------
 -- Rules: thin lines drawn across the tooltip, each over a blank line.
@@ -275,11 +277,12 @@ local function Thing(text)
 	return Capital((string.gsub(string.gsub(text, "^your ", ""), "^the ", "")))
 end
 
--- Each fact: its place in the list (damage, the spell's main effect, reach,
--- targets, everything else, then the two that hold for every spell together
--- at the foot: the chance to cast twice and the crit chance), its value and
--- its label.
-local DAMAGE, MAIN, REACH, TARGETS, EFFECT, OTHER, ECHO, CRIT = 1, 2, 3, 4, 5, 6, 7, 8
+-- Each fact: its place in the list (what it does, then how many it reaches,
+-- then the main effect where the damage came first, reach, everything else,
+-- then the two that hold for every spell together at the foot: the chance to
+-- cast twice and the crit chance), its value and its label. A spell that
+-- deals no damage has its main effect first (AllFacts).
+local DAMAGE, TARGETS, MAIN, REACH, EFFECT, OTHER, ECHO, CRIT = 1, 2, 3, 4, 5, 6, 7, 8
 
 -- How many targets a spell hits, in the colors of gear rarity, each mixed a
 -- quarter of the way to white, softened but still plainly colored: 1 white,
@@ -332,6 +335,10 @@ local FACTS = {
 	{ "within "..NUMBER.." yds? of that spot", function(n) return REACH, n.." yd", "radius" end },
 	{ "marks the ground where you stand once enem%a* come within "..NUMBER.." yds?", function() return nil end },
 	{ "lands on the thickest group of enem%a* within "..NUMBER.." yds?", function(n) return REACH, n.." yd", "range" end },
+	-- When a spell that casts on its own goes off ("Cast once enemies are
+	-- within 30 yd", "Cast when you fall below 35% health") is left to the full
+	-- description where it stands alone; here, after its effect, it is dropped.
+	{ "cast once enem%a* are within "..NUMBER.." yds?", function() return nil end },
 	-- A shield or heal sized by your health: "Absorbs the next 293 damage
 	-- you take, 42% of your max health" is "293 Absorb Shield (42% of max health)",
 	-- not 293 damage dealt; "Heals you for 120, 15% of your max health" is
@@ -353,6 +360,13 @@ local FACTS = {
 	-- "Afflicts the 4 healthiest enemies", "the 3 nearest enemies", "the
 	-- nearest enemy": how many it picks.
 	{ "the (%d+) %a+est enem%a*", function(n) return TARGETS, n, "Targets" end },
+	-- A chain: "then jumps to up to 7 more enemies within 12 yd of the last,
+	-- 8% weaker with each jump" is 7 more targets (joined with the first one
+	-- it strikes: "8 Targets", AllFacts), "12 yd between targets" and "8%
+	-- weaker with each target hit".
+	{ "jumps to up to (%d+) more enem%a*", function(n) return TARGETS, "+"..n, "Targets" end },
+	{ "within "..NUMBER.." yds? of the last", function(n) return REACH, n.." yd", "between targets" end },
+	{ NUMBER.."%% weaker with each jump", function(p) return OTHER, p.."%", "weaker with each target hit" end },
 	-- "Fires 10 missiles at random enemies": how many it sends out, in the
 	-- targets' place ("10 Targets"), though several may find the same enemy.
 	{ "fires (%d+) missiles?[%a ]-enem%a*", function(n) return TARGETS, n, "Targets" end },
@@ -389,7 +403,20 @@ local FACTS = {
 	{ "restores? "..NUMBER.." health", function(n) return EFFECT, n, "Healing" end },
 	{ "(%a+)s them for "..NUMBER.." sec", function(verb, t) return EFFECT, t.." sec", Capital(verb) end },
 	{ "(%a+)s them by "..NUMBER.."%%", function(verb, n) return EFFECT, n.."%", Capital(verb) end },
-	{ NUMBER.."%% chance to (.+)", function(n, rest) return EFFECT, n.."%", "chance to "..rest end },
+	-- What a talent does to the spells it names, once its subject is cut
+	-- (TalentSentence): "deal 4% more damage" is "+4% damage".
+	{ "deals? "..NUMBER.."%% more damage", function(n) return EFFECT, "+"..n.."%", "damage" end },
+	{ "heals? "..NUMBER.."%% more", function(n) return EFFECT, "+"..n.."%", "healing" end },
+	{ "cooldowns? %a+ "..NUMBER.."%% shorter", function(n) return EFFECT, "-"..n.."%", "cooldown" end },
+	{ "reach%a* "..NUMBER.."%% farther", function(n) return EFFECT, "+"..n.."%", "reach" end },
+	{ "lasts? "..NUMBER.."%% longer", function(n) return EFFECT, "+"..n.."%", "duration" end },
+	-- "40% chance to strike again for free", "35% chance to strike twice more
+	-- at once": what it costs and when are no part of it, and extra strikes
+	-- are counted ("strike 2 more times").
+	{ NUMBER.."%% chance to (.+)", function(n, rest)
+		rest = string.gsub(string.gsub(rest, " for free$", ""), " at once$", "")
+		rest = string.gsub(string.gsub(rest, "twice more$", "2 more times"), "three times more$", "3 more times")
+		return EFFECT, n.."%", "chance to "..rest end },
 	-- "Your cooldowns recover 60% faster": cooldowns that recover p% faster
 	-- take 1 / (1 + p/100) as long, so "-38% cooldown".
 	{ "cooldowns recover "..NUMBER.."%% faster", function(p)
@@ -404,6 +431,11 @@ local FACTS = {
 	-- health": how it picks its targets, left to the full description. Last,
 	-- as it takes the rest of its sentence.
 	{ "[%a ,]*targeted first.*", function() return nil end },
+	-- The same for which enemy takes a stack ("bosses and elites take every
+	-- stack first, then enemies not yet afflicted, then the rest"), and how a
+	-- damage over time is split ("in 10 ticks").
+	{ "[%a ,]*take every stack first.*", function() return nil end },
+	{ "in %d+ ticks", function() return nil end },
 }
 
 local function Trim(text)
@@ -417,6 +449,7 @@ local GLUE = {
 	you = true, your = true, it = true, its = true, with = true, ["in"] = true, on = true, at = true,
 	that = true, them = true, they = true, makes = true, deals = true, deal = true, hits = true, hit = true,
 	casts = true, cast = true, also = true, each = true, all = true, is = true, are = true,
+	strikes = true, strike = true, ["then"] = true, by = true,
 }
 
 -- Whether the rules read a sentence only in part: more than one word of
@@ -567,6 +600,25 @@ local function AllFacts(ability)
 			table.insert(facts, fact)
 		end
 	end
+	-- "More" targets join the count they add to: the nearest enemy and 7 more
+	-- a chain jumps to are "8 Targets".
+	local base
+	for index = 1, table.getn(facts) do
+		local fact = facts[index]
+		if fact.place == TARGETS and not base and string.find(fact.value or "", "^%d+$") then
+			base = fact
+		end
+	end
+	if base then
+		for index = table.getn(facts), 1, -1 do
+			local fact = facts[index]
+			local _, _, more = string.find(fact.place == TARGETS and fact.value or "", "^%+(%d+)$")
+			if more and fact.label == "Targets" then
+				base.value = tostring(tonumber(base.value) + tonumber(more))
+				table.remove(facts, index)
+			end
+		end
+	end
 	-- The spell's main effect, its first that is more than a duration or an
 	-- interval ("-38% cooldown", an absorb, "-20% enemy damage"), comes right
 	-- under the damage, or at the top for a spell that deals none.
@@ -587,7 +639,70 @@ local function AllFacts(ability)
 		end
 		return a.order < b.order
 	end)
+	-- No damage: the main effect leads, ahead of the targets.
+	if facts[1] and facts[1].place ~= DAMAGE then
+		for index = 1, table.getn(facts) do
+			if facts[index].place == MAIN then
+				table.insert(facts, 1, table.remove(facts, index))
+				break
+			end
+		end
+	end
 	return facts, partial
+end
+
+-- The talents the game lists on a spell ("Talents: Elemental Fury"), by name.
+local function SpellTalents(ability)
+	local names = {}
+	for index = 1, table.getn(ability.sections) do
+		local section = ability.sections[index]
+		if section.info.title == "Talents" then
+			for item = 1, table.getn(section.items) do
+				table.insert(names, (string.gsub(section.items[item], "%.$", "")))
+			end
+		end
+	end
+	return names
+end
+
+-- Whether a talent of the spell's takes away a chain's falloff.
+local function NoFalloff(ability)
+	local names = SpellTalents(ability)
+	for index = 1, table.getn(names) do
+		local text = SurvivorUI_TALENT_TEXTS and SurvivorUI_TALENT_TEXTS[names[index]]
+		if text and string.find(text, "loses nothing with each jump", 1, true) then
+			return true
+		end
+	end
+	return false
+end
+
+
+-- A talent's text as the spell's tooltip reads it: its kind ("Milestone.")
+-- and the spells it names cut, since the tooltip is one of them already:
+-- "Lightning Bolt and Chain Lightning have a 40% chance to strike again" is
+-- "have a 40% chance to strike again", "Curse of Agony's cooldown is 8%
+-- shorter" "cooldown is 8% shorter".
+local TALENT_VERBS = {
+	"deals?", "heals?", "reach%a*", "lasts?", "ha[sv]e?", "strikes?", "jumps?", "fires?", "cover",
+}
+
+local function TalentSentence(text)
+	text = string.gsub(text, "^%a+%. ", "")
+	local _, _, rest = string.find(text, "^[^,:;%.]-'s (cooldowns? .*)$")
+	if not rest then
+		_, _, rest = string.find(text, "^[^,:;%.]- (cooldowns? .*)$")
+	end
+	if rest then
+		return rest
+	end
+	for index = 1, table.getn(TALENT_VERBS) do
+		local _, _, verb = string.find(text, "^[%u][^:;%.]- ("..TALENT_VERBS[index].." .*)$")
+		if verb then
+			return verb
+		end
+	end
+	return text
 end
 
 -- The lines of the layout: { left, right, r, g, b, rr, rg, rb } a double
@@ -620,6 +735,15 @@ local function Compose(ability, simple)
 	local others = ability.other
 	if simple or ShowSimplified() then
 		local facts, partial = AllFacts(ability)
+		-- A chain's falloff is gone where one of its talents says it loses
+		-- nothing with each jump (Elemental Fury).
+		if NoFalloff(ability) then
+			for index = table.getn(facts), 1, -1 do
+				if facts[index].label == "weaker with each target hit" then
+					table.remove(facts, index)
+				end
+			end
+		end
 		-- Its wording too unusual to read in full ("burst in holy light,
 		-- dealing 240 Holy damage to every enemy within 9.8 yd of the body"):
 		-- the description as the game wrote it, its numbers lit, over the
@@ -644,8 +768,9 @@ local function Compose(ability, simple)
 					Line(FactText(fact, school, tint), MUTED)
 				end
 			end
-		elseif table.getn(ability.description) > 0 then
-			-- Nothing to count: the description as the game wrote it.
+		elseif not partial and table.getn(ability.description) > 0 then
+			-- Nothing to count: the description as the game wrote it (shown
+			-- above already where it was read only in part).
 			Spacer(tint)
 			for index = 1, table.getn(ability.description) do
 				Line(Highlight(ability.description[index], school, tint), DESCRIPTION_COLOR)
@@ -684,6 +809,78 @@ local function Compose(ability, simple)
 		Spacer(GEAR_GREEN)
 		for index = 1, table.getn(effects) do
 			Line((string.gsub(effects[index], "(%d[%d%.]*%%?)", GEAR_HEX.."%1|r")), MUTED)
+		end
+	end
+
+	-- The talents the game lists on it ("Talents: Lightning Overload"), each
+	-- by what it does to the spell, read as the spell's own description is
+	-- ("40% chance to strike again"), "(talent)" after it, under a rule in
+	-- the talents' gold; the words muted, the numbers gold. A talent text the
+	-- rules read only in part is shown whole, as the meter's cards word it.
+	-- Left off the build's card, as the gear is.
+	if not simple and SurvivorUI_TalentText then
+		-- Each line: { text } as it stands, or a bonus { label, amount, count }
+		-- that talents of the same kind add to ("+10% damage" twice is "+20%
+		-- damage (2 talents)").
+		local talents, bonuses = {}, {}
+		local names = SpellTalents(ability)
+		for item = 1, table.getn(names) do
+			local name = names[item]
+			local raw = SurvivorUI_TALENT_TEXTS and SurvivorUI_TALENT_TEXTS[name]
+			local facts, partial = {}, true
+			if raw then
+				facts, partial = ReadFacts({ TalentSentence(raw) })
+			end
+			if not partial and table.getn(facts) > 0 then
+				for fact = 1, table.getn(facts) do
+					local read = facts[fact]
+					local _, _, sign, amount = string.find(read.value or "", "^([%+%-])([%d%.]+)%%$")
+					if read.text then
+						-- A sentence kept as it is: capital again, its numbers gold.
+						local text = string.upper(string.sub(read.text, 1, 1))..string.sub(read.text, 2)
+						table.insert(talents, { text = string.gsub(text, "(%d+%%?)", TALENT_HEX.."%1|r") })
+					elseif sign and read.label then
+						local key = sign..read.label
+						local bonus = bonuses[key]
+						if bonus then
+							bonus.amount = bonus.amount + tonumber(amount)
+							bonus.count = bonus.count + 1
+						else
+							bonus = { sign = sign, label = read.label, amount = tonumber(amount), count = 1 }
+							bonuses[key] = bonus
+							table.insert(talents, bonus)
+						end
+					else
+						table.insert(talents, { text = TALENT_HEX..(read.value or "").."|r "..(read.label or "") })
+					end
+				end
+			else
+				local text = SurvivorUI_TalentText(name)
+				if text then
+					table.insert(talents, { text = text })
+				end
+			end
+		end
+		if table.getn(talents) > 0 then
+			Spacer(TALENT_GOLD)
+			-- What changes how the spell plays first (a chance to strike again,
+			-- a sentence of its own), the plain bonuses (+10% damage) under it.
+			for pass = 1, 2 do
+				for index = 1, table.getn(talents) do
+					local entry = talents[index]
+					if (pass == 1) == (entry.amount == nil) then
+						local text, tag = entry.text, "talent"
+						if entry.amount then
+							local shown = string.gsub(string.format("%.1f", entry.amount), "%.0$", "")
+							text = TALENT_HEX..entry.sign..shown.."%|r "..entry.label
+							if entry.count > 1 then
+								tag = entry.count.." talents"
+							end
+						end
+						Line(text.." |cff8a8a8a("..tag..")|r", MUTED)
+					end
+				end
+			end
 		end
 	end
 
@@ -783,6 +980,14 @@ end
 -- laid out: Shift changes nothing the game writes, so a press is caught here
 -- and the same tooltip laid out again.
 local lastAbility, lastShift
+
+-- An ability's tooltip as read off a hidden one (tip, named name), for the
+-- Codex: its title, description lines and the rest; nil where it cannot be
+-- read as an ability.
+function SurvivorUI_ReadAbilityTip(tip, name)
+	local ok, ability = pcall(Read, tip, name)
+	return ok and ability or nil
+end
 
 -- Other cards on the game's tooltip (the build's) draw rules the same way:
 -- SurvivorUI_TooltipRules({ { line, color }, ... }) once the card is shown,
