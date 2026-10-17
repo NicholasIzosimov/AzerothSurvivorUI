@@ -15,6 +15,16 @@ Each piece by its name without rank, with every rank seen. A rank's text is its 
 
 ### Amulets
 
+#### Amulet of the Darkmoon
+
+Uncommon · ranks I · any class
+
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Reduces the cooldown of your spells by 12%.
+  - Equip: Increases your movement speed by 8%.
+
 #### Amulet of the Inferno: Consecration
 
 Legendary · ranks I, II, III, IV, V · worn by: not recorded
@@ -89,6 +99,23 @@ Legendary · ranks I, II, III, IV, V, VI, VII, VIII, IX · any class
   - Neck
   - Equip: Enemies you kill explode for 35% of their max health.
 
+#### Eye of the Splitting Sky: Earth Shock
+
+Legendary · ranks I, II · worn by Shaman
+
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Earth Shock strikes 1 more target.
+  - Equip: Increases the damage of Earth Shock by 20%.
+  - Equip: Earth Shock's hits leap to 2 more enemies for 30%.
+- **II**
+  - Binds when picked up
+  - Neck
+  - Equip: Earth Shock strikes 1 more target.
+  - Equip: Increases the damage of Earth Shock by 24%.
+  - Equip: Earth Shock's hits leap to 2 more enemies for 36%.
+
 #### Eye of the Splitting Sky: Fear
 
 Legendary · ranks I, II, III, IV · worn by Warlock
@@ -117,6 +144,71 @@ Legendary · ranks I, II, III, IV · worn by Warlock
   - Equip: Fear strikes 1 more target.
   - Equip: Increases the damage of Fear by 31%.
   - Equip: Fear's hits leap to 2 more enemies for 46%.
+
+#### Eye of the Splitting Sky: Frost Shock
+
+Legendary · ranks I, II · worn by Shaman
+
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Frost Shock strikes 1 more target.
+  - Equip: Increases the damage of Frost Shock by 20%.
+  - Equip: Frost Shock's hits leap to 2 more enemies for 30%.
+- **II**
+  - Binds when picked up
+  - Neck
+  - Equip: Frost Shock strikes 1 more target.
+  - Equip: Increases the damage of Frost Shock by 24%.
+  - Equip: Frost Shock's hits leap to 2 more enemies for 36%.
+
+#### Eye of the Splitting Sky: Lightning Bolt
+
+Legendary · ranks I, II, III, IV, V, VI, VII, VIII, IX · worn by Shaman
+
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Lightning Bolt strikes 1 more target.
+  - Equip: Increases the damage of Lightning Bolt by 20%.
+  - Equip: Lightning Bolt's hits leap to 2 more enemies for 30%.
+- **II**
+  - Binds when picked up
+  - Neck
+  - Equip: Lightning Bolt strikes 1 more target.
+  - Equip: Increases the damage of Lightning Bolt by 24%.
+  - Equip: Lightning Bolt's hits leap to 2 more enemies for 36%.
+- **III**
+  - Binds when picked up
+  - Neck
+  - Equip: Lightning Bolt strikes 1 more target.
+  - Equip: Increases the damage of Lightning Bolt by 28%.
+  - Equip: Lightning Bolt's hits leap to 2 more enemies for 41%.
+- **V**
+  - Binds when picked up
+  - Neck
+  - Equip: Lightning Bolt strikes 1 more target.
+  - Equip: Increases the damage of Lightning Bolt by 34%.
+  - Equip: Lightning Bolt's hits leap to 2 more enemies for 51%.
+- **VI**
+  - Binds when picked up
+  - Neck
+  - Equip: Lightning Bolt strikes 1 more target.
+  - Equip: Increases the damage of Lightning Bolt by 36%.
+  - Equip: Lightning Bolt's hits leap to 2 more enemies for 55%.
+- **VIII**
+  - Binds when picked up
+  - Neck
+  - Equip: Lightning Bolt strikes 2 more targets.
+  - Equip: Increases the damage of Lightning Bolt by 41%.
+  - Equip: Lightning Bolt's hits leap to 2 more enemies for 61%.
+- **IX**
+  - Binds when picked up
+  - Neck
+  - Equip: Lightning Bolt strikes 2 more targets.
+  - Equip: Increases the damage of Lightning Bolt by 43%.
+  - Equip: Lightning Bolt's hits leap to 2 more enemies for 64%.
+- *Name only:* IV, VII
 
 #### Eye of the Splitting Sky: Shadow Bolt
 
@@ -309,13 +401,37 @@ Legendary · ranks I, II, III, IV, V, VI, VII, VIII, IX, X · any class
   - Equip: Improves your chance to get a critical strike by 4%.
   - Equip: Increases the damage of your critical strikes by 20%.
   - Equip: Your critical hits splash 30% on enemies within 5 yd.
-- *Name only:* II, III, IV, V, VI, VII, VIII, IX, X
+- **II**
+  - Binds when picked up
+  - Neck
+  - Equip: Improves your chance to get a critical strike by 5%.
+  - Equip: Increases the damage of your critical strikes by 24%.
+  - Equip: Your critical hits splash 38% on enemies within 5 yd, at most 2 times a second.
+- *Name only:* III, IV, V, VI, VII, VIII, IX, X
 
 #### Pendant of the Fallen Dragon
 
 Epic · ranks I, II, III, IV · any class
 
-- *Name only:* I, II, III, IV
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: A killing blow leaves you at 50% health instead, once every 60 sec.
+  - Equip: Increases your maximum health by 20%.
+  - Equip: Restores 5 health per second.
+- **II**
+  - Binds when picked up
+  - Neck
+  - Equip: A killing blow leaves you at 50% health instead, once every 60 sec.
+  - Equip: Increases your maximum health by 25%.
+  - Equip: Restores 6.3 health per second.
+- **III**
+  - Binds when picked up
+  - Neck
+  - Equip: A killing blow leaves you at 50% health instead, once every 60 sec.
+  - Equip: Increases your maximum health by 29%.
+  - Equip: Restores 7.3 health per second.
+- *Name only:* IV
 
 #### Pendant of the Plague: Corruption
 
@@ -394,6 +510,48 @@ Legendary · ranks I, II, III, IV, V, VI, VII, VIII, IX, X, X+ · worn by Warloc
   - Equip: Enemies that die with Drain Life on them explode for 46% of their max health.
 - *Name only:* IX
 
+#### Pendant of the Plague: Flame Shock
+
+Legendary · ranks I, II, III, IV, V, VI, VII · worn by Shaman
+
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Flame Shock strikes 3 more targets.
+  - Equip: Increases the damage of Flame Shock by 90%.
+  - Equip: Enemies that die with Flame Shock on them explode for 20% of their max health, at most 2 times a second.
+- **II**
+  - Binds when picked up
+  - Neck
+  - Equip: Flame Shock strikes 3 more targets.
+  - Equip: Increases the damage of Flame Shock by 108%.
+  - Equip: Enemies that die with Flame Shock on them explode for 24% of their max health, at most 2 times a second.
+- **III**
+  - Binds when picked up
+  - Neck
+  - Equip: Flame Shock strikes 4 more targets.
+  - Equip: Increases the damage of Flame Shock by 124%.
+  - Equip: Enemies that die with Flame Shock on them explode for 28% of their max health, at most 2 times a second.
+- **IV**
+  - Binds when picked up
+  - Neck
+  - Equip: Flame Shock strikes 4 more targets.
+  - Equip: Increases the damage of Flame Shock by 139%.
+  - Equip: Enemies that die with Flame Shock on them explode for 31% of their max health, at most 2 times a second.
+- **V**
+  - Binds when picked up
+  - Neck
+  - Equip: Flame Shock strikes 5 more targets.
+  - Equip: Increases the damage of Flame Shock by 152%.
+  - Equip: Enemies that die with Flame Shock on them explode for 34% of their max health, at most 2 times a second.
+- **VII**
+  - Binds when picked up
+  - Neck
+  - Equip: Flame Shock strikes 5 more targets.
+  - Equip: Increases the damage of Flame Shock by 174%.
+  - Equip: Enemies that die with Flame Shock on them explode for 39% of their max health, at most 2 times a second.
+- *Name only:* VI
+
 #### Pendant of the Plague: Immolate
 
 Legendary · ranks I · worn by Warlock
@@ -407,7 +565,7 @@ Legendary · ranks I · worn by Warlock
 
 #### Pristine Enchanted South Seas Kelp
 
-Common · ranks I, II, III, IV · any class
+Common · ranks I, II, III, IV, V, VI · any class
 
 - **I**
   - Binds when picked up
@@ -424,7 +582,65 @@ Common · ranks I, II, III, IV · any class
   - Neck
   - Equip: Increases your luck by 61%.
   - Equip: Increases gold found by 51%.
-- *Name only:* IV
+- **IV**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases your luck by 69%.
+  - Equip: Increases gold found by 58%.
+- **V**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases your luck by 76%.
+  - Equip: Increases gold found by 63%.
+- **VI**
+  - Binds when picked up
+  - Neck
+  - Equip: Increases your luck by 80%.
+  - Equip: Increases gold found by 67%.
+
+#### Stormcaller's Amulet: Holy Shock
+
+Legendary · ranks I, II, III, IV, V · worn by Paladin
+
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Holy Shock strikes 4 more targets.
+  - Equip: Increases the damage of Holy Shock by 20%.
+  - Equip: 30% chance for Holy Shock's hits to strike again for 100%.
+- **II**
+  - Binds when picked up
+  - Neck
+  - Equip: Holy Shock strikes 4 more targets.
+  - Equip: Increases the damage of Holy Shock by 24%.
+  - Equip: 36% chance for Holy Shock's hits to strike again for 100%.
+- **III**
+  - Binds when picked up
+  - Neck
+  - Equip: Holy Shock strikes 5 more targets.
+  - Equip: Increases the damage of Holy Shock by 28%.
+  - Equip: 41% chance for Holy Shock's hits to strike again for 100%.
+- **IV**
+  - Binds when picked up
+  - Neck
+  - Equip: Holy Shock strikes 6 more targets.
+  - Equip: Increases the damage of Holy Shock by 31%.
+  - Equip: 46% chance for Holy Shock's hits to strike again for 100%.
+- **V**
+  - Binds when picked up
+  - Neck
+  - Equip: Holy Shock strikes 6 more targets.
+  - Equip: Increases the damage of Holy Shock by 34%.
+  - Equip: 51% chance for Holy Shock's hits to strike again for 100%.
+
+#### Talvash's Enhancing Necklace
+
+Common · ranks I · any class
+
+- **I**
+  - Binds when picked up
+  - Neck
+  - Equip: Reduces the cooldown of your spells by 10%.
 
 #### The Eternal Talisman: Adrenaline Rush
 
@@ -514,22 +730,74 @@ Legendary · ranks I, II, III, VI, VII · any class
 
 #### Blooddrinker's Band
 
-Epic · ranks I · any class
+Uncommon · ranks I, II, III, IV · any class
 
-- *Name only:* I
-
-#### Heavy Dark Iron Ring
-
-Uncommon · ranks I, II · any class
-
-- **I**
+- **I (Common)**
   - Binds when picked up
   - Finger
-  - Equip: Increases your maximum health by 54%.
+  - Equip: Heals you for 1.5% of all damage you deal.
 - **II**
   - Binds when picked up
   - Finger
+  - Equip: Heals you for 2.5% of all damage you deal.
+- **III**
+  - Binds when picked up
+  - Finger
+  - Equip: Heals you for 2.7% of all damage you deal.
+- **IV**
+  - Binds when picked up
+  - Finger
+  - Equip: Heals you for 2.8% of all damage you deal.
+
+#### Heavy Dark Iron Ring
+
+Rare · ranks I, II, III, IV · any class
+
+- **I (Uncommon)**
+  - Binds when picked up
+  - Finger
+  - Equip: Increases your maximum health by 54%.
+- **II (Uncommon)**
+  - Binds when picked up
+  - Finger
   - Equip: Increases your maximum health by 58%.
+- **III (Common)**
+  - Binds when picked up
+  - Finger
+  - Equip: Increases your maximum health by 47%.
+- **IV**
+  - Binds when picked up
+  - Finger
+  - Equip: Increases your maximum health by 55%.
+
+#### Master Dragonslayer's Ring
+
+Legendary · ranks I, II, III, IV, V, VI · any class
+
+- **I (Epic)**
+  - Binds when picked up
+  - Finger
+  - Equip: Improves your chance to get a critical strike by 14%.
+- **II (Epic)**
+  - Binds when picked up
+  - Finger
+  - Equip: Improves your chance to get a critical strike by 21%.
+- **III (Epic)**
+  - Binds when picked up
+  - Finger
+  - Equip: Improves your chance to get a critical strike by 25%.
+- **IV (Epic)**
+  - Binds when picked up
+  - Finger
+  - Equip: Improves your chance to get a critical strike by 29%.
+- **V (Epic)**
+  - Binds when picked up
+  - Finger
+  - Equip: Improves your chance to get a critical strike by 33%.
+- **VI**
+  - Binds when picked up
+  - Finger
+  - Equip: Improves your chance to get a critical strike by 42%.
 
 #### Quick Strike Ring
 
@@ -615,9 +883,16 @@ Legendary · ranks I, II, III, VII, IX, X, X+ · any class
 
 #### Ring of the Devoured
 
-Legendary · ranks I · any class
+Rare · ranks I, II · any class
 
-- *Name only:* I
+- **I (Uncommon)**
+  - Binds when picked up
+  - Finger
+  - Equip: Restores 3.1 health per second.
+- **II**
+  - Binds when picked up
+  - Finger
+  - Equip: Restores 4 health per second.
 
 #### Seal of the Damned
 
@@ -631,11 +906,59 @@ Rare · ranks I, II · any class
 
 ### Trinkets
 
+#### Blackhand's Breadth
+
+Legendary · ranks I, II, III, IV, V, VI · any class
+
+- **I (Epic)**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases the damage of your critical strikes by 70%.
+- **II (Epic)**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases the damage of your critical strikes by 103%.
+- **III (Epic)**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases the damage of your critical strikes by 120%.
+- **IV (Epic)**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases the damage of your critical strikes by 148%.
+- **V**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases the damage of your critical strikes by 195%.
+- **VI**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases the damage of your critical strikes by 215%.
+
 #### Earthstrike
 
-Legendary · ranks I · any class
+Legendary · ranks I, II, III, IV, V · any class
 
-- *Name only:* I
+- **I**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases all damage you deal by 62%.
+- **II**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases all damage you deal by 91%.
+- **III**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases all damage you deal by 127%.
+- **IV**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases all damage you deal by 152%.
+- **V**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases all damage you deal by 170%.
 
 #### Hand of Justice
 
@@ -657,28 +980,51 @@ Legendary · ranks I, II, III, IV, V, VI · any class
   - Binds when picked up
   - Trinket
   - Equip: Gives your spells a 56% chance to cast twice.
-- *Name only:* V (Epic), VI
+- **V (Epic)**
+  - Binds when picked up
+  - Trinket
+  - Equip: Gives your spells a 60% chance to cast twice.
+- *Name only:* VI
 
 #### Insignia of the Horde
 
-Epic · ranks I, II, III · any class
+Epic · ranks I, II, III, IV · any class
 
-- *Name only:* I, II, III
+- **I (Rare)**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases experience gained by 32%.
+- **II**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases experience gained by 47%.
+- **III**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases experience gained by 53%.
+- **IV**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases experience gained by 56%.
 
 #### Lifegiving Gem
 
 Common · ranks I, II, III, IV, V · any class
 
-- *Name only:* I, II, III, IV, V
+- **II**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases your maximum health by 48%.
+- *Name only:* I, III, IV, V
 
 #### Mark of the Chosen
 
 Rare · ranks I, II, III, IV, V, VI, VII, VIII · any class
 
-- **I (Uncommon)**
+- **I (Common)**
   - Binds when picked up
   - Trinket
-  - Equip: Increases your luck by 32%.
+  - Equip: Increases your luck by 23%.
 - **II (Epic)**
   - Binds when picked up
   - Trinket
@@ -710,12 +1056,12 @@ Rare · ranks I, II, III, IV, V, VI, VII, VIII · any class
 
 #### Royal Seal of Eldre'Thalas
 
-Epic · ranks I, II, III, IV · any class
+Epic · ranks I, II, III, IV, V, VI · any class
 
-- **I**
+- **I (Common)**
   - Binds when picked up
   - Trinket
-  - Equip: Increases gold found by 90%.
+  - Equip: Increases gold found by 38%.
 - **II**
   - Binds when picked up
   - Trinket
@@ -724,7 +1070,18 @@ Epic · ranks I, II, III, IV · any class
   - Binds when picked up
   - Trinket
   - Equip: Increases gold found by 113%.
-- *Name only:* IV
+- **IV**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases gold found by 101%.
+- **V**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases gold found by 106%.
+- **VI**
+  - Binds when picked up
+  - Trinket
+  - Equip: Increases gold found by 111%.
 
 #### Talisman of Ephemeral Power
 
@@ -779,6 +1136,23 @@ Legendary · ranks I, II, III, IV, V, VI, VII, VIII, IX, X, X+ · any class
 
 Per class. *Twice* and *Crit* say whether the ability's tooltip has the cast-twice and crit lines. *Best cast* is the best average damage per cast the meter has seen, at the rank given. Upgrades show the best value seen of each kind.
 
+### Paladin
+
+| Ability | Twice | Crit | Highest rank | Runs | Best cast | Upgrades |
+| --- | --- | --- | --- | --- | --- | --- |
+| Consecration | yes | yes | 14 | 9 | 21,757 (rank 10) | -44% cooldown, +96% area, +186% damage, +70% duration |
+| Divine Shield | yes | no | 14 | 9 | – | -62% cooldown, +182% duration |
+| Exorcism | – | – | – | 0 | – | – |
+| Hammer of Justice | yes | yes | 6 | 9 | 55,897 (rank 6) | -39% cooldown, +2 targets, +57% damage |
+| Hammer of Wrath | – | – | – | 0 | – | – |
+| Holy Light | yes | no | 2 | 2 | – | -13% cooldown, +18% healing |
+| Holy Shield | – | – | – | 0 | – | – |
+| Holy Shock | yes | yes | 18 | 9 | 3,109,348 (rank 18) | -59% cooldown, +12 targets, +256% damage |
+| Holy Wrath | yes | yes | 3 | 6 | 36,061 (rank 3) | -23% cooldown, +50% area, +46% damage |
+| Judgement | – | – | – | 0 | – | – |
+| Redemption | no | yes | 12 | 9 | 46,384 (rank 12) | -19% cooldown, +135% area, +153% damage |
+| Stoneform | no | no | 1 | 9 | – | – |
+
 ### Rogue
 
 | Ability | Twice | Crit | Highest rank | Runs | Best cast | Upgrades |
@@ -796,41 +1170,72 @@ Per class. *Twice* and *Crit* say whether the ability's tooltip has the cast-twi
 | Sinister Strike | yes | yes | 21 | 55 | 28,807 (rank 17) | -64% cooldown, +11 targets, +633% damage |
 | Slice and Dice | yes | no | 1 | 3 | – | -17% cooldown |
 
+### Shaman
+
+| Ability | Twice | Crit | Highest rank | Runs | Best cast | Upgrades |
+| --- | --- | --- | --- | --- | --- | --- |
+| Berserking | no | no | 1 | 34 | – | – |
+| Call of Flame *(not in spell book)* | no | yes | 2 | 1 | – | +18% area, +30% damage |
+| Chain Lightning | yes | yes | 16 | 32 | 119,827 (rank 13) | -56% cooldown, +10 targets, +309% damage |
+| Earth Shock | yes | yes | 12 | 31 | 15,291 (rank 11) | -57% cooldown, +11 targets, +253% damage |
+| Fire Nova *(not in spell book)* | yes | yes | 8 | 26 | – | -37% cooldown, +89% area, +248% damage |
+| Fire Nova Totem | no | yes | – | 0 | 12,731 | -37% cooldown, +72% area, +175% damage |
+| Flame Shock | yes | no | 13 | 26 | 62,255 (rank 12) | -30% cooldown, +6 targets, +312% damage, +70% duration |
+| Frost Shock | yes | yes | 10 | 27 | 35,300 (rank 10) | -55% cooldown, +7 targets, +279% damage |
+| Healing Wave | yes | no | 3 | 6 | – | -13% cooldown, +25% healing |
+| Lightning Bolt | yes | yes | 17 | 34 | 35,596 (rank 17) | -48% cooldown, +8 targets, +498% damage |
+| Lightning Shield | no | no | 4 | 2 | 82 (rank 4) | +152% damage |
+| Magma Totem | no | yes | 2 | 1 | 218 (rank 2) | +18% area, +23% damage |
+| Searing Totem | – | – | – | 0 | – | – |
+
 ### Warlock
 
 | Ability | Twice | Crit | Highest rank | Runs | Best cast | Upgrades |
 | --- | --- | --- | --- | --- | --- | --- |
-| Corruption | yes | no | 12 | 15 | 657,046 (rank 4) | -25% cooldown, +9 targets, +146% damage, +130% duration |
-| Curse of Agony | yes | no | 10 | 15 | 11,691 (rank 10) | -47% cooldown, +4 targets, +337% damage, +159% duration |
+| Corruption | yes | no | 12 | 16 | 657,046 (rank 4) | -25% cooldown, +9 targets, +146% damage, +130% duration |
+| Curse of Agony | yes | no | 10 | 16 | 81,318 (rank 10) | -47% cooldown, +4 targets, +337% damage, +159% duration |
 | Death Coil | no | yes | 6 | 3 | 2,746 (rank 6) | -35% cooldown, +2 targets, +182% damage |
-| Drain Life | yes | no | 17 | 13 | 112,600 (rank 13) | -52% cooldown, +12 targets, +727% damage, +165% duration |
-| Escape Artist | no | yes | 1 | 15 | 334 (rank 1) | – |
-| Fear | yes | yes | 18 | 10 | 1,125 (rank 8) | -69% cooldown, +12 targets, +80% damage |
+| Drain Life | yes | no | 17 | 14 | 112,600 (rank 13) | -52% cooldown, +12 targets, +727% damage, +165% duration |
+| Escape Artist | no | yes | 1 | 16 | 334 (rank 1) | – |
+| Fear | yes | yes | 18 | 11 | 1,423 (rank 8) | -69% cooldown, +12 targets, +87% damage |
 | Hellfire | – | – | – | 0 | – | – |
-| Immolate | yes | no | 8 | 14 | 116,453 (rank 7) | -23% cooldown, +4 targets, +171% damage, +165% duration |
+| Immolate | yes | no | 8 | 15 | 116,453 (rank 7) | -23% cooldown, +4 targets, +171% damage, +165% duration |
 | Rain of Fire | – | – | – | 0 | – | – |
 | Searing Pain | – | – | – | 0 | – | – |
-| Shadow Bolt | yes | yes | 17 | 15 | 96,216 (rank 17) | -49% cooldown, +10 targets, +314% damage |
+| Shadow Bolt | yes | yes | 17 | 16 | 96,216 (rank 17) | -49% cooldown, +10 targets, +314% damage |
 | Soul Fire | – | – | – | 0 | – | – |
 
 ### Warrior
 
 | Ability | Twice | Crit | Highest rank | Runs | Best cast | Upgrades |
 | --- | --- | --- | --- | --- | --- | --- |
-| Battle Shout | yes | no | 1 | 76 | – | -13% cooldown |
+| Battle Shout | yes | no | 1 | 77 | – | -13% cooldown |
 | Bloodrage | – | – | – | 0 | – | – |
-| Bloodthirst | yes | yes | 24 | 73 | 130,089 (rank 24) | -67% cooldown, +12 targets, +731% damage |
-| Cleave | yes | yes | 11 | 76 | 24,191 (rank 11) | -51% cooldown, +6 targets, +352% damage |
-| Demoralizing Shout | yes | yes | 8 | 73 | 8,756 (rank 8) | -54% cooldown, +81% area, +45% damage |
-| Escape Artist | no | yes | 1 | 76 | 1,045 (rank 1) | – |
+| Bloodthirst | yes | yes | 24 | 74 | 130,089 (rank 24) | -67% cooldown, +12 targets, +731% damage |
+| Cleave | yes | yes | 11 | 77 | 24,191 (rank 11) | -51% cooldown, +6 targets, +352% damage |
+| Demoralizing Shout | yes | yes | 8 | 74 | 8,756 (rank 8) | -54% cooldown, +81% area, +45% damage |
+| Escape Artist | no | yes | 1 | 77 | 1,045 (rank 1) | – |
 | Execute | – | – | – | 0 | – | – |
 | Mortal Strike | – | – | – | 0 | – | – |
 | Rend | – | – | – | 0 | – | – |
-| Shield Slam | yes | yes | 27 | 75 | 346,272 (rank 27) | -76% cooldown, +12 targets, +640% damage |
+| Shield Slam | yes | yes | 27 | 76 | 346,272 (rank 27) | -76% cooldown, +12 targets, +640% damage |
 | Thunder Clap | yes | yes | 17 | 1 | 91,536 (rank 17) | -57% cooldown, +138% area, +653% damage |
-| Whirlwind | yes | yes | 70 | 76 | 1,340,800 (rank 70) | -78% cooldown, +327% area, +2819% damage |
+| Whirlwind | yes | yes | 70 | 77 | 1,340,800 (rank 70) | -78% cooldown, +327% area, +2819% damage |
 
 ## Best boss times
+
+### Paladin
+
+| Boss | Best |
+| --- | --- |
+| C'Thun | 1:33 (nicho) |
+| Emperor Dagran Thaurissan | 0:59 (nicho) |
+| General Angerforge | 0:42 (nicho) |
+| General Rajaxx | 2:08 (nicho) |
+| Kurinnaxx | 0:37 (nicho) |
+| Nefarian | 1:16 (nicho) |
+| Ossirian the Unscarred | 1:21 (nicho) |
+| Warchief Rend Blackhand | 0:32 (nicho) |
 
 ### Rogue
 
@@ -863,6 +1268,29 @@ Per class. *Twice* and *Crit* say whether the ability's tooltip has the cast-twi
 | Warchief Rend Blackhand | 0:52 (nicho) |
 | Zevrim Thornhoof | 0:21 (nicho) |
 
+### Shaman
+
+| Boss | Best |
+| --- | --- |
+| Baron Rivendare | 0:27 (nicho) |
+| Bloodlord Mandokir | 0:46 (nicho) |
+| Doomguard Commander | 0:22 (nicho) |
+| High Priestess Jeklik | 0:23 (nicho) |
+| Hogger | 0:31 (nicho) |
+| King Gordok | 0:43 (nicho) |
+| Lord Blackwood | 0:28 (nicho) |
+| Lupos | 0:27 (nicho) |
+| Mor'Ladim | 0:33 (nicho) |
+| Morbent Fel | 0:33 (nicho) |
+| Mother Fang | 0:26 (nicho) |
+| Mr. Smite | 0:41 (nicho) |
+| Naraxis | 0:31 (nicho) |
+| Patchwerk | 0:18 (nicho) |
+| Rhahk'Zor | 0:32 (nicho) |
+| Stitches | 0:23 (nicho) |
+| Tendris Warpwood | 0:23 (nicho) |
+| Varimathras | 0:42 (nicho) |
+
 ### Warlock
 
 | Boss | Best |
@@ -890,10 +1318,12 @@ Per class. *Twice* and *Crit* say whether the ability's tooltip has the cast-twi
 | Anub'Rekhan | 0:23 (nicho) |
 | Baron Rivendare | 0:24 (nicho) |
 | Doomguard Commander | 0:11 (nicho) |
+| General Rajaxx | 0:18 (nicho) |
 | Immol'thar | 0:33 (nicho) |
 | Ivus the Forest Lord | 0:26 (nicho) |
 | King Gordok | 0:58 (nicho) |
 | Korrak the Bloodrager | 0:43 (nicho) |
+| Kurinnaxx | 0:22 (nicho) |
 | Lokholar the Ice Lord | 2:31 (nicho) |
 | Lord Blackwood | 0:19 (nicho) |
 | Lord Kazzak | 0:04 (nicho) |

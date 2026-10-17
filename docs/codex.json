@@ -2,6 +2,48 @@
   "jewelry": {
     "Neck": [
       {
+        "name": "Amulet of the Darkmoon",
+        "quality": "Uncommon",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_14",
+        "classes": [],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Amulet of the Darkmoon",
+            "quality": "Uncommon",
+            "hex": "ff1eff00",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_14",
+            "link": "item:900000:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Amulet of the Darkmoon",
+                "color": "1eff00"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 12%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases your movement speed by 8%.",
+                "color": "00ff00"
+              }
+            ]
+          }
+        ],
+        "anyClass": true
+      },
+      {
         "name": "Amulet of the Inferno: Consecration",
         "quality": "Legendary",
         "icon": null,
@@ -454,6 +496,89 @@
         "anyClass": true
       },
       {
+        "name": "Eye of the Splitting Sky: Earth Shock",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+        "classes": [
+          "SHAMAN"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Eye of the Splitting Sky: Earth Shock",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+            "link": "item:900104:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Eye of the Splitting Sky: Earth Shock",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Earth Shock strikes 1 more target.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Earth Shock by 20%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Earth Shock's hits leap to 2 more enemies for 30%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Eye of the Splitting Sky: Earth Shock II",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+            "link": "item:900107:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Eye of the Splitting Sky: Earth Shock II",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Earth Shock strikes 1 more target.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Earth Shock by 24%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Earth Shock's hits leap to 2 more enemies for 36%.",
+                "color": "00ff00"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "Eye of the Splitting Sky: Fear",
         "quality": "Legendary",
         "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
@@ -602,6 +727,374 @@
               },
               {
                 "text": "Equip: Fear's hits leap to 2 more enemies for 46%.",
+                "color": "00ff00"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Eye of the Splitting Sky: Frost Shock",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+        "classes": [
+          "SHAMAN"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Eye of the Splitting Sky: Frost Shock",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+            "link": "item:900071:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Eye of the Splitting Sky: Frost Shock",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Frost Shock strikes 1 more target.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Frost Shock by 20%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Frost Shock's hits leap to 2 more enemies for 30%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Eye of the Splitting Sky: Frost Shock II",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+            "link": "item:900038:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Eye of the Splitting Sky: Frost Shock II",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Frost Shock strikes 1 more target.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Frost Shock by 24%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Frost Shock's hits leap to 2 more enemies for 36%.",
+                "color": "00ff00"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Eye of the Splitting Sky: Lightning Bolt",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+        "classes": [
+          "SHAMAN"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Eye of the Splitting Sky: Lightning Bolt",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+            "link": "item:900166:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Eye of the Splitting Sky: Lightning Bolt",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Lightning Bolt strikes 1 more target.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Lightning Bolt by 20%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Lightning Bolt's hits leap to 2 more enemies for 30%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Eye of the Splitting Sky: Lightning Bolt II",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+            "link": "item:900169:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Eye of the Splitting Sky: Lightning Bolt II",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Lightning Bolt strikes 1 more target.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Lightning Bolt by 24%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Lightning Bolt's hits leap to 2 more enemies for 36%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Eye of the Splitting Sky: Lightning Bolt III",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+            "link": "item:900171:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Eye of the Splitting Sky: Lightning Bolt III",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Lightning Bolt strikes 1 more target.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Lightning Bolt by 28%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Lightning Bolt's hits leap to 2 more enemies for 41%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Eye of the Splitting Sky: Lightning Bolt IV",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+            "link": "item:900173:0:0:0",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "V",
+            "rank": 5,
+            "name": "Eye of the Splitting Sky: Lightning Bolt V",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+            "link": "item:900174:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Eye of the Splitting Sky: Lightning Bolt V",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Lightning Bolt strikes 1 more target.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Lightning Bolt by 34%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Lightning Bolt's hits leap to 2 more enemies for 51%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "VI",
+            "rank": 6,
+            "name": "Eye of the Splitting Sky: Lightning Bolt VI",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+            "link": "item:900180:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Eye of the Splitting Sky: Lightning Bolt VI",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Lightning Bolt strikes 1 more target.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Lightning Bolt by 36%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Lightning Bolt's hits leap to 2 more enemies for 55%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "VII",
+            "rank": 7,
+            "name": "Eye of the Splitting Sky: Lightning Bolt VII",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+            "link": "item:900181:0:0:0",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "VIII",
+            "rank": 8,
+            "name": "Eye of the Splitting Sky: Lightning Bolt VIII",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+            "link": "item:900182:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Eye of the Splitting Sky: Lightning Bolt VIII",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Lightning Bolt strikes 2 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Lightning Bolt by 41%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Lightning Bolt's hits leap to 2 more enemies for 61%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "IX",
+            "rank": 9,
+            "name": "Eye of the Splitting Sky: Lightning Bolt IX",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_16",
+            "link": "item:900188:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Eye of the Splitting Sky: Lightning Bolt IX",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Lightning Bolt strikes 2 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Lightning Bolt by 43%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Lightning Bolt's hits leap to 2 more enemies for 64%.",
                 "color": "00ff00"
               }
             ]
@@ -1753,11 +2246,31 @@
             "hex": "ffff8000",
             "icon": "Interface\\Icons\\INV_Jewelry_Necklace_09",
             "link": "item:900013:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Onyxia Tooth Pendant II",
                 "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Improves your chance to get a critical strike by 5%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of your critical strikes by 24%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Your critical hits splash 38% on enemies within 5 yd, at most 2 times a second.",
+                "color": "00ff00"
               }
             ]
           },
@@ -1859,7 +2372,7 @@
       {
         "name": "Pendant of the Fallen Dragon",
         "quality": "Epic",
-        "icon": null,
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_12",
         "classes": [],
         "only": null,
         "ranks": [
@@ -1869,8 +2382,35 @@
             "name": "Pendant of the Fallen Dragon",
             "quality": "Epic",
             "hex": "ffa335ee",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pendant of the Fallen Dragon",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: A killing blow leaves you at 50% health instead, once every 60 sec.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases your maximum health by 20%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Restores 5 health per second.",
+                "color": "00ff00"
+              }
+            ],
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_12",
+            "link": "item:900027:0:0:0"
           },
           {
             "numeral": "II",
@@ -1878,8 +2418,35 @@
             "name": "Pendant of the Fallen Dragon II",
             "quality": "Epic",
             "hex": "ffa335ee",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pendant of the Fallen Dragon II",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: A killing blow leaves you at 50% health instead, once every 60 sec.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases your maximum health by 25%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Restores 6.3 health per second.",
+                "color": "00ff00"
+              }
+            ],
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_12",
+            "link": "item:900031:0:0:0"
           },
           {
             "numeral": "III",
@@ -1887,8 +2454,35 @@
             "name": "Pendant of the Fallen Dragon III",
             "quality": "Epic",
             "hex": "ffa335ee",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pendant of the Fallen Dragon III",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: A killing blow leaves you at 50% health instead, once every 60 sec.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases your maximum health by 29%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Restores 7.3 health per second.",
+                "color": "00ff00"
+              }
+            ],
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_12",
+            "link": "item:900032:0:0:0"
           },
           {
             "numeral": "IV",
@@ -2333,6 +2927,244 @@
         ]
       },
       {
+        "name": "Pendant of the Plague: Flame Shock",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+        "classes": [
+          "SHAMAN"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Pendant of the Plague: Flame Shock",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+            "link": "item:900130:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pendant of the Plague: Flame Shock",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Flame Shock strikes 3 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Flame Shock by 90%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Enemies that die with Flame Shock on them explode for 20% of their max health, at most 2 times a second.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Pendant of the Plague: Flame Shock II",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+            "link": "item:900133:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pendant of the Plague: Flame Shock II",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Flame Shock strikes 3 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Flame Shock by 108%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Enemies that die with Flame Shock on them explode for 24% of their max health, at most 2 times a second.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Pendant of the Plague: Flame Shock III",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+            "link": "item:900134:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pendant of the Plague: Flame Shock III",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Flame Shock strikes 4 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Flame Shock by 124%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Enemies that die with Flame Shock on them explode for 28% of their max health, at most 2 times a second.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Pendant of the Plague: Flame Shock IV",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+            "link": "item:900135:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pendant of the Plague: Flame Shock IV",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Flame Shock strikes 4 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Flame Shock by 139%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Enemies that die with Flame Shock on them explode for 31% of their max health, at most 2 times a second.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "V",
+            "rank": 5,
+            "name": "Pendant of the Plague: Flame Shock V",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+            "link": "item:900136:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pendant of the Plague: Flame Shock V",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Flame Shock strikes 5 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Flame Shock by 152%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Enemies that die with Flame Shock on them explode for 34% of their max health, at most 2 times a second.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "VI",
+            "rank": 6,
+            "name": "Pendant of the Plague: Flame Shock VI",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+            "link": "item:900137:0:0:0",
+            "tooltip": false,
+            "lines": []
+          },
+          {
+            "numeral": "VII",
+            "rank": 7,
+            "name": "Pendant of the Plague: Flame Shock VII",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
+            "link": "item:900138:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pendant of the Plague: Flame Shock VII",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Flame Shock strikes 5 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Flame Shock by 174%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Enemies that die with Flame Shock on them explode for 39% of their max health, at most 2 times a second.",
+                "color": "00ff00"
+              }
+            ]
+          }
+        ]
+      },
+      {
         "name": "Pendant of the Plague: Immolate",
         "quality": "Legendary",
         "icon": "Interface\\Icons\\INV_Jewelry_Necklace_28Naxxramas",
@@ -2488,8 +3320,324 @@
             "name": "Pristine Enchanted South Seas Kelp IV",
             "quality": "Common",
             "hex": "ffffffff",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pristine Enchanted South Seas Kelp IV",
+                "color": "ffffff"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases your luck by 69%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases gold found by 58%.",
+                "color": "00ff00"
+              }
+            ],
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_26",
+            "link": "item:900016:0:0:0"
+          },
+          {
+            "numeral": "V",
+            "rank": 5,
+            "name": "Pristine Enchanted South Seas Kelp V",
+            "quality": "Common",
+            "hex": "ffffffff",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_26",
+            "link": "item:900019:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pristine Enchanted South Seas Kelp V",
+                "color": "ffffff"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases your luck by 76%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases gold found by 63%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "VI",
+            "rank": 6,
+            "name": "Pristine Enchanted South Seas Kelp VI",
+            "quality": "Common",
+            "hex": "ffffffff",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_26",
+            "link": "item:900020:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Pristine Enchanted South Seas Kelp VI",
+                "color": "ffffff"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases your luck by 80%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases gold found by 67%.",
+                "color": "00ff00"
+              }
+            ]
+          }
+        ],
+        "anyClass": true
+      },
+      {
+        "name": "Stormcaller's Amulet: Holy Shock",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_02",
+        "classes": [
+          "PALADIN"
+        ],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Stormcaller's Amulet: Holy Shock",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_02",
+            "link": "item:900011:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Stormcaller's Amulet: Holy Shock",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Holy Shock strikes 4 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Holy Shock by 20%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: 30% chance for Holy Shock's hits to strike again for 100%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Stormcaller's Amulet: Holy Shock II",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_02",
+            "link": "item:900018:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Stormcaller's Amulet: Holy Shock II",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Holy Shock strikes 4 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Holy Shock by 24%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: 36% chance for Holy Shock's hits to strike again for 100%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Stormcaller's Amulet: Holy Shock III",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_02",
+            "link": "item:900019:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Stormcaller's Amulet: Holy Shock III",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Holy Shock strikes 5 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Holy Shock by 28%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: 41% chance for Holy Shock's hits to strike again for 100%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Stormcaller's Amulet: Holy Shock IV",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_02",
+            "link": "item:900021:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Stormcaller's Amulet: Holy Shock IV",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Holy Shock strikes 6 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Holy Shock by 31%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: 46% chance for Holy Shock's hits to strike again for 100%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "V",
+            "rank": 5,
+            "name": "Stormcaller's Amulet: Holy Shock V",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_AhnQiraj_02",
+            "link": "item:900022:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Stormcaller's Amulet: Holy Shock V",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Holy Shock strikes 6 more targets.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: Increases the damage of Holy Shock by 34%.",
+                "color": "00ff00"
+              },
+              {
+                "text": "Equip: 51% chance for Holy Shock's hits to strike again for 100%.",
+                "color": "00ff00"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Talvash's Enhancing Necklace",
+        "quality": "Common",
+        "icon": "Interface\\Icons\\INV_Jewelry_Necklace_02",
+        "classes": [],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Talvash's Enhancing Necklace",
+            "quality": "Common",
+            "hex": "ffffffff",
+            "icon": "Interface\\Icons\\INV_Jewelry_Necklace_02",
+            "link": "item:900024:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Talvash's Enhancing Necklace",
+                "color": "ffffff"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Neck",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Reduces the cooldown of your spells by 10%.",
+                "color": "00ff00"
+              }
+            ]
           }
         ],
         "anyClass": true
@@ -3104,7 +4252,7 @@
       },
       {
         "name": "Blooddrinker's Band",
-        "quality": "Epic",
+        "quality": "Uncommon",
         "icon": "Interface\\Icons\\INV_Jewelry_Ring_49Naxxramas",
         "classes": [],
         "only": null,
@@ -3113,15 +4261,111 @@
             "numeral": "I",
             "rank": 1,
             "name": "Blooddrinker's Band",
-            "quality": "Epic",
-            "hex": "ffa335ee",
+            "quality": "Common",
+            "hex": "ffffffff",
             "icon": "Interface\\Icons\\INV_Jewelry_Ring_49Naxxramas",
             "link": "item:900006:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Blooddrinker's Band",
-                "color": "a335ee"
+                "color": "ffffff"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Heals you for 1.5% of all damage you deal.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Blooddrinker's Band II",
+            "quality": "Uncommon",
+            "hex": "ff1eff00",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_49Naxxramas",
+            "link": "item:900170:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Blooddrinker's Band II",
+                "color": "1eff00"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Heals you for 2.5% of all damage you deal.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Blooddrinker's Band III",
+            "quality": "Uncommon",
+            "hex": "ff1eff00",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_49Naxxramas",
+            "link": "item:900176:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Blooddrinker's Band III",
+                "color": "1eff00"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Heals you for 2.7% of all damage you deal.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Blooddrinker's Band IV",
+            "quality": "Uncommon",
+            "hex": "ff1eff00",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_49Naxxramas",
+            "link": "item:900184:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Blooddrinker's Band IV",
+                "color": "1eff00"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Heals you for 2.8% of all damage you deal.",
+                "color": "00ff00"
               }
             ]
           }
@@ -3130,7 +4374,7 @@
       },
       {
         "name": "Heavy Dark Iron Ring",
-        "quality": "Uncommon",
+        "quality": "Rare",
         "icon": "Interface\\Icons\\INV_Jewelry_Ring_14",
         "classes": [],
         "only": null,
@@ -3187,6 +4431,240 @@
               },
               {
                 "text": "Equip: Increases your maximum health by 58%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Heavy Dark Iron Ring III",
+            "quality": "Common",
+            "hex": "ffffffff",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_14",
+            "link": "item:900035:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Heavy Dark Iron Ring III",
+                "color": "ffffff"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases your maximum health by 47%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Heavy Dark Iron Ring IV",
+            "quality": "Rare",
+            "hex": "ff0070dd",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_14",
+            "link": "item:900043:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Heavy Dark Iron Ring IV",
+                "color": "0070dd"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases your maximum health by 55%.",
+                "color": "00ff00"
+              }
+            ]
+          }
+        ],
+        "anyClass": true
+      },
+      {
+        "name": "Master Dragonslayer's Ring",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Jewelry_Ring_41",
+        "classes": [],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Master Dragonslayer's Ring",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_41",
+            "link": "item:900006:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Master Dragonslayer's Ring",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Improves your chance to get a critical strike by 14%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Master Dragonslayer's Ring II",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_41",
+            "link": "item:900007:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Master Dragonslayer's Ring II",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Improves your chance to get a critical strike by 21%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Master Dragonslayer's Ring III",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_41",
+            "link": "item:900011:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Master Dragonslayer's Ring III",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Improves your chance to get a critical strike by 25%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Master Dragonslayer's Ring IV",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_41",
+            "link": "item:900013:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Master Dragonslayer's Ring IV",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Improves your chance to get a critical strike by 29%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "V",
+            "rank": 5,
+            "name": "Master Dragonslayer's Ring V",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_41",
+            "link": "item:900015:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Master Dragonslayer's Ring V",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Improves your chance to get a critical strike by 33%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "VI",
+            "rank": 6,
+            "name": "Master Dragonslayer's Ring VI",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_41",
+            "link": "item:900016:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Master Dragonslayer's Ring VI",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Improves your chance to get a critical strike by 42%.",
                 "color": "00ff00"
               }
             ]
@@ -3722,7 +5200,7 @@
       },
       {
         "name": "Ring of the Devoured",
-        "quality": "Legendary",
+        "quality": "Rare",
         "icon": "Interface\\Icons\\INV_Jewelry_Ring_AhnQiraj_05",
         "classes": [],
         "only": null,
@@ -3731,15 +5209,55 @@
             "numeral": "I",
             "rank": 1,
             "name": "Ring of the Devoured",
-            "quality": "Legendary",
-            "hex": "ffff8000",
+            "quality": "Uncommon",
+            "hex": "ff1eff00",
             "icon": "Interface\\Icons\\INV_Jewelry_Ring_AhnQiraj_05",
             "link": "item:900002:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Ring of the Devoured",
-                "color": "ff8000"
+                "color": "1eff00"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Restores 3.1 health per second.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Ring of the Devoured II",
+            "quality": "Rare",
+            "hex": "ff0070dd",
+            "icon": "Interface\\Icons\\INV_Jewelry_Ring_AhnQiraj_05",
+            "link": "item:900033:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Ring of the Devoured II",
+                "color": "0070dd"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Finger",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Restores 4 health per second.",
+                "color": "00ff00"
               }
             ]
           }
@@ -3803,6 +5321,184 @@
     ],
     "Trinket": [
       {
+        "name": "Blackhand's Breadth",
+        "quality": "Legendary",
+        "icon": "Interface\\Icons\\INV_Misc_ArmorKit_09",
+        "classes": [],
+        "only": null,
+        "ranks": [
+          {
+            "numeral": "I",
+            "rank": 1,
+            "name": "Blackhand's Breadth",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Misc_ArmorKit_09",
+            "link": "item:900002:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Blackhand's Breadth",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the damage of your critical strikes by 70%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Blackhand's Breadth II",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Misc_ArmorKit_09",
+            "link": "item:900003:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Blackhand's Breadth II",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the damage of your critical strikes by 103%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Blackhand's Breadth III",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Misc_ArmorKit_09",
+            "link": "item:900004:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Blackhand's Breadth III",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the damage of your critical strikes by 120%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Blackhand's Breadth IV",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Misc_ArmorKit_09",
+            "link": "item:900005:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Blackhand's Breadth IV",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the damage of your critical strikes by 148%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "V",
+            "rank": 5,
+            "name": "Blackhand's Breadth V",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Misc_ArmorKit_09",
+            "link": "item:900012:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Blackhand's Breadth V",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the damage of your critical strikes by 195%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "VI",
+            "rank": 6,
+            "name": "Blackhand's Breadth VI",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\INV_Misc_ArmorKit_09",
+            "link": "item:900019:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Blackhand's Breadth VI",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases the damage of your critical strikes by 215%.",
+                "color": "00ff00"
+              }
+            ]
+          }
+        ],
+        "anyClass": true
+      },
+      {
         "name": "Earthstrike",
         "quality": "Legendary",
         "icon": "Interface\\Icons\\Spell_Nature_AbolishMagic",
@@ -3817,11 +5513,135 @@
             "hex": "ffff8000",
             "icon": "Interface\\Icons\\Spell_Nature_AbolishMagic",
             "link": "item:900004:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Earthstrike",
                 "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases all damage you deal by 62%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "II",
+            "rank": 2,
+            "name": "Earthstrike II",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\Spell_Nature_AbolishMagic",
+            "link": "item:900149:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Earthstrike II",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases all damage you deal by 91%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "III",
+            "rank": 3,
+            "name": "Earthstrike III",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\Spell_Nature_AbolishMagic",
+            "link": "item:900152:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Earthstrike III",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases all damage you deal by 127%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Earthstrike IV",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\Spell_Nature_AbolishMagic",
+            "link": "item:900155:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Earthstrike IV",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases all damage you deal by 152%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "V",
+            "rank": 5,
+            "name": "Earthstrike V",
+            "quality": "Legendary",
+            "hex": "ffff8000",
+            "icon": "Interface\\Icons\\Spell_Nature_AbolishMagic",
+            "link": "item:900157:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Earthstrike V",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases all damage you deal by 170%.",
+                "color": "00ff00"
               }
             ]
           }
@@ -3953,8 +5773,27 @@
             "name": "Hand of Justice V",
             "quality": "Epic",
             "hex": "ffa335ee",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Hand of Justice V",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Gives your spells a 60% chance to cast twice.",
+                "color": "00ff00"
+              }
+            ],
+            "icon": "Interface\\Icons\\INV_Jewelry_Talisman_01",
+            "link": "item:900132:0:0:0"
           },
           {
             "numeral": "VI",
@@ -3986,15 +5825,27 @@
             "numeral": "I",
             "rank": 1,
             "name": "Insignia of the Horde",
-            "quality": "Epic",
-            "hex": "ffa335ee",
+            "quality": "Rare",
+            "hex": "ff0070dd",
             "icon": "Interface\\Icons\\INV_Jewelry_TrinketPVP_02",
             "link": "item:900008:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Insignia of the Horde",
-                "color": "a335ee"
+                "color": "0070dd"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases experience gained by 32%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -4006,11 +5857,23 @@
             "hex": "ffa335ee",
             "icon": "Interface\\Icons\\INV_Jewelry_TrinketPVP_02",
             "link": "item:900009:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Insignia of the Horde II",
                 "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases experience gained by 47%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -4022,11 +5885,51 @@
             "hex": "ffa335ee",
             "icon": "Interface\\Icons\\INV_Jewelry_TrinketPVP_02",
             "link": "item:900011:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Insignia of the Horde III",
                 "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases experience gained by 53%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "IV",
+            "rank": 4,
+            "name": "Insignia of the Horde IV",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_TrinketPVP_02",
+            "link": "item:900009:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Insignia of the Horde IV",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases experience gained by 56%.",
+                "color": "00ff00"
               }
             ]
           }
@@ -4064,11 +5967,23 @@
             "hex": "ffffffff",
             "icon": "Interface\\Icons\\INV_Misc_Gem_Pearl_05",
             "link": "item:900001:0:0:0",
-            "tooltip": false,
+            "tooltip": true,
             "lines": [
               {
                 "text": "Lifegiving Gem II",
+                "color": "ff8000"
+              },
+              {
+                "text": "Binds when picked up",
                 "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases your maximum health by 48%.",
+                "color": "00ff00"
               }
             ]
           },
@@ -4134,15 +6049,15 @@
             "numeral": "I",
             "rank": 1,
             "name": "Mark of the Chosen",
-            "quality": "Uncommon",
-            "hex": "ff1eff00",
+            "quality": "Common",
+            "hex": "ffffffff",
             "icon": "Interface\\Icons\\INV_Jewelry_Talisman_08",
             "link": "item:900000:0:0:0",
             "tooltip": true,
             "lines": [
               {
                 "text": "Mark of the Chosen",
-                "color": "1eff00"
+                "color": "ffffff"
               },
               {
                 "text": "Binds when picked up",
@@ -4153,7 +6068,7 @@
                 "color": "ffffff"
               },
               {
-                "text": "Equip: Increases your luck by 32%.",
+                "text": "Equip: Increases your luck by 23%.",
                 "color": "00ff00"
               }
             ]
@@ -4368,15 +6283,15 @@
             "numeral": "I",
             "rank": 1,
             "name": "Royal Seal of Eldre'Thalas",
-            "quality": "Epic",
-            "hex": "ffa335ee",
+            "quality": "Common",
+            "hex": "ffffffff",
             "icon": "Interface\\Icons\\INV_Jewelry_Talisman_10",
             "link": "item:900004:0:0:0",
             "tooltip": true,
             "lines": [
               {
                 "text": "Royal Seal of Eldre'Thalas",
-                "color": "a335ee"
+                "color": "ffffff"
               },
               {
                 "text": "Binds when picked up",
@@ -4387,7 +6302,7 @@
                 "color": "ffffff"
               },
               {
-                "text": "Equip: Increases gold found by 90%.",
+                "text": "Equip: Increases gold found by 38%.",
                 "color": "00ff00"
               }
             ]
@@ -4456,8 +6371,81 @@
             "hex": "ffa335ee",
             "icon": "Interface\\Icons\\INV_Jewelry_Talisman_10",
             "link": "item:900018:0:0:0",
-            "tooltip": false,
-            "lines": []
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Royal Seal of Eldre'Thalas IV",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases gold found by 101%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "V",
+            "rank": 5,
+            "name": "Royal Seal of Eldre'Thalas V",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_Talisman_10",
+            "link": "item:900014:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Royal Seal of Eldre'Thalas V",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases gold found by 106%.",
+                "color": "00ff00"
+              }
+            ]
+          },
+          {
+            "numeral": "VI",
+            "rank": 6,
+            "name": "Royal Seal of Eldre'Thalas VI",
+            "quality": "Epic",
+            "hex": "ffa335ee",
+            "icon": "Interface\\Icons\\INV_Jewelry_Talisman_10",
+            "link": "item:900017:0:0:0",
+            "tooltip": true,
+            "lines": [
+              {
+                "text": "Royal Seal of Eldre'Thalas VI",
+                "color": "a335ee"
+              },
+              {
+                "text": "Binds when picked up",
+                "color": "ffffff"
+              },
+              {
+                "text": "Trinket",
+                "color": "ffffff"
+              },
+              {
+                "text": "Equip: Increases gold found by 111%.",
+                "color": "00ff00"
+              }
+            ]
           }
         ],
         "anyClass": true
@@ -4784,6 +6772,287 @@
     ]
   },
   "abilities": {
+    "PALADIN": [
+      {
+        "name": "Consecration",
+        "icon": "Interface\\Icons\\Spell_Holy_InnerFire",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 14,
+        "runs": 9,
+        "runsBy": {
+          "nicho": 9
+        },
+        "bestAverageCast": 21756.6,
+        "bestAverageCastRank": 10,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 44,
+            "text": "-44% cooldown"
+          },
+          {
+            "kind": "+#% area",
+            "best": 96,
+            "text": "+96% area"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 186,
+            "text": "+186% damage"
+          },
+          {
+            "kind": "+#% duration",
+            "best": 70,
+            "text": "+70% duration"
+          }
+        ]
+      },
+      {
+        "name": "Divine Shield",
+        "icon": "Interface\\Icons\\Spell_Holy_DivineIntervention",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": false,
+        "highestRank": 14,
+        "runs": 9,
+        "runsBy": {
+          "nicho": 9
+        },
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 62,
+            "text": "-62% cooldown"
+          },
+          {
+            "kind": "+#% duration",
+            "best": 182,
+            "text": "+182% duration"
+          }
+        ]
+      },
+      {
+        "name": "Exorcism",
+        "icon": "Interface\\Icons\\Spell_Holy_Excorcism_02",
+        "inBook": true,
+        "castsTwice": null,
+        "crits": null,
+        "highestRank": null,
+        "runs": 0,
+        "runsBy": {},
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": []
+      },
+      {
+        "name": "Hammer of Justice",
+        "icon": "Interface\\Icons\\Spell_Holy_SealOfMight",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 6,
+        "runs": 9,
+        "runsBy": {
+          "nicho": 9
+        },
+        "bestAverageCast": 55896.71428571428,
+        "bestAverageCastRank": 6,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 39,
+            "text": "-39% cooldown"
+          },
+          {
+            "kind": "+# targets",
+            "best": 2,
+            "text": "+2 targets"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 57,
+            "text": "+57% damage"
+          }
+        ]
+      },
+      {
+        "name": "Hammer of Wrath",
+        "icon": "Interface\\Icons\\Ability_ThunderClap",
+        "inBook": true,
+        "castsTwice": null,
+        "crits": null,
+        "highestRank": null,
+        "runs": 0,
+        "runsBy": {},
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": []
+      },
+      {
+        "name": "Holy Light",
+        "icon": "Interface\\Icons\\Spell_Holy_HolyBolt",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": false,
+        "highestRank": 2,
+        "runs": 2,
+        "runsBy": {
+          "nicho": 2
+        },
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 13,
+            "text": "-13% cooldown"
+          },
+          {
+            "kind": "+#% healing",
+            "best": 18,
+            "text": "+18% healing"
+          }
+        ]
+      },
+      {
+        "name": "Holy Shield",
+        "icon": "Interface\\Icons\\Spell_Holy_BlessingOfProtection",
+        "inBook": true,
+        "castsTwice": null,
+        "crits": null,
+        "highestRank": null,
+        "runs": 0,
+        "runsBy": {},
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": []
+      },
+      {
+        "name": "Holy Shock",
+        "icon": "Interface\\Icons\\Spell_Holy_SearingLight",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 18,
+        "runs": 9,
+        "runsBy": {
+          "nicho": 9
+        },
+        "bestAverageCast": 3109348,
+        "bestAverageCastRank": 18,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 59,
+            "text": "-59% cooldown"
+          },
+          {
+            "kind": "+# targets",
+            "best": 12,
+            "text": "+12 targets"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 256,
+            "text": "+256% damage"
+          }
+        ]
+      },
+      {
+        "name": "Holy Wrath",
+        "icon": "Interface\\Icons\\Spell_Holy_Excorcism",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 3,
+        "runs": 6,
+        "runsBy": {
+          "nicho": 6
+        },
+        "bestAverageCast": 36061.4,
+        "bestAverageCastRank": 3,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 23,
+            "text": "-23% cooldown"
+          },
+          {
+            "kind": "+#% area",
+            "best": 50,
+            "text": "+50% area"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 46,
+            "text": "+46% damage"
+          }
+        ]
+      },
+      {
+        "name": "Judgement",
+        "icon": "Interface\\Icons\\Spell_Holy_RighteousFury",
+        "inBook": true,
+        "castsTwice": null,
+        "crits": null,
+        "highestRank": null,
+        "runs": 0,
+        "runsBy": {},
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": []
+      },
+      {
+        "name": "Redemption",
+        "icon": "Interface\\Icons\\Spell_Holy_Resurrection",
+        "inBook": true,
+        "castsTwice": false,
+        "crits": true,
+        "highestRank": 12,
+        "runs": 9,
+        "runsBy": {
+          "nicho": 9
+        },
+        "bestAverageCast": 46384.21951219512,
+        "bestAverageCastRank": 12,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 19,
+            "text": "-19% cooldown"
+          },
+          {
+            "kind": "+#% area",
+            "best": 135,
+            "text": "+135% area"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 153,
+            "text": "+153% damage"
+          }
+        ]
+      },
+      {
+        "name": "Stoneform",
+        "icon": "Interface\\Icons\\Spell_Shadow_UnholyStrength",
+        "inBook": true,
+        "castsTwice": false,
+        "crits": false,
+        "highestRank": 1,
+        "runs": 9,
+        "runsBy": {
+          "nicho": 9
+        },
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": []
+      }
+    ],
     "ROGUE": [
       {
         "name": "Adrenaline Rush",
@@ -5096,6 +7365,355 @@
         ]
       }
     ],
+    "SHAMAN": [
+      {
+        "name": "Berserking",
+        "icon": "Interface\\Icons\\Racial_Troll_Berserk",
+        "inBook": true,
+        "castsTwice": false,
+        "crits": false,
+        "highestRank": 1,
+        "runs": 34,
+        "runsBy": {
+          "nicho": 34
+        },
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": []
+      },
+      {
+        "name": "Call of Flame",
+        "icon": null,
+        "inBook": false,
+        "castsTwice": false,
+        "crits": true,
+        "highestRank": 2,
+        "runs": 1,
+        "runsBy": {
+          "nicho": 1
+        },
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": [
+          {
+            "kind": "+#% area",
+            "best": 18,
+            "text": "+18% area"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 30,
+            "text": "+30% damage"
+          }
+        ]
+      },
+      {
+        "name": "Chain Lightning",
+        "icon": "Interface\\Icons\\Spell_Nature_ChainLightning",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 16,
+        "runs": 32,
+        "runsBy": {
+          "nicho": 32
+        },
+        "bestAverageCast": 119827.14285714286,
+        "bestAverageCastRank": 13,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 56,
+            "text": "-56% cooldown"
+          },
+          {
+            "kind": "+# targets",
+            "best": 10,
+            "text": "+10 targets"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 309,
+            "text": "+309% damage"
+          }
+        ]
+      },
+      {
+        "name": "Earth Shock",
+        "icon": "Interface\\Icons\\Spell_Nature_EarthShock",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 12,
+        "runs": 31,
+        "runsBy": {
+          "nicho": 31
+        },
+        "bestAverageCast": 15290.889655172414,
+        "bestAverageCastRank": 11,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 57,
+            "text": "-57% cooldown"
+          },
+          {
+            "kind": "+# targets",
+            "best": 11,
+            "text": "+11 targets"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 253,
+            "text": "+253% damage"
+          }
+        ]
+      },
+      {
+        "name": "Fire Nova",
+        "icon": "Interface\\Icons\\Spell_Fire_SealOfFire",
+        "inBook": false,
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 8,
+        "runs": 26,
+        "runsBy": {
+          "nicho": 26
+        },
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 37,
+            "text": "-37% cooldown"
+          },
+          {
+            "kind": "+#% area",
+            "best": 89,
+            "text": "+89% area"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 248,
+            "text": "+248% damage"
+          }
+        ]
+      },
+      {
+        "name": "Fire Nova Totem",
+        "icon": "Interface\\Icons\\Spell_Fire_SealOfFire",
+        "inBook": true,
+        "castsTwice": false,
+        "crits": true,
+        "highestRank": null,
+        "runs": 0,
+        "runsBy": {},
+        "bestAverageCast": 12731.09090909091,
+        "bestAverageCastRank": null,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 37,
+            "text": "-37% cooldown"
+          },
+          {
+            "kind": "+#% area",
+            "best": 72,
+            "text": "+72% area"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 175,
+            "text": "+175% damage"
+          }
+        ]
+      },
+      {
+        "name": "Flame Shock",
+        "icon": "Interface\\Icons\\Spell_Fire_FlameShock",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": false,
+        "highestRank": 13,
+        "runs": 26,
+        "runsBy": {
+          "nicho": 26
+        },
+        "bestAverageCast": 62255.15789473684,
+        "bestAverageCastRank": 12,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 30,
+            "text": "-30% cooldown"
+          },
+          {
+            "kind": "+# targets",
+            "best": 6,
+            "text": "+6 targets"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 312,
+            "text": "+312% damage"
+          },
+          {
+            "kind": "+#% duration",
+            "best": 70,
+            "text": "+70% duration"
+          }
+        ]
+      },
+      {
+        "name": "Frost Shock",
+        "icon": "Interface\\Icons\\Spell_Frost_FrostShock",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 10,
+        "runs": 27,
+        "runsBy": {
+          "nicho": 27
+        },
+        "bestAverageCast": 35300.333333333336,
+        "bestAverageCastRank": 10,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 55,
+            "text": "-55% cooldown"
+          },
+          {
+            "kind": "+# targets",
+            "best": 7,
+            "text": "+7 targets"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 279,
+            "text": "+279% damage"
+          }
+        ]
+      },
+      {
+        "name": "Healing Wave",
+        "icon": "Interface\\Icons\\Spell_Nature_MagicImmunity",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": false,
+        "highestRank": 3,
+        "runs": 6,
+        "runsBy": {
+          "nicho": 6
+        },
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 13,
+            "text": "-13% cooldown"
+          },
+          {
+            "kind": "+#% healing",
+            "best": 25,
+            "text": "+25% healing"
+          }
+        ]
+      },
+      {
+        "name": "Lightning Bolt",
+        "icon": "Interface\\Icons\\Spell_Nature_Lightning",
+        "inBook": true,
+        "castsTwice": true,
+        "crits": true,
+        "highestRank": 17,
+        "runs": 34,
+        "runsBy": {
+          "nicho": 34
+        },
+        "bestAverageCast": 35595.93570608496,
+        "bestAverageCastRank": 17,
+        "upgrades": [
+          {
+            "kind": "-#% cooldown",
+            "best": 48,
+            "text": "-48% cooldown"
+          },
+          {
+            "kind": "+# targets",
+            "best": 8,
+            "text": "+8 targets"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 498,
+            "text": "+498% damage"
+          }
+        ]
+      },
+      {
+        "name": "Lightning Shield",
+        "icon": "Interface\\Icons\\Spell_Nature_LightningShield",
+        "inBook": true,
+        "castsTwice": false,
+        "crits": false,
+        "highestRank": 4,
+        "runs": 2,
+        "runsBy": {
+          "nicho": 2
+        },
+        "bestAverageCast": 81.70539419087137,
+        "bestAverageCastRank": 4,
+        "upgrades": [
+          {
+            "kind": "+#% damage",
+            "best": 152,
+            "text": "+152% damage"
+          }
+        ]
+      },
+      {
+        "name": "Magma Totem",
+        "icon": "Interface\\Icons\\Spell_Fire_SelfDestruct",
+        "inBook": true,
+        "castsTwice": false,
+        "crits": true,
+        "highestRank": 2,
+        "runs": 1,
+        "runsBy": {
+          "nicho": 1
+        },
+        "bestAverageCast": 218.3235294117647,
+        "bestAverageCastRank": 2,
+        "upgrades": [
+          {
+            "kind": "+#% area",
+            "best": 18,
+            "text": "+18% area"
+          },
+          {
+            "kind": "+#% damage",
+            "best": 23,
+            "text": "+23% damage"
+          }
+        ]
+      },
+      {
+        "name": "Searing Totem",
+        "icon": "Interface\\Icons\\Spell_Fire_SearingTotem",
+        "inBook": true,
+        "castsTwice": null,
+        "crits": null,
+        "highestRank": null,
+        "runs": 0,
+        "runsBy": {},
+        "bestAverageCast": null,
+        "bestAverageCastRank": null,
+        "upgrades": []
+      }
+    ],
     "WARLOCK": [
       {
         "name": "Corruption",
@@ -5104,9 +7722,9 @@
         "castsTwice": true,
         "crits": false,
         "highestRank": 12,
-        "runs": 15,
+        "runs": 16,
         "runsBy": {
-          "nicho": 15
+          "nicho": 16
         },
         "bestAverageCast": 657046.1666666666,
         "bestAverageCastRank": 4,
@@ -5140,11 +7758,11 @@
         "castsTwice": true,
         "crits": false,
         "highestRank": 10,
-        "runs": 15,
+        "runs": 16,
         "runsBy": {
-          "nicho": 15
+          "nicho": 16
         },
-        "bestAverageCast": 11691.39378238342,
+        "bestAverageCast": 81318.4,
         "bestAverageCastRank": 10,
         "upgrades": [
           {
@@ -5207,9 +7825,9 @@
         "castsTwice": true,
         "crits": false,
         "highestRank": 17,
-        "runs": 13,
+        "runs": 14,
         "runsBy": {
-          "nicho": 13
+          "nicho": 14
         },
         "bestAverageCast": 112599.61904761905,
         "bestAverageCastRank": 13,
@@ -5243,9 +7861,9 @@
         "castsTwice": false,
         "crits": true,
         "highestRank": 1,
-        "runs": 15,
+        "runs": 16,
         "runsBy": {
-          "nicho": 15
+          "nicho": 16
         },
         "bestAverageCast": 334.2857142857143,
         "bestAverageCastRank": 1,
@@ -5258,11 +7876,11 @@
         "castsTwice": true,
         "crits": true,
         "highestRank": 18,
-        "runs": 10,
+        "runs": 11,
         "runsBy": {
-          "nicho": 10
+          "nicho": 11
         },
-        "bestAverageCast": 1125.0483870967741,
+        "bestAverageCast": 1423.125,
         "bestAverageCastRank": 8,
         "upgrades": [
           {
@@ -5277,8 +7895,8 @@
           },
           {
             "kind": "+#% damage",
-            "best": 80,
-            "text": "+80% damage"
+            "best": 87,
+            "text": "+87% damage"
           }
         ]
       },
@@ -5302,9 +7920,9 @@
         "castsTwice": true,
         "crits": false,
         "highestRank": 8,
-        "runs": 14,
+        "runs": 15,
         "runsBy": {
-          "nicho": 14
+          "nicho": 15
         },
         "bestAverageCast": 116453.19047619047,
         "bestAverageCastRank": 7,
@@ -5364,9 +7982,9 @@
         "castsTwice": true,
         "crits": true,
         "highestRank": 17,
-        "runs": 15,
+        "runs": 16,
         "runsBy": {
-          "nicho": 15
+          "nicho": 16
         },
         "bestAverageCast": 96215.7168141593,
         "bestAverageCastRank": 17,
@@ -5410,9 +8028,9 @@
         "castsTwice": true,
         "crits": false,
         "highestRank": 1,
-        "runs": 76,
+        "runs": 77,
         "runsBy": {
-          "nicho": 76
+          "nicho": 77
         },
         "bestAverageCast": null,
         "bestAverageCastRank": null,
@@ -5444,9 +8062,9 @@
         "castsTwice": true,
         "crits": true,
         "highestRank": 24,
-        "runs": 73,
+        "runs": 74,
         "runsBy": {
-          "nicho": 73
+          "nicho": 74
         },
         "bestAverageCast": 130088.69920318725,
         "bestAverageCastRank": 24,
@@ -5475,9 +8093,9 @@
         "castsTwice": true,
         "crits": true,
         "highestRank": 11,
-        "runs": 76,
+        "runs": 77,
         "runsBy": {
-          "nicho": 76
+          "nicho": 77
         },
         "bestAverageCast": 24191.006195786864,
         "bestAverageCastRank": 11,
@@ -5506,9 +8124,9 @@
         "castsTwice": true,
         "crits": true,
         "highestRank": 8,
-        "runs": 73,
+        "runs": 74,
         "runsBy": {
-          "nicho": 73
+          "nicho": 74
         },
         "bestAverageCast": 8755.70707070707,
         "bestAverageCastRank": 8,
@@ -5537,9 +8155,9 @@
         "castsTwice": false,
         "crits": true,
         "highestRank": 1,
-        "runs": 76,
+        "runs": 77,
         "runsBy": {
-          "nicho": 76
+          "nicho": 77
         },
         "bestAverageCast": 1044.5925925925926,
         "bestAverageCastRank": 1,
@@ -5591,9 +8209,9 @@
         "castsTwice": true,
         "crits": true,
         "highestRank": 27,
-        "runs": 75,
+        "runs": 76,
         "runsBy": {
-          "nicho": 75
+          "nicho": 76
         },
         "bestAverageCast": 346271.6808510638,
         "bestAverageCastRank": 27,
@@ -5653,9 +8271,9 @@
         "castsTwice": true,
         "crits": true,
         "highestRank": 70,
-        "runs": 76,
+        "runs": 77,
         "runsBy": {
-          "nicho": 76
+          "nicho": 77
         },
         "bestAverageCast": 1340799.8271671617,
         "bestAverageCastRank": 70,
@@ -5680,6 +8298,56 @@
     ]
   },
   "bossBests": {
+    "PALADIN": [
+      {
+        "boss": "C'Thun",
+        "seconds": 93.22282359912992,
+        "time": "1:33",
+        "by": "nicho"
+      },
+      {
+        "boss": "Emperor Dagran Thaurissan",
+        "seconds": 59.17519390054042,
+        "time": "0:59",
+        "by": "nicho"
+      },
+      {
+        "boss": "General Angerforge",
+        "seconds": 42.54118679996583,
+        "time": "0:42",
+        "by": "nicho"
+      },
+      {
+        "boss": "General Rajaxx",
+        "seconds": 128.63270470205697,
+        "time": "2:08",
+        "by": "nicho"
+      },
+      {
+        "boss": "Kurinnaxx",
+        "seconds": 37.11967990018425,
+        "time": "0:37",
+        "by": "nicho"
+      },
+      {
+        "boss": "Nefarian",
+        "seconds": 76.50069199867539,
+        "time": "1:16",
+        "by": "nicho"
+      },
+      {
+        "boss": "Ossirian the Unscarred",
+        "seconds": 81.38102690115568,
+        "time": "1:21",
+        "by": "nicho"
+      },
+      {
+        "boss": "Warchief Rend Blackhand",
+        "seconds": 32.79578250065441,
+        "time": "0:32",
+        "by": "nicho"
+      }
+    ],
     "ROGUE": [
       {
         "boss": "Azuregos",
@@ -5838,6 +8506,116 @@
         "by": "nicho"
       }
     ],
+    "SHAMAN": [
+      {
+        "boss": "Baron Rivendare",
+        "seconds": 27.54519880063833,
+        "time": "0:27",
+        "by": "nicho"
+      },
+      {
+        "boss": "Bloodlord Mandokir",
+        "seconds": 46.93078750029201,
+        "time": "0:46",
+        "by": "nicho"
+      },
+      {
+        "boss": "Doomguard Commander",
+        "seconds": 22.370221098773186,
+        "time": "0:22",
+        "by": "nicho"
+      },
+      {
+        "boss": "High Priestess Jeklik",
+        "seconds": 23.12716869998721,
+        "time": "0:23",
+        "by": "nicho"
+      },
+      {
+        "boss": "Hogger",
+        "seconds": 31.557958498038346,
+        "time": "0:31",
+        "by": "nicho"
+      },
+      {
+        "boss": "King Gordok",
+        "seconds": 43.007883902117555,
+        "time": "0:43",
+        "by": "nicho"
+      },
+      {
+        "boss": "Lord Blackwood",
+        "seconds": 28.353129799850308,
+        "time": "0:28",
+        "by": "nicho"
+      },
+      {
+        "boss": "Lupos",
+        "seconds": 27.195800198912707,
+        "time": "0:27",
+        "by": "nicho"
+      },
+      {
+        "boss": "Mor'Ladim",
+        "seconds": 33.718255300074816,
+        "time": "0:33",
+        "by": "nicho"
+      },
+      {
+        "boss": "Morbent Fel",
+        "seconds": 33.60586449950938,
+        "time": "0:33",
+        "by": "nicho"
+      },
+      {
+        "boss": "Mother Fang",
+        "seconds": 26.833825602047114,
+        "time": "0:26",
+        "by": "nicho"
+      },
+      {
+        "boss": "Mr. Smite",
+        "seconds": 41.95283349908891,
+        "time": "0:41",
+        "by": "nicho"
+      },
+      {
+        "boss": "Naraxis",
+        "seconds": 31.49308479811998,
+        "time": "0:31",
+        "by": "nicho"
+      },
+      {
+        "boss": "Patchwerk",
+        "seconds": 18.84959919966758,
+        "time": "0:18",
+        "by": "nicho"
+      },
+      {
+        "boss": "Rhahk'Zor",
+        "seconds": 32.79448109995576,
+        "time": "0:32",
+        "by": "nicho"
+      },
+      {
+        "boss": "Stitches",
+        "seconds": 23.671280501782917,
+        "time": "0:23",
+        "by": "nicho"
+      },
+      {
+        "boss": "Tendris Warpwood",
+        "seconds": 23.856655101627098,
+        "time": "0:23",
+        "by": "nicho"
+      },
+      {
+        "boss": "Varimathras",
+        "seconds": 42.7099726996571,
+        "time": "0:42",
+        "by": "nicho"
+      }
+    ],
     "WARLOCK": [
       {
         "boss": "Azuregos",
@@ -5950,6 +8728,12 @@
         "by": "nicho"
       },
       {
+        "boss": "General Rajaxx",
+        "seconds": 18.423667800910778,
+        "time": "0:18",
+        "by": "nicho"
+      },
+      {
         "boss": "Immol'thar",
         "seconds": 33.935419100224976,
         "time": "0:33",
@@ -5971,6 +8755,12 @@
         "boss": "Korrak the Bloodrager",
         "seconds": 43.60741139981894,
         "time": "0:43",
+        "by": "nicho"
+      },
+      {
+        "boss": "Kurinnaxx",
+        "seconds": 22.177478399425752,
+        "time": "0:22",
         "by": "nicho"
       },
       {
