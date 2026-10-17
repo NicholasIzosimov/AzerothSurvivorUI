@@ -730,9 +730,9 @@ local function Compose(ability, simple)
 	else
 		Line(ability.title, tint)
 	end
-	-- "3.4 sec" cooldown, "28 yd" range, "7%" crit "204%".
+	-- The cooldown on the left ("3.4 sec cooldown"), how it is cast on the right.
 	local cooldown = string.gsub(ability.cooldown or " ", "^([%d%.]+ sec)", COOLDOWN_HEX.."%1|r")
-	Double(ability.cast, cooldown, MUTED, MUTED)
+	Double(cooldown, ability.cast, MUTED, MUTED)
 
 	local others = ability.other
 	if simple or ShowSimplified() then
@@ -746,11 +746,9 @@ local function Compose(ability, simple)
 				end
 			end
 		end
-		-- How far goes up under the cast line, on the right of the heading:
+		-- How far goes up into the heading, on the left under the cooldown:
 		-- its range where it says one, else the first (a radius); the rest
-		-- ("13 yd between targets") are left to the full description. The
-		-- left half is a space, not empty: an empty one sits the line too
-		-- high, into the cast line.
+		-- ("13 yd between targets") are left to the full description.
 		local reaches = {}
 		for index = table.getn(facts), 1, -1 do
 			local fact = facts[index]
@@ -768,7 +766,7 @@ local function Compose(ability, simple)
 			end
 		end
 		if reaching then
-			Double(" ", reaching, MUTED, MUTED)
+			Line(reaching, MUTED)
 		end
 		-- Its wording too unusual to read in full ("burst in holy light,
 		-- dealing 240 Holy damage to every enemy within 9.8 yd of the body"):
@@ -855,11 +853,16 @@ local function Compose(ability, simple)
 		for item = 1, table.getn(names) do
 			local name = names[item]
 			local raw = SurvivorUI_TalentRaw and SurvivorUI_TalentRaw(name)
+			-- Only the talents that change how the spell plays: the game's
+			-- milestones and capstones. A plain upgrade ("deals 15% more
+			-- damage and recovers faster", "deals an extra 3% of your maximum
+			-- health") is left to the spell's own numbers.
+			local major = raw and (string.find(raw, "^Milestone%. ") or string.find(raw, "^Capstone%. "))
 			local facts, partial = {}, true
-			if raw then
+			if major then
 				facts, partial = ReadFacts({ TalentSentence(raw) })
 			end
-			if not partial and table.getn(facts) > 0 then
+			if major and not partial and table.getn(facts) > 0 then
 				for fact = 1, table.getn(facts) do
 					local read = facts[fact]
 					local _, _, sign, amount = string.find(read.value or "", "^([%+%-])([%d%.]+)%%$")
@@ -882,7 +885,7 @@ local function Compose(ability, simple)
 						table.insert(talents, { text = TALENT_HEX..(read.value or "").."|r "..(read.label or "") })
 					end
 				end
-			else
+			elseif major then
 				local text = SurvivorUI_TalentText(name)
 				if text then
 					table.insert(talents, { text = text })
