@@ -55,10 +55,12 @@ local CRIT_HEX = "|cffffc214"       -- the gold of a critical strike's number
 local MUTED = { 0.62, 0.62, 0.62 }
 local ECHO_COLOR = { 1, 0.82, 0 }   -- the game's own gold for "chance to cast twice"
 local ECHO_HEX = "|cffffd100"       -- the same, for its percentage within a line
-local GEAR_GREEN = { 0.12, 1, 0 }   -- the game's item green, for the gear's effects
-local GEAR_HEX = "|cff1eff00"
+local GEAR_ORANGE = { 1, 0.63, 0.25 } -- the gear's orange, as the build's card has it
+local GEAR_HEX = "|cffffa040"
+local GEAR_TEXT = { 0.8, 0.8, 0.8 }
 local TALENT_GOLD = { 1, 0.82, 0 }  -- the game's talent gold, for the talents' rule
 local TALENT_HEX = "|cffffd100"
+local BONUS_SHOWN_FROM = 30         -- placeholder: a talent bonus this big (%) or more is listed
 
 ------------------------------------------------------------------------------
 -- Rules: thin lines drawn across the tooltip, each over a blank line.
@@ -669,7 +671,7 @@ end
 local function NoFalloff(ability)
 	local names = SpellTalents(ability)
 	for index = 1, table.getn(names) do
-		local text = SurvivorUI_TALENT_TEXTS and SurvivorUI_TALENT_TEXTS[names[index]]
+		local text = SurvivorUI_TalentRaw and SurvivorUI_TalentRaw(names[index])
 		if text and string.find(text, "loses nothing with each jump", 1, true) then
 			return true
 		end
@@ -744,6 +746,23 @@ local function Compose(ability, simple)
 				end
 			end
 		end
+		-- How long and how far go up under the cast line, in the heading:
+		-- "4 sec duration" on the left, "20 yd range" on the right.
+		local lasts, reaches = {}, {}
+		for index = table.getn(facts), 1, -1 do
+			local fact = facts[index]
+			if fact.place == REACH then
+				local text = fact.text or (fact.value..(fact.label ~= "" and " "..fact.label or ""))
+				table.insert(reaches, 1, (string.gsub(text, "([%d%.]+ yd)", REACH_HEX.."%1|r")))
+				table.remove(facts, index)
+			elseif fact.place == EFFECT and fact.label == "Duration" then
+				table.insert(lasts, 1, "|cffffffff"..fact.value.."|r duration")
+				table.remove(facts, index)
+			end
+		end
+		if table.getn(lasts) > 0 or table.getn(reaches) > 0 then
+			Double(table.concat(lasts, DOT), table.concat(reaches, DOT), MUTED, MUTED)
+		end
 		-- Its wording too unusual to read in full ("burst in holy light,
 		-- dealing 240 Holy damage to every enemy within 9.8 yd of the body"):
 		-- the description as the game wrote it, its numbers lit, over the
@@ -801,14 +820,16 @@ local function Compose(ability, simple)
 	-- and the build's own card lists a spell's upgrades.
 
 	-- What the worn gear adds beyond numbers (a neck's "Whirlwind's hits stun
-	-- for 1.5 sec"), under a rule in the game's item green; its numbers in
-	-- that green, its words muted. Left off the build's card, which lists the
-	-- gear itself.
+	-- for 1.5 sec"), laid out as the build's card lays it: a rule and a "Gear
+	-- Effects" heading in the gear's orange, each effect indented, light, its
+	-- percentages orange. Left off the build's card, which lists the gear
+	-- itself.
 	local effects = not simple and SurvivorUI_GearEffects and SurvivorUI_GearEffects(ability.title) or {}
 	if table.getn(effects) > 0 then
-		Spacer(GEAR_GREEN)
+		Spacer(GEAR_ORANGE)
+		Line("Gear Effects", GEAR_ORANGE)
 		for index = 1, table.getn(effects) do
-			Line((string.gsub(effects[index], "(%d[%d%.]*%%?)", GEAR_HEX.."%1|r")), MUTED)
+			Line("  "..string.gsub(effects[index], "([%+%-]?%d[%d%.]*%%)", GEAR_HEX.."%1|r"), GEAR_TEXT)
 		end
 	end
 
@@ -826,7 +847,7 @@ local function Compose(ability, simple)
 		local names = SpellTalents(ability)
 		for item = 1, table.getn(names) do
 			local name = names[item]
-			local raw = SurvivorUI_TALENT_TEXTS and SurvivorUI_TALENT_TEXTS[name]
+			local raw = SurvivorUI_TalentRaw and SurvivorUI_TalentRaw(name)
 			local facts, partial = {}, true
 			if raw then
 				facts, partial = ReadFacts({ TalentSentence(raw) })
@@ -861,25 +882,32 @@ local function Compose(ability, simple)
 				end
 			end
 		end
-		if table.getn(talents) > 0 then
+		-- A plain bonus (+10% damage, -6% cooldown) says little a spell's
+		-- numbers do not: only one of BONUS_SHOWN_FROM% or more is listed.
+		-- What changes how the spell plays (a chance to strike again, a
+		-- sentence of its own) always is, and comes first.
+		local kept = {}
+		for pass = 1, 2 do
+			for index = 1, table.getn(talents) do
+				local entry = talents[index]
+				if (pass == 1) == (entry.amount == nil) and (not entry.amount or entry.amount >= BONUS_SHOWN_FROM) then
+					table.insert(kept, entry)
+				end
+			end
+		end
+		if table.getn(kept) > 0 then
 			Spacer(TALENT_GOLD)
-			-- What changes how the spell plays first (a chance to strike again,
-			-- a sentence of its own), the plain bonuses (+10% damage) under it.
-			for pass = 1, 2 do
-				for index = 1, table.getn(talents) do
-					local entry = talents[index]
-					if (pass == 1) == (entry.amount == nil) then
-						local text, tag = entry.text, "talent"
-						if entry.amount then
-							local shown = string.gsub(string.format("%.1f", entry.amount), "%.0$", "")
-							text = TALENT_HEX..entry.sign..shown.."%|r "..entry.label
-							if entry.count > 1 then
-								tag = entry.count.." talents"
-							end
-						end
-						Line(text.." |cff8a8a8a("..tag..")|r", MUTED)
+			for index = 1, table.getn(kept) do
+				local entry = kept[index]
+				local text, tag = entry.text, "talent"
+				if entry.amount then
+					local shown = string.gsub(string.format("%.1f", entry.amount), "%.0$", "")
+					text = TALENT_HEX..entry.sign..shown.."%|r "..entry.label
+					if entry.count > 1 then
+						tag = entry.count.." talents"
 					end
 				end
+				Line(text.." |cff8a8a8a("..tag..")|r", MUTED)
 			end
 		end
 	end
@@ -891,6 +919,15 @@ local function Compose(ability, simple)
 		end
 	end
 	return lines
+end
+
+-- A muted note under a rule at the foot of the next ability tooltip written,
+-- set by whoever shows it (the damage meter: "Hold Shift to show damage
+-- breakdown"); gone when the tooltip closes.
+local tooltipHint
+
+function SurvivorUI_SetTooltipHint(text)
+	tooltipHint = text
 end
 
 local function Write(ability)
@@ -910,6 +947,14 @@ local function Write(ability)
 		else
 			GameTooltip:AddLine(line[1], line[3], line[4], line[5], line.wrap and 1 or nil)
 		end
+	end
+	-- The simplified list says how to see the description in full, unless
+	-- whoever showed it asked for a note of its own.
+	local hint = tooltipHint or (ShowSimplified() and "Hold Shift to show full description")
+	if hint then
+		GameTooltip:AddLine(" ")
+		Rule(GameTooltip:NumLines(), MUTED)
+		GameTooltip:AddLine(hint, 0.5, 0.5, 0.5, 1)
 	end
 	-- Shown again to fit the new lines, where the game placed it.
 	GameTooltip:Show()
@@ -1037,6 +1082,7 @@ GameTooltip:SetScript("OnHide", function()
 	HideRules()
 	written = nil
 	lastAbility = nil
+	tooltipHint = nil
 	if stockHide then
 		stockHide()
 	end

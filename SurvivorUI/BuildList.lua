@@ -845,6 +845,9 @@ function SurvivorUI_ShowSpellCard(owner, name, beside)
 			GameTooltip:SetOwner(owner, "ANCHOR_NONE")
 			GameTooltip:ClearAllPoints()
 			GameTooltip:SetPoint("TOPRIGHT", beside, "TOPLEFT", -6, 0)
+			if SurvivorUI_SetTooltipHint then
+				SurvivorUI_SetTooltipHint("Hold Shift to show damage breakdown")
+			end
 			GameTooltip:SetAction(slot)
 			GameTooltip:Show()
 			return true
@@ -1086,6 +1089,56 @@ end
 ------------------------------------------------------------------------------
 -- The spells.
 
+-- The worn amulet that names a spell ("Heart of the Earthshaker: Whirlwind
+-- II" for Whirlwind): it changes how that spell plays, so the spell's row
+-- carries its icon, with the amulet's tooltip on hover. Its slot, or nil.
+local NECK_SLOT = 2
+local NECK_ICON_SIZE = 16
+
+local function NeckFor(spell)
+	local _, _, item = string.find(GetInventoryItemLink("player", NECK_SLOT) or "", "%[(.-)%]")
+	if not (item and spell) then
+		return nil
+	end
+	local base = string.lower(BaseName(item))
+	local wanted = { string.lower(spell), otherName[string.lower(spell)] and string.lower(otherName[string.lower(spell)]) }
+	for index = 1, 2 do
+		local name = wanted[index]
+		if name and string.sub(base, -string.len(name) - 2) == ": "..name then
+			return NECK_SLOT
+		end
+	end
+	return nil
+end
+
+local function ShowNeckIcon(row, slot)
+	if not slot then
+		if row.neck then
+			row.neck:Hide()
+		end
+		return
+	end
+	if not row.neck then
+		row.neck = CreateFrame("Button", nil, row)
+		row.neck:SetWidth(NECK_ICON_SIZE)
+		row.neck:SetHeight(NECK_ICON_SIZE)
+		row.neck:SetPoint("CENTER", row, "CENTER", 24, 0)
+		row.neck:SetFrameLevel(row:GetFrameLevel() + 2)
+		row.neck.icon = row.neck:CreateTexture(nil, "ARTWORK")
+		row.neck.icon:SetAllPoints(row.neck)
+		row.neck.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+		row.neck:SetScript("OnEnter", function()
+			GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
+			GameTooltip:SetInventoryItem("player", this.slot)
+			GameTooltip:Show()
+		end)
+		row.neck:SetScript("OnLeave", function() GameTooltip:Hide() end)
+	end
+	row.neck.slot = slot
+	row.neck.icon:SetTexture(GetInventoryItemTexture("player", slot))
+	row.neck:Show()
+end
+
 local function FillSpell(row, entry, actionSlot)
 	local key = Field(entry, "key", 1)
 	local name = SpellName(key)
@@ -1116,6 +1169,7 @@ local function FillSpell(row, entry, actionSlot)
 	else
 		row.share:SetText(string.format("%.1f%%", share * 100))
 	end
+	ShowNeckIcon(row, NeckFor(name))
 	Paint(row, color, 1, true, wash)
 end
 
@@ -1129,6 +1183,7 @@ local function EmptySpell(row)
 	row.name:SetText("empty slot")
 	row.rank:SetText("")
 	row.share:SetText("")
+	ShowNeckIcon(row, nil)
 	Paint(row, MUTED, 0.6)
 end
 

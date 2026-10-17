@@ -5,7 +5,7 @@
 -- damage meter's card shows a talent's proc with its text.
 
 SurvivorUI_TALENT_TEXTS = {
-	["Adrenaline Rush"] = "Milestone. Every {v}th kill floods you with adrenaline: a free Adrenaline Rush, your cooldowns 60% faster for 11 sec.",
+	["Adrenaline Rush"] = "Milestone. Every 20th kill floods you with adrenaline: a free Adrenaline Rush, your cooldowns 60% faster for 11 sec.",
 	["Aftermath"] = "Your Fire spells have a 5% chance to slow what they hit by 40% for 3 sec.",
 	["Aggression"] = "Sinister Strike and Eviscerate deal 4% more damage.",
 	["Amplify Curse"] = "Curse of Agony's cooldown is 8% shorter.",
@@ -148,7 +148,7 @@ SurvivorUI_TALENT_TEXTS = {
 	["Lightning Mastery"] = "Nature spells deal {v}% more damage.",
 	["Lightning Overload"] = "Milestone. Lightning Bolt and Chain Lightning have a 40% chance to strike again for free.",
 	["Long Leash"] = "Your companions fetch up to 35 yd beyond your pickup radius.",
-	["Maelstrom Weapon"] = "Milestone. Every {v}th spell you cast is followed by a free Chain Lightning.",
+	["Maelstrom Weapon"] = "Milestone. Every 5th spell you cast is followed by a free Chain Lightning.",
 	["Moonfury"] = "Arcane and Nature spells deal 3% more damage.",
 	["Mortal Wounds"] = "Capstone. You start every run with Mortal Strike; a killing blow by Mortal Strike or Execute readies it again at once, at most once a second.",
 	["Mutilate"] = "Milestone. Sinister Strike and Backstab strike with both blades: everything they hit is struck again at once for 50% of the blow.",
@@ -172,8 +172,8 @@ SurvivorUI_TALENT_TEXTS = {
 	["Radiance"] = "Milestone. A Holy Nova bursts from you on its own every 24 sec.",
 	["Rain of Chaos"] = "Capstone. A second Rain of Fire falls on its own every 13 sec, and its burning ground slows what it touches.",
 	["Rake"] = "Milestone. Your hide thickens: 20% more maximum health and 8% less damage taken. You start every run with Swipe and Shred, and everything they hit bleeds for 8% of the blow over 6 sec.",
-	["Rampage"] = "Milestone. Every {v}th kill unleashes a free Whirlwind.",
-	["Rapid Fire"] = "Milestone. Every {v}th shot you fire is followed by a free Aimed Shot.",
+	["Rampage"] = "Milestone. Every 7th kill unleashes a free Whirlwind.",
+	["Rapid Fire"] = "Milestone. Every 6th shot you fire is followed by a free Aimed Shot.",
 	["Rapture"] = "Milestone. A broken Power Word: Shield is raised again at once, at most once every 15 sec.",
 	["Reincarnation"] = "Milestone. A blow that would kill you leaves you at 50% health instead, once every 2 min.",
 	["Reverberation"] = "Your shocks' cooldowns are 6% shorter.",
@@ -234,4 +234,12 @@ SurvivorUI_TALENT_TEXTS = {
 	["Windfury"] = "Milestone. Your Lightning Bolts, Earth Shocks and Frost Shocks have a 35% chance to strike twice more at once.",
 	["Wisp-herder"] = "An instinct: a companion goes for experience wisps first, and carries three a trip. One instinct for each companion.",
 	["Wyvern Sting"] = "Capstone. You start every run with Frost Trap, and an Explosive Trap sets itself at your feet every 5 sec.",
+}
+
+-- A class's own talent of a name another class has too, by class token:
+-- read first for the hero's class (SurvivorUI_TalentRaw, CritCard.lua).
+SurvivorUI_TALENT_TEXTS_BY_CLASS = {
+	SHAMAN = {
+		["Flurry"] = "A critical strike sends you into a flurry: cooldowns recover 10% faster for 5 sec.",
+	},
 }

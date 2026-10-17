@@ -36,27 +36,48 @@ for i, k in enumerate(order[:-1]):
         texts[k] = nxt.replace('\\"', '"')
 
 
-def candidates(text):
-    # The values in the talent data just before the text's own copy (not the
-    # text table's, which is quoted).
+def talent_gap(text):
+    # The talent data just before the text's own copy (not the text table's,
+    # which is quoted): from the end of the strings before it to the text.
     needle = text.encode('utf-8')
     pos = 0
     while True:
         pos = data.find(needle, pos + 1)
         if pos < 0:
-            return []
+            return b''
         if data[pos - 1:pos] != b'"':
             break
     first = pos
     while first > 0 and pos - first < 120 and not all(0x20 <= c <= 0x7e for c in data[first - 3:first]):
         first -= 1
-    gap = data[first:pos]
+    return data[first:pos]
+
+
+def candidates(text):
+    # The values there stored as decimals: a percentage as a fraction (0.15).
+    gap = talent_gap(text)
     found = []
     for k in range(len(gap) - 3):
         f = struct.unpack('<f', gap[k:k + 4])[0]
         if 0.001 <= f <= 1000 and abs(f * 100 - round(f * 100)) < 1e-3:
             found.append(f)
     return found
+
+
+def whole_number(text):
+    # A count stored as a whole number ("every 5th spell", Maelstrom Weapon):
+    # the four bytes after a 1, with zeros after them, where that 1 does not
+    # end a reference to a string (a pointer's bytes before it).
+    gap = talent_gap(text)
+    for k in range(len(gap) - 11):
+        if gap[k:k + 4] != b'\x01\x00\x00\x00' or gap[k + 8:k + 12] != b'\x00\x00\x00\x00':
+            continue
+        if k > 0 and gap[k - 1] != 0:
+            continue
+        n = struct.unpack('<I', gap[k + 4:k + 8])[0]
+        if 1 <= n <= 1000:
+            return n
+    return None
 
 
 def number(f):
@@ -73,10 +94,42 @@ def fill(text):
             return text.replace('{v}', number(f * 100))
         if not percent and f >= 1 and f == int(f):
             return text.replace('{v}', number(f))
+    if not percent:
+        n = whole_number(text)
+        if n:
+            return text.replace('{v}', str(n))
     return text
 
 
 out = {k: fill(v) for k, v in texts.items()}
+
+
+def snake(text):
+    return re.sub(r'[^a-z0-9]+', '_', re.sub(r"'s\b", '', text.lower())).strip('_')
+
+
+# Talents one class has under a name another's has too ("flurry_shaman" is
+# the Shaman's Flurry, not the Warrior's): the text table keeps a name once,
+# so these are read from the talent data, by their key, where their text
+# differs from the name's.
+CLASSES = ['warrior', 'paladin', 'hunter', 'rogue', 'priest', 'shaman', 'mage', 'warlock', 'druid']
+by_snake = {snake(name): name for name in texts}
+anchor_at = data.find(b'Milestone. Shadow Bolt splits: every bolt that lands forks to 2 more enemies for {v}% of it.devastation')
+talent_pool = data[max(0, anchor_at - 2500000):anchor_at + 2500000]
+by_class = {}
+key_pattern = rb'(?<![a-z_])([a-z][a-z_]*?)_(' + '|'.join(CLASSES).encode() + rb')(?=[^\x20-\x7e]|[A-Z])'
+for m in re.finditer(key_pattern, talent_pool):
+    name = by_snake.get(m.group(1).decode())
+    if not name:
+        continue
+    after = talent_pool[m.end():m.end() + 400]
+    run = re.search(rb'[\x20-\x7e]{12,}', after)
+    if not run:
+        continue
+    pieces = re.split(r'(?<=[a-z0-9])(?=[A-Z])|(?<=\.)(?=[a-z])', run.group().decode('latin1'))
+    text = next((p for p in pieces if ' ' in p and p.endswith('.')), None)
+    if text and text != texts.get(name):
+        by_class.setdefault(m.group(2).decode().upper(), {})[name] = fill(text)
 
 
 def lua(s):
@@ -95,7 +148,20 @@ lines = [
 for k in sorted(out):
     lines.append('\t[' + lua(k) + '] = ' + lua(out[k]) + ',')
 lines.append('}')
+lines += [
+    '',
+    '-- A class\'s own talent of a name another class has too, by class token:',
+    '-- read first for the hero\'s class (SurvivorUI_TalentRaw, CritCard.lua).',
+    'SurvivorUI_TALENT_TEXTS_BY_CLASS = {',
+]
+for cls in sorted(by_class):
+    lines.append('\t' + cls + ' = {')
+    for k in sorted(by_class[cls]):
+        lines.append('\t\t[' + lua(k) + '] = ' + lua(by_class[cls][k]) + ',')
+    lines.append('\t},')
+lines.append('}')
 open(sys.argv[3], 'w', encoding='utf-8', newline='\n').write('\n'.join(lines) + '\n')
+print('class talents:', ', '.join(cls + ' ' + k for cls in sorted(by_class) for k in sorted(by_class[cls])), file=sys.stderr)
 unread = [k for k in out if '{v}' in out[k]]
 print(len(out), 'talents;', len(unread), 'numbers unread:', ', '.join(sorted(unread)), file=sys.stderr)
 

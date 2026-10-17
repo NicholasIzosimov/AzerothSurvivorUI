@@ -159,6 +159,12 @@ local SOURCE_CUTS = {
 	"^Milestone%. ", "^Capstone%. ", "^You start every run with [^,;]-[,;] and ",
 	"^You start every run with [^,;]-; ", "^Equip: ", "^Chance on hit: ",
 }
+-- Wording made the same as the ability tooltips' (AbilityTooltip.lua): what
+-- a strike costs and when are left out, and extra strikes are counted.
+local SOURCE_WORDS = {
+	{ " for free%.", "." }, { " at once%.", "." },
+	{ "twice more", "2 more times" }, { "three times more", "3 more times" },
+}
 local ITEM_LINES = { "^Equip: ", "^Use: ", "^Chance on hit: " }
 local JEWELRY_SLOTS = { 2, 11, 12, 13, 14 }
 
@@ -220,8 +226,66 @@ local function ItemText(ability)
 	return best
 end
 
+-- The names of the hero's spells, longest first: those in the spellbook and
+-- every class's own abilities the Codex has seen (SurvivorUIDB.abilityBook),
+-- so a card can light them up.
+local function SpellNames()
+	local seen, names = {}, {}
+	local function Note(name)
+		if name and string.len(name) > 3 and not seen[name] then
+			seen[name] = true
+			table.insert(names, name)
+		end
+	end
+	for _, abilities in pairs(SurvivorUIDB and SurvivorUIDB.abilityBook or {}) do
+		for name, info in pairs(abilities) do
+			if info.inBook or (info.runs or 0) > 0 then
+				Note(name)
+			end
+		end
+	end
+	local index = 1
+	while GetSpellName do
+		local name = GetSpellName(index, BOOKTYPE_SPELL or "spell")
+		if not name then
+			break
+		end
+		Note(name)
+		index = index + 1
+	end
+	table.sort(names, function(a, b) return string.len(a) > string.len(b) end)
+	return names
+end
+
+-- A text's spell names in white ("Lightning Bolts" with its plural), the
+-- longest first so "Fire Nova Totem" is lit whole, not as Fire Nova. Each
+-- found name stands as a marker until done, so no shorter name or number
+-- is looked for inside it.
+local function LightNames(line)
+	local found = {}
+	local names = SpellNames()
+	for index = 1, table.getn(names) do
+		local name = string.gsub(names[index], "([%^%$%(%)%%%.%[%]%*%+%-%?])", "%%%1")
+		line = string.gsub(line, name.."s?", function(match)
+			if table.getn(found) >= 26 then
+				return match
+			end
+			table.insert(found, match)
+			return "\1"..string.char(64 + table.getn(found)).."\2"
+		end)
+	end
+	return line, found
+end
+
+local function UnmarkNames(line, found)
+	return (string.gsub(line, "\1(%u)\2", function(letter)
+		return "|cffffffff"..found[string.byte(letter) - 64].."|r"
+	end))
+end
+
 -- A source's text as the card shows it: each line shortened, its first letter
--- made capital again, and its numbers ("15%", "7", "1.5") in the color.
+-- made capital again, its spell names white and its numbers ("15%", "7",
+-- "1.5") in the color.
 local function SourceLines(text, hex)
 	local shown = {}
 	for line in string.gfind(text, "[^\n]+") do
@@ -236,6 +300,9 @@ local function SourceLines(text, hex)
 		spell = spell and string.gsub(spell, " instead of .*$", "")
 		for index = 1, table.getn(SOURCE_CUTS) do
 			line = string.gsub(line, SOURCE_CUTS[index], "")
+		end
+		for index = 1, table.getn(SOURCE_WORDS) do
+			line = string.gsub(line, SOURCE_WORDS[index][1], SOURCE_WORDS[index][2])
 		end
 		-- Only where the rest does not name it already.
 		if spell and not string.find(line, spell, 1, true) then
@@ -256,6 +323,8 @@ local function SourceLines(text, hex)
 			line = string.sub(line, 2)
 		end
 		line = string.upper(string.sub(line, 1, 1))..string.sub(line, 2)
+		local names
+		line, names = LightNames(line)
 		line = string.gsub(line, "(%d[%d%.]*)(%%?)", function(digits, percent)
 			-- A sentence's closing stop is not part of its number.
 			local stop = ""
@@ -265,15 +334,24 @@ local function SourceLines(text, hex)
 			return "|cff"..hex..digits..percent.."|r"..stop
 		end)
 		line = string.gsub(line, "{v}", "|cff"..hex.."?|r")
-		table.insert(shown, line)
+		table.insert(shown, UnmarkNames(line, names))
 	end
 	return table.concat(shown, "\n")
+end
+
+-- A talent's text as the game writes it (TalentText.lua), or nil: the hero's
+-- class's own where another class has a talent of the same name (the
+-- Shaman's Flurry is not the Warrior's).
+function SurvivorUI_TalentRaw(name)
+	local _, class = UnitClass("player")
+	local own = SurvivorUI_TALENT_TEXTS_BY_CLASS and class and SurvivorUI_TALENT_TEXTS_BY_CLASS[class]
+	return own and own[name] or SurvivorUI_TALENT_TEXTS and SurvivorUI_TALENT_TEXTS[name]
 end
 
 -- A talent's text as the cards show it (shortened, its numbers in gold), or
 -- nil: for a spell's tooltip, under its talents (AbilityTooltip.lua).
 function SurvivorUI_TalentText(name)
-	local text = SurvivorUI_TALENT_TEXTS and SurvivorUI_TALENT_TEXTS[name]
+	local text = SurvivorUI_TalentRaw(name)
 	return text and SourceLines(text, TALENT_GOLD) or nil
 end
 
@@ -284,7 +362,7 @@ local function SourceText(ability)
 	if item then
 		return SourceLines(item, ITEM_GREEN)
 	end
-	local text = (SurvivorUI_TALENT_TEXTS or {})[ability]
+	local text = SurvivorUI_TalentRaw(ability)
 	if text then
 		return SourceLines(text, TALENT_GOLD)
 	end
