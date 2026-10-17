@@ -160,10 +160,12 @@ local SOURCE_CUTS = {
 	"^You start every run with [^,;]-; ", "^Equip: ", "^Chance on hit: ",
 }
 -- Wording made the same as the ability tooltips' (AbilityTooltip.lua): what
--- a strike costs and when are left out, and extra strikes are counted.
+-- a strike costs and when are left out, extra strikes are counted, and a
+-- spell cast on its own is "an additional" one, not "a free" one.
 local SOURCE_WORDS = {
 	{ " for free%.", "." }, { " at once%.", "." },
 	{ "twice more", "2 more times" }, { "three times more", "3 more times" },
+	{ "([Aa]) free ", function(a) return (a == "A" and "An" or "an").." additional " end },
 }
 local ITEM_LINES = { "^Equip: ", "^Use: ", "^Chance on hit: " }
 local JEWELRY_SLOTS = { 2, 11, 12, 13, 14 }

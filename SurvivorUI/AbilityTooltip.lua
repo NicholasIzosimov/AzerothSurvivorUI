@@ -351,6 +351,9 @@ local FACTS = {
 	{ "heals you for "..NUMBER..", "..NUMBER.."%% of your max health",
 		function(n, p) return EFFECT, n, "Heal ("..p.."% of max health)" end },
 	{ "immune to all damage for "..NUMBER.." sec", function(t) return EFFECT, t.." sec", "Immunity" end },
+	-- "Its cooldown starts when the immunity ends: 37 sec from one cast to
+	-- the next": the heading shows that cooldown (Compose), so the list does not.
+	{ "its cooldown starts when [%a ]+ ends: [%d%.]+ sec from one cast to the next", function() return nil end },
 	{ "immune to all damage", function() return EFFECT, nil, "Immunity", nil, "Immune to all damage" end },
 	{ "flee for "..NUMBER.." sec", function(t) return EFFECT, t.." sec", "Fear" end },
 	{ "healing "..NUMBER.." over "..NUMBER.." sec", function(n, t) return EFFECT, n, "Healing over "..t.." sec" end },
@@ -412,6 +415,10 @@ local FACTS = {
 	{ "cooldowns? %a+ "..NUMBER.."%% shorter", function(n) return EFFECT, "-"..n.."%", "cooldown" end },
 	{ "reach%a* "..NUMBER.."%% farther", function(n) return EFFECT, "+"..n.."%", "reach" end },
 	{ "lasts? "..NUMBER.."%% longer", function(n) return EFFECT, "+"..n.."%", "duration" end },
+	-- "Everything they hit is struck again at once for 40% of the blow"
+	-- (Flurry, Mutilate) is "Strikes again for 40% of damage dealt".
+	{ "[%a ]*:? ?everything they hit is struck again at once for "..NUMBER.."%% of the blow", function(n)
+		return EFFECT, n.."%", "", nil, "Strikes again for "..n.."% of damage dealt" end },
 	-- "40% chance to strike again for free", "35% chance to strike twice more
 	-- at once": what it costs and when are no part of it, and extra strikes
 	-- are counted ("strike 2 more times").
@@ -680,6 +687,22 @@ local function NoFalloff(ability)
 end
 
 
+-- A talent line with the spell's own name ("Whirlwind", "Whirlwinds") in the
+-- color its title wears, whether the line has it plain or lit white (the
+-- proc cards' wording, CritCard.lua).
+local function TitleTinted(text, title, tint)
+	if not title or title == "" then
+		return text
+	end
+	local name = string.gsub(title, "([%^%$%(%)%%%.%[%]%*%+%-%?])", "%%%1")
+	local hex = Hex(tint)
+	local lit, count = string.gsub(text, "|cffffffff("..name.."s?)|r", hex.."%1|r")
+	if count > 0 then
+		return lit
+	end
+	return (string.gsub(text, "("..name.."s?)", hex.."%1|r"))
+end
+
 -- A talent's text as the spell's tooltip reads it: its kind ("Milestone.")
 -- and the spells it names cut, since the tooltip is one of them already:
 -- "Lightning Bolt and Chain Lightning have a 40% chance to strike again" is
@@ -731,7 +754,11 @@ local function Compose(ability, simple)
 		Line(ability.title, tint)
 	end
 	-- The cooldown on the left ("3.4 sec cooldown"), how it is cast on the right.
-	local cooldown = string.gsub(ability.cooldown or " ", "^([%d%.]+ sec)", COOLDOWN_HEX.."%1|r")
+	-- One that only starts once its effect ends (Divine Shield: "37 sec from
+	-- one cast to the next") shows that whole time, the one that counts.
+	local _, _, whole = string.find(table.concat(ability.description, " "), "([%d%.]+) sec from one cast to the next")
+	local cooldown = whole and (whole.." sec cooldown") or ability.cooldown or " "
+	cooldown = string.gsub(cooldown, "^([%d%.]+ sec)", COOLDOWN_HEX.."%1|r")
 	Double(cooldown, ability.cast, MUTED, MUTED)
 
 	local others = ability.other
@@ -867,9 +894,13 @@ local function Compose(ability, simple)
 					local read = facts[fact]
 					local _, _, sign, amount = string.find(read.value or "", "^([%+%-])([%d%.]+)%%$")
 					if read.text then
-						-- A sentence kept as it is: capital again, its numbers gold.
+						-- A sentence kept as it is: capital again, "an additional"
+						-- for "a free", its numbers gold, the spell's own name in
+						-- the title's color.
 						local text = string.upper(string.sub(read.text, 1, 1))..string.sub(read.text, 2)
-						table.insert(talents, { text = string.gsub(text, "(%d+%%?)", TALENT_HEX.."%1|r") })
+						text = string.gsub(text, "([Aa]) free ", function(a) return (a == "A" and "An" or "an").." additional " end)
+						text = string.gsub(text, "(%d+%%?)", TALENT_HEX.."%1|r")
+						table.insert(talents, { text = TitleTinted(text, ability.title, tint) })
 					elseif sign and read.label then
 						local key = sign..read.label
 						local bonus = bonuses[key]
@@ -888,7 +919,7 @@ local function Compose(ability, simple)
 			elseif major then
 				local text = SurvivorUI_TalentText(name)
 				if text then
-					table.insert(talents, { text = text })
+					table.insert(talents, { text = TitleTinted(text, ability.title, tint) })
 				end
 			end
 		end

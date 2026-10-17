@@ -225,6 +225,12 @@ local RARITY = {
 	ff9d9d9d = 0,               -- poor
 }
 
+-- Each rarity's color by its name, as the game's item details name them.
+local RARITY_HEX = {
+	Common = "ffffffff", Uncommon = "ff1eff00", Rare = "ff0070dd", Epic = "ffa335ee", Legendary = "ffff8000",
+}
+local RARITY_NAMES = { "Common", "Uncommon", "Rare", "Epic", "Legendary" }
+
 local function Rarity(hex)
 	return RARITY[string.lower(hex or "")] or 1
 end
@@ -383,6 +389,21 @@ local function Pieces(kind)
 			Consider(name, info)
 		end
 	end
+	-- The game's own details (ItemDetails.lua) fill in what the hero has not
+	-- recorded: each worn piece's worth at every rarity or its empowered
+	-- ceiling, and every piece never worn, greyed, after the rest.
+	local details = SurvivorUI_ITEM_DETAILS and SurvivorUI_ITEM_DETAILS[kind] or {}
+	for _, entry in pairs(best) do
+		entry.details = details[entry.base]
+	end
+	for name, info in pairs(details) do
+		if not best[name] then
+			best[name] = {
+				base = name, name = name, rank = 0, classes = {}, icon = info.icon,
+				hex = info.rarity and RARITY_HEX[info.rarity] or nil, details = info, unseen = true,
+			}
+		end
+	end
 	local found = {}
 	for _, piece in pairs(best) do
 		piece.kind = kind
@@ -390,8 +411,11 @@ local function Pieces(kind)
 			table.insert(found, piece)
 		end
 	end
-	-- The rarest first (legendary, epic, rare...), then by name.
+	-- The worn first, then the rarest (legendary, epic, rare...), then by name.
 	table.sort(found, function(a, b)
+		if (a.unseen == true) ~= (b.unseen == true) then
+			return not a.unseen
+		end
 		local ra, rb = Rarity(a.hex), Rarity(b.hex)
 		if ra ~= rb then
 			return ra > rb
@@ -881,8 +905,70 @@ local function WornSlot(piece)
 	end
 end
 
+-- The game's own details of a piece (ItemDetails.lua), under what the Codex
+-- recorded: a ring's or trinket's worth at each rarity, the one it wears now
+-- marked, and how picking it again grows it; an amulet's lines empowered,
+-- toward three times their own.
+local DETAILS_GREEN = { 0.25, 1, 0.35 }
+
+local function AddDetails(piece, current)
+	local details = piece.details
+	if not details then
+		return
+	end
+	if details.byRarity then
+		GameTooltip:AddLine("By rarity", 1, 0.82, 0)
+		for index = 1, table.getn(RARITY_NAMES) do
+			local rarity = RARITY_NAMES[index]
+			local color = HexColor(RARITY_HEX[rarity])
+			local mark = current == rarity and "  |cffffffff<|r" or ""
+			GameTooltip:AddDoubleLine(rarity..mark, details.byRarity[index] or "-",
+				color[1], color[2], color[3], DETAILS_GREEN[1], DETAILS_GREEN[2], DETAILS_GREEN[3])
+		end
+		GameTooltip:AddLine("Picked again: "..details.again, 0.6, 0.6, 0.6, 1)
+	elseif details.empowered then
+		GameTooltip:AddLine("Empowered, up to", 1, 0.82, 0)
+		for index = 1, table.getn(details.empowered) do
+			GameTooltip:AddLine(details.empowered[index], DETAILS_GREEN[1], DETAILS_GREEN[2], DETAILS_GREEN[3], 1)
+		end
+		GameTooltip:AddLine("Offered again while worn, its numbers grow toward three times their own.", 0.6, 0.6, 0.6, 1)
+	end
+end
+
+-- The name of a rarity by its color, or nil.
+local function RarityName(hex)
+	for name, known in pairs(RARITY_HEX) do
+		if known == string.lower(hex or "") then
+			return name
+		end
+	end
+end
+
+-- A piece never worn: all of its tooltip from the game's details.
+local function UnseenTooltip(piece)
+	local details = piece.details
+	local color = HexColor(piece.hex)
+	GameTooltip:SetText(piece.base, color[1], color[2], color[3])
+	if details.byRarity then
+		GameTooltip:AddLine((piece.kind == "Ring" and "Ring" or "Trinket").." · "..details.kind, 0.7, 0.7, 0.7)
+	else
+		GameTooltip:AddLine(details.rarity.." amulet", 0.7, 0.7, 0.7)
+		for index = 1, table.getn(details.lines) do
+			GameTooltip:AddLine(details.lines[index], DETAILS_GREEN[1], DETAILS_GREEN[2], DETAILS_GREEN[3], 1)
+		end
+	end
+	GameTooltip:AddLine(" ")
+	AddDetails(piece)
+	GameTooltip:AddLine("Not worn yet: from the game's item details.", 0.45, 0.45, 0.45, 1)
+end
+
 local function PieceTooltip(owner, piece)
 	GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
+	if piece.unseen then
+		UnseenTooltip(piece)
+		GameTooltip:Show()
+		return
+	end
 	-- The best description kept, titled with the piece's plain name; else,
 	-- worn, the game's own tooltip of it; else its item; else its name.
 	local slot = WornSlot(piece)
@@ -913,6 +999,10 @@ local function PieceTooltip(owner, piece)
 	if table.getn(worn) > 0 then
 		table.sort(worn)
 		GameTooltip:AddLine("Worn as: "..table.concat(worn, ", "), 0.7, 0.7, 0.7, 1)
+	end
+	if piece.details then
+		GameTooltip:AddLine(" ")
+		AddDetails(piece, RarityName(piece.hex))
 	end
 	GameTooltip:Show()
 end
@@ -1121,16 +1211,18 @@ end
 
 local function FillPiece(row, piece)
 	local color = HexColor(piece.hex)
-	row:SetBackdropColor(color[1] * 0.18, color[2] * 0.18, color[3] * 0.18, 0.9)
+	-- One never worn, known from the game's details only: greyed.
+	local dim = piece.unseen and 0.45 or 1
+	row:SetBackdropColor(color[1] * 0.18 * dim, color[2] * 0.18 * dim, color[3] * 0.18 * dim, 0.9)
 	row.name:SetText(piece.base)
-	row.name:SetTextColor(color[1], color[2], color[3])
+	row.name:SetTextColor(color[1] * dim, color[2] * dim, color[3] * dim)
 	-- Each piece once, whatever its rank.
 	row.rank:SetText("")
 	row.classes:SetText("")
 	ShowClassIcons(row, ClassBound(piece) and ClassTags(piece) or {})
 	if piece.icon then
 		row.icon:SetTexture(piece.icon)
-		row.icon:SetVertexColor(1, 1, 1)
+		row.icon:SetVertexColor(dim, dim, dim)
 	else
 		row.icon:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
 		row.icon:SetVertexColor(0.6, 0.6, 0.6)

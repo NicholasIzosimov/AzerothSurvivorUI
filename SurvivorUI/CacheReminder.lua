@@ -395,34 +395,104 @@ end
 -- heading.
 local HEADING_WINDOW = 0.15     -- seconds of movement the heading is read over
 local HEADING_MIN = 0.3         -- yards moved in that time before it counts
-local trail = {}                -- { x, y, t } of the hero's map position, oldest first
+local trail = {}                -- { x, y, t, world } of the hero's position, oldest first
 local heading
 
-local function MovementHeading()
+-- The hero's map position, or nil where the map gives none (0, 0: a zone
+-- with no map, as Naxxramas). The map is set back to the hero's zone first,
+-- unless the world map is open.
+local function HeroMap()
 	local px, py = GetPlayerMapPosition("player")
+	if (not px or (px == 0 and py == 0)) and SetMapToCurrentZone and not (WorldMapFrame and WorldMapFrame:IsVisible()) then
+		SetMapToCurrentZone()
+		px, py = GetPlayerMapPosition("player")
+	end
 	if not px or (px == 0 and py == 0) then
+		return nil
+	end
+	return px, py
+end
+
+-- The hero's world position, in yards, from the game's run line (AZS_RUN px
+-- and py), or nil.
+local function HeroWorld()
+	local run = AZS_RUN or {}
+	local px, py = tonumber(run.px), tonumber(run.py)
+	if px and py then
+		return px, py
+	end
+end
+
+-- Yards east and north between two world positions. The world runs as WoW's
+-- does: x to the north, y to the west.
+local function WorldOffset(x, y, fromX, fromY)
+	return fromY - y, x - fromX
+end
+
+local function MovementHeading()
+	-- By the map where it gives a position, else by the world.
+	local px, py = HeroMap()
+	local world = false
+	if not px then
+		px, py = HeroWorld()
+		world = true
+	end
+	if not px then
 		return heading
 	end
 	local now = GetTime()
-	table.insert(trail, { x = px, y = py, t = now })
+	if trail[1] and trail[1].world ~= world then
+		trail = {}
+	end
+	table.insert(trail, { x = px, y = py, t = now, world = world })
 	-- The oldest kept is the newest at least HEADING_WINDOW old.
 	while table.getn(trail) > 2 and now - trail[2].t >= HEADING_WINDOW do
 		table.remove(trail, 1)
 	end
 	local old = trail[1]
-	local east, north = Offset(px, py, old.x, old.y)
+	local east, north
+	if world then
+		east, north = WorldOffset(px, py, old.x, old.y)
+	else
+		east, north = Offset(px, py, old.x, old.y)
+	end
 	if east * east + north * north >= HEADING_MIN * HEADING_MIN then
 		heading = math.atan2(east, north)
 	end
 	return heading
 end
 
--- The cache the arrow keeps to, by where it stands on the map.
-local lockedKey
-
+-- A cache's key, by where it stands (its map or world position).
 local function CacheKey(cx, cy)
 	return string.format("%.3f:%.3f", cx, cy)
 end
+
+-- Each cache's place from the hero: { east, north, key } in yards, by the
+-- map where both have a map position, else by the world (a zone whose map
+-- gives none: the caches come with map -1, -1 there).
+local function CacheOffsets()
+	local found = {}
+	local mapX, mapY = HeroMap()
+	local worldX, worldY = HeroWorld()
+	for index = 1, table.getn(AZS_CHESTS or {}) do
+		local entry = AZS_CHESTS[index]
+		local cx, cy = MapPoint(entry)
+		if cx and cx >= 0 and cy >= 0 and mapX then
+			local east, north = Offset(cx, cy, mapX, mapY)
+			table.insert(found, { east = east, north = north, key = CacheKey(cx, cy) })
+		else
+			local wx, wy = tonumber(Field(entry, "x", 2)), tonumber(Field(entry, "y", 3))
+			if wx and wy and worldX then
+				local east, north = WorldOffset(wx, wy, worldX, worldY)
+				table.insert(found, { east = east, north = north, key = CacheKey(wx, wy) })
+			end
+		end
+	end
+	return found
+end
+
+-- The cache the arrow keeps to, by where it stands.
+local lockedKey
 
 -- The cache to point at: its direction (radians clockwise from north) and
 -- its distance in yards; nil without the hero's or any cache's position. The
@@ -432,26 +502,16 @@ local function NearestCache()
 		lockedKey = nil
 		return nil
 	end
-	local px, py = GetPlayerMapPosition("player")
-	if (not px or (px == 0 and py == 0)) and SetMapToCurrentZone then
-		SetMapToCurrentZone()
-		px, py = GetPlayerMapPosition("player")
-	end
-	if not px or (px == 0 and py == 0) then
-		return nil
-	end
 	local near, locked
-	for index = 1, table.getn(AZS_CHESTS) do
-		local cx, cy = MapPoint(AZS_CHESTS[index])
-		if cx then
-			local east, north = Offset(cx, cy, px, py)
-			local found = { east = east, north = north, yards = math.sqrt(east * east + north * north), key = CacheKey(cx, cy) }
-			if not near or found.yards < near.yards then
-				near = found
-			end
-			if found.key == lockedKey then
-				locked = found
-			end
+	local offsets = CacheOffsets()
+	for index = 1, table.getn(offsets) do
+		local found = offsets[index]
+		found.yards = math.sqrt(found.east * found.east + found.north * found.north)
+		if not near or found.yards < near.yards then
+			near = found
+		end
+		if found.key == lockedKey then
+			locked = found
 		end
 	end
 	if not near then
@@ -515,20 +575,15 @@ local function DrawPins()
 		HidePins(1)
 		return
 	end
-	local px, py = GetPlayerMapPosition("player")
-	if not px or (px == 0 and py == 0) then
-		HidePins(1)
-		return
-	end
 	local across = MINIMAP_YARDS[Minimap:GetZoom()] or MINIMAP_YARDS[0]
 	local half = Minimap:GetWidth() / 2
 	local reach = half - PIN_SIZE / 2
 	local shown = 0
-	for index = 1, table.getn(AZS_CHESTS) do
-		local cx, cy = MapPoint(AZS_CHESTS[index])
-		if cx then
+	local offsets = CacheOffsets()
+	for index = 1, table.getn(offsets) do
+		do
 			-- Yards east and north of the hero, then pixels on the minimap.
-			local east, north = Offset(cx, cy, px, py)
+			local east, north = offsets[index].east, offsets[index].north
 			local x = east / (across / 2) * half
 			local y = north / (across / 2) * half
 			local outside = math.abs(x) > reach or math.abs(y) > reach
@@ -587,6 +642,23 @@ function SurvivorUI_DebugCaches()
 		local entry = lairs[index]
 		say(string.format("lair %s  world %s, %s  map %s, %s", tostring(entry.name or index),
 			tostring(entry.x), tostring(entry.y), tostring(entry.mx), tostring(entry.my)))
+	end
+	-- Where the hero's own world position could come from, for a zone whose
+	-- map gives none (Naxxramas): a call some clients have, and the fields of
+	-- the game's zone, target and run feeds.
+	if UnitPosition then
+		local wx, wy = UnitPosition("player")
+		say("UnitPosition: "..tostring(wx)..", "..tostring(wy))
+	else
+		say("UnitPosition: none in this client")
+	end
+	for _, feed in pairs({ { "AZS_ZONE", AZS_ZONE }, { "AZS_TARGET", AZS_TARGET }, { "AZS_RUN", AZS_RUN } }) do
+		local fields = {}
+		for key, value in pairs(feed[2] or {}) do
+			table.insert(fields, tostring(key).."="..tostring(value))
+		end
+		table.sort(fields)
+		say(feed[1]..": "..(table.getn(fields) > 0 and table.concat(fields, " ") or "empty"))
 	end
 end
 

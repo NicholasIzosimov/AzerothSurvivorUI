@@ -30,7 +30,7 @@ If Windows warns about the file the first time, choose **More info → Run anywa
 - **Buffs**: a centered buff row above the player frame with an optional clock sweep that darkens as a buff runs out; shields with no timer show what they have left to absorb.
 - **Damage meter**: muted bars, spell icons and a hover card per line with the average cast and the targets hit; a proc shows what it comes from: its jewelry's lines or its talent's text.
 - **Build**: your spells colored by the rarity their upgrades add up to, your jewelry, and hover cards with upgrades and gear stats.
-- **Codex**: a book of every amulet, ring and trinket you have worn, across runs, with the classes that wore them, and of your class's abilities with the best average cast each has reached. Click a row of the build to open it at that kind.
+- **Codex**: a book of every amulet, ring and trinket you have worn, across runs, with the classes that wore them (and, greyed, the ones not yet worn, with each piece's worth at every rarity from the game's own item details), and of your class's abilities with the best average cast each has reached. Click a row of the build to open it at that kind.
 - **Tally**: kills, gold, gold per second and gold needed; **Tracker**: run timer with per-class best boss times, speedrun style; **XP bar** with a next-level estimate; **Boss bars**; **Loot log**.
 - **Caches**: a reminder and an arrow to the nearest cache (it keeps to one cache until another is 10 yards nearer), plus cache pins on the minimap.
 - **Reloads**: boss fight times, the meter's casts and colors, the loot log and the rates are kept through a `/reload` in the middle of a run.

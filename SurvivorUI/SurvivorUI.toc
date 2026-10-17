@@ -10,6 +10,7 @@ Tally.lua
 CharacterPane.lua
 TalentIcons.lua
 TalentText.lua
+ItemDetails.lua
 CritCard.lua
 Meter.lua
 Tracker.lua

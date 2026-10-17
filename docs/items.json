@@ -1,29 +1,68 @@
 {
   "about": "Azeroth Survivors' own item details (the armory's Details pages), transcribed from screenshots. Rings and trinkets: what a new one gives at each rarity, and how picking it again grows it. Amulets: a fixed rarity and their lines; offered again while worn, they grow toward three times their own numbers. Render with: node tools/build-items.js",
-  "rarities": ["Common", "Uncommon", "Rare", "Epic", "Legendary"],
+  "rarities": [
+    "Common",
+    "Uncommon",
+    "Rare",
+    "Epic",
+    "Legendary"
+  ],
   "rings": [
     {
-      "name": "Band of Accuria", "kind": "Damage",
-      "byRarity": ["+26% damage", "+36% damage", "+46% damage", "+61% damage", "+82% damage"],
-      "again": "Grows by nearly the pick's whole worth every time."
+      "name": "Band of Accuria",
+      "kind": "Damage",
+      "byRarity": [
+        "+26% damage",
+        "+36% damage",
+        "+46% damage",
+        "+61% damage",
+        "+82% damage"
+      ],
+      "again": "Grows by nearly the pick's whole worth every time.",
+      "icon": "INV_Jewelry_Ring_15"
     },
     {
-      "name": "Quick Strike Ring", "kind": "Cooldowns",
-      "byRarity": ["-14% cooldowns", "-19% cooldowns", "-24% cooldowns", "-32% cooldowns", "-43% cooldowns"],
-      "again": "Grows by nearly the pick's whole worth every time."
+      "name": "Quick Strike Ring",
+      "kind": "Cooldowns",
+      "byRarity": [
+        "-14% cooldowns",
+        "-19% cooldowns",
+        "-24% cooldowns",
+        "-32% cooldowns",
+        "-43% cooldowns"
+      ],
+      "again": "Grows by nearly the pick's whole worth every time.",
+      "icon": "INV_Jewelry_Ring_07"
     },
     {
-      "name": "Heavy Dark Iron Ring", "kind": "Health",
-      "byRarity": ["+30% max health", "+42% max health", "+54% max health", "+60% max health", "+60% max health"],
-      "again": "Grows toward +60% max health, each pick less as it nears it."
+      "name": "Heavy Dark Iron Ring",
+      "kind": "Health",
+      "byRarity": [
+        "+30% max health",
+        "+42% max health",
+        "+54% max health",
+        "+60% max health",
+        "+60% max health"
+      ],
+      "again": "Grows toward +60% max health, each pick less as it nears it.",
+      "icon": "INV_Jewelry_Ring_14"
     },
     {
-      "name": "Master Dragonslayer's Ring", "kind": "Critical strike",
-      "byRarity": ["+6% critical strike", "+8% critical strike", "+11% critical strike", "+14% critical strike", "+19% critical strike"],
-      "again": "Grows by nearly the pick's whole worth every time."
+      "name": "Master Dragonslayer's Ring",
+      "kind": "Critical strike",
+      "byRarity": [
+        "+6% critical strike",
+        "+8% critical strike",
+        "+11% critical strike",
+        "+14% critical strike",
+        "+19% critical strike"
+      ],
+      "again": "Grows by nearly the pick's whole worth every time.",
+      "icon": "INV_Jewelry_Ring_41"
     },
     {
-      "name": "Archimtiros' Ring of Reckoning", "kind": "Damage reduction and health",
+      "name": "Archimtiros' Ring of Reckoning",
+      "kind": "Damage reduction and health",
       "byRarity": [
         "+5% damage reduction, +21% max health",
         "+7% damage reduction, +29% max health",
@@ -31,20 +70,38 @@
         "+10% damage reduction, +42% max health",
         "+10% damage reduction, +42% max health"
       ],
-      "again": "Grows toward +10% damage reduction, +42% max health, each pick less as it nears it."
+      "again": "Grows toward +10% damage reduction, +42% max health, each pick less as it nears it.",
+      "icon": "INV_Jewelry_Ring_40"
     },
     {
-      "name": "Ring of the Devoured", "kind": "Regeneration",
-      "byRarity": ["+2.2 health per second", "+3.1 health per second", "+4.0 health per second", "+4.5 health per second", "+4.5 health per second"],
-      "again": "Grows toward +4.5 health per second, each pick less as it nears it."
+      "name": "Ring of the Devoured",
+      "kind": "Regeneration",
+      "byRarity": [
+        "+2.2 health per second",
+        "+3.1 health per second",
+        "+4.0 health per second",
+        "+4.5 health per second",
+        "+4.5 health per second"
+      ],
+      "again": "Grows toward +4.5 health per second, each pick less as it nears it.",
+      "icon": "INV_Jewelry_Ring_AhnQiraj_05"
     },
     {
-      "name": "Ring of Spell Power", "kind": "Area of effect",
-      "byRarity": ["+21% area of effect", "+29% area of effect", "+38% area of effect", "+50% area of effect", "+67% area of effect"],
-      "again": "Grows by nearly the pick's whole worth every time."
+      "name": "Ring of Spell Power",
+      "kind": "Area of effect",
+      "byRarity": [
+        "+21% area of effect",
+        "+29% area of effect",
+        "+38% area of effect",
+        "+50% area of effect",
+        "+67% area of effect"
+      ],
+      "again": "Grows by nearly the pick's whole worth every time.",
+      "icon": "INV_Jewelry_Ring_38"
     },
     {
-      "name": "Seal of the Damned", "kind": "Damage over time speed",
+      "name": "Seal of the Damned",
+      "kind": "Damage over time speed",
       "byRarity": [
         "Your damage over time spells tick 15% faster",
         "Your damage over time spells tick 21% faster",
@@ -52,10 +109,12 @@
         "Your damage over time spells tick 36% faster",
         "Your damage over time spells tick 40% faster"
       ],
-      "again": "Grows toward your damage over time spells ticking 40% faster, each pick less as it nears it."
+      "again": "Grows toward your damage over time spells ticking 40% faster, each pick less as it nears it.",
+      "icon": "INV_Jewelry_Ring_51Naxxramas"
     },
     {
-      "name": "Blooddrinker's Band", "kind": "Leech",
+      "name": "Blooddrinker's Band",
+      "kind": "Leech",
       "byRarity": [
         "1.5% of all damage dealt heals you",
         "2.1% of all damage dealt heals you",
@@ -63,27 +122,53 @@
         "3.0% of all damage dealt heals you",
         "3.0% of all damage dealt heals you"
       ],
-      "again": "Grows toward 3.0% of all damage dealt healing you, each pick less as it nears it."
+      "again": "Grows toward 3.0% of all damage dealt healing you, each pick less as it nears it.",
+      "icon": "INV_Jewelry_Ring_49Naxxramas"
     }
   ],
   "trinkets": [
     {
-      "name": "Earthstrike", "kind": "Damage",
-      "byRarity": ["+20% damage", "+27% damage", "+35% damage", "+47% damage", "+62% damage"],
-      "again": "Grows by nearly the pick's whole worth every time."
+      "name": "Earthstrike",
+      "kind": "Damage",
+      "byRarity": [
+        "+20% damage",
+        "+27% damage",
+        "+35% damage",
+        "+47% damage",
+        "+62% damage"
+      ],
+      "again": "Grows by nearly the pick's whole worth every time.",
+      "icon": "Spell_Nature_AbolishMagic"
     },
     {
-      "name": "Talisman of Ephemeral Power", "kind": "Cooldowns",
-      "byRarity": ["-10% cooldowns", "-15% cooldowns", "-19% cooldowns", "-25% cooldowns", "-34% cooldowns"],
-      "again": "Grows by nearly the pick's whole worth every time."
+      "name": "Talisman of Ephemeral Power",
+      "kind": "Cooldowns",
+      "byRarity": [
+        "-10% cooldowns",
+        "-15% cooldowns",
+        "-19% cooldowns",
+        "-25% cooldowns",
+        "-34% cooldowns"
+      ],
+      "again": "Grows by nearly the pick's whole worth every time.",
+      "icon": "INV_Misc_StoneTablet_11"
     },
     {
-      "name": "Lifegiving Gem", "kind": "Health",
-      "byRarity": ["+24% max health", "+34% max health", "+43% max health", "+48% max health", "+48% max health"],
-      "again": "Grows toward +48% max health, each pick less as it nears it."
+      "name": "Lifegiving Gem",
+      "kind": "Health",
+      "byRarity": [
+        "+24% max health",
+        "+34% max health",
+        "+43% max health",
+        "+48% max health",
+        "+48% max health"
+      ],
+      "again": "Grows toward +48% max health, each pick less as it nears it.",
+      "icon": "INV_Misc_Gem_Pearl_05"
     },
     {
-      "name": "Hand of Justice", "kind": "Echo",
+      "name": "Hand of Justice",
+      "kind": "Echo",
       "byRarity": [
         "9% chance for a spell to cast twice",
         "13% chance for a spell to cast twice",
@@ -91,45 +176,103 @@
         "22% chance for a spell to cast twice",
         "29% chance for a spell to cast twice"
       ],
-      "again": "Grows by nearly the pick's whole worth, up to 60% chance for a spell to cast twice."
+      "again": "Grows by nearly the pick's whole worth, up to 60% chance for a spell to cast twice.",
+      "icon": "INV_Jewelry_Talisman_01"
     },
     {
-      "name": "Blackhand's Breadth", "kind": "Critical damage",
-      "byRarity": ["+29% critical strike damage", "+41% critical strike damage", "+53% critical strike damage", "+70% critical strike damage", "+94% critical strike damage"],
-      "again": "Grows by nearly the pick's whole worth every time."
+      "name": "Blackhand's Breadth",
+      "kind": "Critical damage",
+      "byRarity": [
+        "+29% critical strike damage",
+        "+41% critical strike damage",
+        "+53% critical strike damage",
+        "+70% critical strike damage",
+        "+94% critical strike damage"
+      ],
+      "again": "Grows by nearly the pick's whole worth every time.",
+      "icon": "INV_Misc_ArmorKit_09"
     },
     {
-      "name": "Carrot on a Stick", "kind": "Movement speed",
-      "byRarity": ["+12% movement speed", "+17% movement speed", "+22% movement speed", "+29% movement speed", "+38% movement speed"],
-      "again": "Grows toward +40% movement speed, each pick less as it nears it."
+      "name": "Carrot on a Stick",
+      "kind": "Movement speed",
+      "byRarity": [
+        "+12% movement speed",
+        "+17% movement speed",
+        "+22% movement speed",
+        "+29% movement speed",
+        "+38% movement speed"
+      ],
+      "again": "Grows toward +40% movement speed, each pick less as it nears it.",
+      "icon": "INV_Misc_Food_54"
     },
     {
-      "name": "Gnomish Universal Remote", "kind": "Pickup range",
-      "byRarity": ["+52% pickup range", "+73% pickup range", "+94% pickup range", "+126% pickup range", "+168% pickup range"],
-      "again": "Grows toward +175% pickup range, each pick less as it nears it."
+      "name": "Gnomish Universal Remote",
+      "kind": "Pickup range",
+      "byRarity": [
+        "+52% pickup range",
+        "+73% pickup range",
+        "+94% pickup range",
+        "+126% pickup range",
+        "+168% pickup range"
+      ],
+      "again": "Grows toward +175% pickup range, each pick less as it nears it.",
+      "icon": "INV_Misc_PocketWatch_01"
     },
     {
-      "name": "Insignia of the Horde", "kind": "Experience",
-      "byRarity": ["+18% experience", "+25% experience", "+32% experience", "+43% experience", "+58% experience"],
-      "again": "Grows toward +60% experience, each pick less as it nears it."
+      "name": "Insignia of the Horde",
+      "kind": "Experience",
+      "byRarity": [
+        "+18% experience",
+        "+25% experience",
+        "+32% experience",
+        "+43% experience",
+        "+58% experience"
+      ],
+      "again": "Grows toward +60% experience, each pick less as it nears it.",
+      "icon": "INV_Jewelry_TrinketPVP_02"
     },
     {
-      "name": "Royal Seal of Eldre'Thalas", "kind": "Gold",
-      "byRarity": ["+38% gold", "+52% gold", "+67% gold", "+90% gold", "+120% gold"],
-      "again": "Grows toward +125% gold, each pick less as it nears it."
+      "name": "Royal Seal of Eldre'Thalas",
+      "kind": "Gold",
+      "byRarity": [
+        "+38% gold",
+        "+52% gold",
+        "+67% gold",
+        "+90% gold",
+        "+120% gold"
+      ],
+      "again": "Grows toward +125% gold, each pick less as it nears it.",
+      "icon": "INV_Jewelry_Talisman_10"
     },
     {
-      "name": "Mark of the Chosen", "kind": "Luck",
-      "byRarity": ["+22% luck", "+32% luck", "+41% luck", "+54% luck", "+72% luck"],
-      "again": "Grows toward +75% luck, each pick less as it nears it."
+      "name": "Mark of the Chosen",
+      "kind": "Luck",
+      "byRarity": [
+        "+22% luck",
+        "+32% luck",
+        "+41% luck",
+        "+54% luck",
+        "+72% luck"
+      ],
+      "again": "Grows toward +75% luck, each pick less as it nears it.",
+      "icon": "INV_Jewelry_Talisman_08"
     },
     {
-      "name": "Onyxia Blood Talisman", "kind": "Health per kill",
-      "byRarity": ["Each kill heals 3.0 health", "Each kill heals 4.2 health", "Each kill heals 5.4 health", "Each kill heals 6.0 health", "Each kill heals 6.0 health"],
-      "again": "Grows toward each kill healing 6.0 health, each pick less as it nears it."
+      "name": "Onyxia Blood Talisman",
+      "kind": "Health per kill",
+      "byRarity": [
+        "Each kill heals 3.0 health",
+        "Each kill heals 4.2 health",
+        "Each kill heals 5.4 health",
+        "Each kill heals 6.0 health",
+        "Each kill heals 6.0 health"
+      ],
+      "again": "Grows toward each kill healing 6.0 health, each pick less as it nears it.",
+      "icon": "Spell_Shadow_LifeDrain"
     },
     {
-      "name": "Horn of the Warchief", "kind": "Buff power",
+      "name": "Horn of the Warchief",
+      "kind": "Buff power",
       "byRarity": [
         "Your buffs are 22% stronger",
         "Your buffs are 32% stronger",
@@ -137,10 +280,12 @@
         "Your buffs are 54% stronger",
         "Your buffs are 72% stronger"
       ],
-      "again": "Grows toward your buffs being 75% stronger, each pick less as it nears it."
+      "again": "Grows toward your buffs being 75% stronger, each pick less as it nears it.",
+      "icon": "INV_Misc_Horn_01"
     },
     {
-      "name": "Major Soulstone", "kind": "Lives",
+      "name": "Major Soulstone",
+      "kind": "Lives",
       "byRarity": [
         "+1 return to life at half health (2 at most)",
         "+1 return to life at half health (2 at most)",
@@ -148,26 +293,162 @@
         "+2 return to life at half health (2 at most)",
         "+2 return to life at half health (2 at most)"
       ],
-      "again": "Picked again, it refills its lives; it holds 2 at most."
+      "again": "Picked again, it refills its lives; it holds 2 at most.",
+      "icon": "INV_Misc_Orb_04"
     }
   ],
   "amulets": [
-    { "name": "Mark of Fordring", "rarity": "Common", "lines": ["+15% damage"] },
-    { "name": "Star of Mystaria", "rarity": "Common", "lines": ["+25% max health", "+4% damage reduction"] },
-    { "name": "Talvash's Enhancing Necklace", "rarity": "Common", "lines": ["-10% cooldowns"] },
-    { "name": "Pristine Enchanted South Seas Kelp", "rarity": "Common", "lines": ["+30% luck", "+25% gold"] },
-    { "name": "Prestor's Talisman of Connivery", "rarity": "Uncommon", "lines": ["+16% damage", "+4% critical strike"] },
-    { "name": "Animated Chain Necklace", "rarity": "Uncommon", "lines": ["+25% max health", "+8% damage reduction"] },
-    { "name": "Woven Ivy Necklace", "rarity": "Uncommon", "lines": ["+6.0 health per second", "+12% max health", "+12% movement speed"] },
-    { "name": "Amulet of the Darkmoon", "rarity": "Uncommon", "lines": ["-12% cooldowns", "+8% movement speed"] },
-    { "name": "Jeklik's Opaline Talisman", "rarity": "Rare", "lines": ["Heals you for 3% of all damage dealt", "Each kill heals 1.0 health"] },
-    { "name": "The Eye of Hakkar", "rarity": "Rare", "lines": ["+5% critical strike", "Your critical hits burn and bleed for 80% more over 4 sec"] },
-    { "name": "Medallion of Steadfast Might", "rarity": "Rare", "lines": ["+10% damage reduction", "+15% max health", "Melee attackers take 100% of the damage they deal"] },
-    { "name": "Choker of Enlightenment", "rarity": "Epic", "lines": ["Your hits leap to 1 more enemy for 30%"] },
-    { "name": "Amulet of Vek'nilash", "rarity": "Epic", "lines": ["Your spells: +1 target", "+5% damage"] },
-    { "name": "Pendant of the Fallen Dragon", "rarity": "Epic", "lines": ["A killing blow leaves you at 50% health instead, once every 60 sec", "+20% max health", "+5.0 health per second"] },
-    { "name": "Malice Stone Pendant", "rarity": "Epic", "lines": ["20% chance for a spell to cast twice", "-8% cooldowns"] },
-    { "name": "Onyxia Tooth Pendant", "rarity": "Legendary", "lines": ["+4% critical strike", "+20% critical strike damage", "Your critical hits splash 30% on enemies within 5 yd, at most 2 times a second"] },
-    { "name": "Choker of the Fire Lord", "rarity": "Legendary", "lines": ["Enemies you kill explode for 15% of their max health, at most 2 times a second"] }
+    {
+      "name": "Mark of Fordring",
+      "rarity": "Common",
+      "lines": [
+        "+15% damage"
+      ],
+      "icon": "INV_Jewelry_Talisman_07"
+    },
+    {
+      "name": "Star of Mystaria",
+      "rarity": "Common",
+      "lines": [
+        "+25% max health",
+        "+4% damage reduction"
+      ]
+    },
+    {
+      "name": "Talvash's Enhancing Necklace",
+      "rarity": "Common",
+      "lines": [
+        "-10% cooldowns"
+      ],
+      "icon": "INV_Jewelry_Necklace_02"
+    },
+    {
+      "name": "Pristine Enchanted South Seas Kelp",
+      "rarity": "Common",
+      "lines": [
+        "+30% luck",
+        "+25% gold"
+      ],
+      "icon": "INV_Jewelry_Necklace_26"
+    },
+    {
+      "name": "Prestor's Talisman of Connivery",
+      "rarity": "Uncommon",
+      "lines": [
+        "+16% damage",
+        "+4% critical strike"
+      ],
+      "icon": "INV_Jewelry_Necklace_17"
+    },
+    {
+      "name": "Animated Chain Necklace",
+      "rarity": "Uncommon",
+      "lines": [
+        "+25% max health",
+        "+8% damage reduction"
+      ],
+      "icon": "INV_Jewelry_Necklace_01"
+    },
+    {
+      "name": "Woven Ivy Necklace",
+      "rarity": "Uncommon",
+      "lines": [
+        "+6.0 health per second",
+        "+12% max health",
+        "+12% movement speed"
+      ],
+      "icon": "INV_Misc_Herb_15"
+    },
+    {
+      "name": "Amulet of the Darkmoon",
+      "rarity": "Uncommon",
+      "lines": [
+        "-12% cooldowns",
+        "+8% movement speed"
+      ],
+      "icon": "INV_Jewelry_Necklace_14"
+    },
+    {
+      "name": "Jeklik's Opaline Talisman",
+      "rarity": "Rare",
+      "lines": [
+        "Heals you for 3% of all damage dealt",
+        "Each kill heals 1.0 health"
+      ],
+      "icon": "INV_Jewelry_Necklace_03"
+    },
+    {
+      "name": "The Eye of Hakkar",
+      "rarity": "Rare",
+      "lines": [
+        "+5% critical strike",
+        "Your critical hits burn and bleed for 80% more over 4 sec"
+      ],
+      "icon": "INV_Jewelry_Necklace_22"
+    },
+    {
+      "name": "Medallion of Steadfast Might",
+      "rarity": "Rare",
+      "lines": [
+        "+10% damage reduction",
+        "+15% max health",
+        "Melee attackers take 100% of the damage they deal"
+      ],
+      "icon": "INV_Jewelry_Amulet_03"
+    },
+    {
+      "name": "Choker of Enlightenment",
+      "rarity": "Epic",
+      "lines": [
+        "Your hits leap to 1 more enemy for 30%"
+      ],
+      "icon": "INV_Jewelry_Necklace_10"
+    },
+    {
+      "name": "Amulet of Vek'nilash",
+      "rarity": "Epic",
+      "lines": [
+        "Your spells: +1 target",
+        "+5% damage"
+      ],
+      "icon": "INV_Jewelry_Necklace_AhnQiraj_01"
+    },
+    {
+      "name": "Pendant of the Fallen Dragon",
+      "rarity": "Epic",
+      "lines": [
+        "A killing blow leaves you at 50% health instead, once every 60 sec",
+        "+20% max health",
+        "+5.0 health per second"
+      ],
+      "icon": "INV_Jewelry_Necklace_12"
+    },
+    {
+      "name": "Malice Stone Pendant",
+      "rarity": "Epic",
+      "lines": [
+        "20% chance for a spell to cast twice",
+        "-8% cooldowns"
+      ],
+      "icon": "INV_Jewelry_Necklace_29Naxxramas"
+    },
+    {
+      "name": "Onyxia Tooth Pendant",
+      "rarity": "Legendary",
+      "lines": [
+        "+4% critical strike",
+        "+20% critical strike damage",
+        "Your critical hits splash 30% on enemies within 5 yd, at most 2 times a second"
+      ],
+      "icon": "INV_Jewelry_Necklace_09"
+    },
+    {
+      "name": "Choker of the Fire Lord",
+      "rarity": "Legendary",
+      "lines": [
+        "Enemies you kill explode for 15% of their max health, at most 2 times a second"
+      ],
+      "icon": "INV_Jewelry_Amulet_05"
+    }
   ]
 }
