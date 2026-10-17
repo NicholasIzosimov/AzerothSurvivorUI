@@ -746,22 +746,29 @@ local function Compose(ability, simple)
 				end
 			end
 		end
-		-- How long and how far go up under the cast line, in the heading:
-		-- "4 sec duration" on the left, "20 yd range" on the right.
-		local lasts, reaches = {}, {}
+		-- How far goes up under the cast line, on the right of the heading:
+		-- its range where it says one, else the first (a radius); the rest
+		-- ("13 yd between targets") are left to the full description. The
+		-- left half is a space, not empty: an empty one sits the line too
+		-- high, into the cast line.
+		local reaches = {}
 		for index = table.getn(facts), 1, -1 do
 			local fact = facts[index]
 			if fact.place == REACH then
 				local text = fact.text or (fact.value..(fact.label ~= "" and " "..fact.label or ""))
 				table.insert(reaches, 1, (string.gsub(text, "([%d%.]+ yd)", REACH_HEX.."%1|r")))
 				table.remove(facts, index)
-			elseif fact.place == EFFECT and fact.label == "Duration" then
-				table.insert(lasts, 1, "|cffffffff"..fact.value.."|r duration")
-				table.remove(facts, index)
 			end
 		end
-		if table.getn(lasts) > 0 or table.getn(reaches) > 0 then
-			Double(table.concat(lasts, DOT), table.concat(reaches, DOT), MUTED, MUTED)
+		local reaching = reaches[1]
+		for index = 1, table.getn(reaches) do
+			if string.find(reaches[index], "range", 1, true) then
+				reaching = reaches[index]
+				break
+			end
+		end
+		if reaching then
+			Double(" ", reaching, MUTED, MUTED)
 		end
 		-- Its wording too unusual to read in full ("burst in holy light,
 		-- dealing 240 Holy damage to every enemy within 9.8 yd of the body"):
@@ -919,6 +926,48 @@ local function Compose(ability, simple)
 		end
 	end
 	return lines
+end
+
+-- Buffs and debuffs word a faster cooldown their own ways ("Cooldowns
+-- recover 30% faster.", "Reduces the cooldown of your spells by 30%."): their
+-- tooltips (SurvivorUI.lua) say it as the ability tooltips do, "-23%
+-- cooldown". Cooldowns that recover p% faster take 1 / (1 + p/100) as long.
+-- A buff's "reduces ... by 30%" is read the same way: it is the game's
+-- general wording for its cooldown stat, and the talent behind it (Flurry)
+-- says "cooldowns recover 30% faster", as Berserking's spell and buff both
+-- do. The game never says so outright; items' "Equip:" lines are left as
+-- they read.
+local function Faster(p)
+	local faster = tonumber(p) or 0
+	return "-"..math.floor(faster / (100 + faster) * 100 + 0.5).."% cooldown"
+end
+
+local AURA_WORDS = {
+	{ "[Yy]our cooldowns recover ([%d%.]+)%% faster", Faster },
+	{ "[Cc]ooldowns recover ([%d%.]+)%% faster", Faster },
+	{ "[Rr]educes the cooldowns? of your spells by ([%d%.]+)%%", Faster },
+	{ "[Rr]educes your cooldowns by ([%d%.]+)%%", Faster },
+}
+
+function SurvivorUI_PlainAuraTooltip()
+	local changed = false
+	for line = 2, GameTooltip:NumLines() do
+		local left = getglobal("GameTooltipTextLeft"..line)
+		local text = left and left:GetText()
+		if text then
+			local before = text
+			for index = 1, table.getn(AURA_WORDS) do
+				text = string.gsub(text, AURA_WORDS[index][1], AURA_WORDS[index][2])
+			end
+			if text ~= before then
+				left:SetText((string.gsub(text, "^%-(%d+%%) cooldown%.$", "-%1 cooldown")))
+				changed = true
+			end
+		end
+	end
+	if changed then
+		GameTooltip:Show()
+	end
 end
 
 -- A muted note under a rule at the foot of the next ability tooltip written,

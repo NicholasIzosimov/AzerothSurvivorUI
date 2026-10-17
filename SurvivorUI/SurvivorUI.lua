@@ -689,6 +689,9 @@ local function DebuffEnter()
 	GameTooltip:SetOwner(this, "ANCHOR_BOTTOMRIGHT")
 	GameTooltip:SetUnitDebuff("target", this.index)
 	GameTooltip:Show()
+	if SurvivorUI_PlainAuraTooltip then
+		SurvivorUI_PlainAuraTooltip()
+	end
 end
 
 for index = 1, DEBUFFS do
@@ -1245,6 +1248,10 @@ for index = 1, AURA_MAX do
 	aura:SetScript("OnEnter", function()
 		GameTooltip:SetOwner(this, "ANCHOR_TOPLEFT")
 		GameTooltip:SetPlayerBuff(this.buffIndex)
+		-- A faster cooldown worded as the ability tooltips word it (AbilityTooltip.lua).
+		if SurvivorUI_PlainAuraTooltip then
+			SurvivorUI_PlainAuraTooltip()
+		end
 	end)
 	aura:SetScript("OnLeave", function() GameTooltip:Hide() end)
 	aura:Hide()

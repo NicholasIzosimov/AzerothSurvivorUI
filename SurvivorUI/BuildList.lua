@@ -458,8 +458,11 @@ local function GearForSpell(spell)
 						end
 						AddGearStat(gear, stat, value, "%")
 					else
+						-- A share of the hit ("leap to 2 more enemies for 30%") is an
+						-- effect of its own, not extra targets of the full hit.
 						local counted = false
-						for count = 1, table.getn(GEAR_COUNTS) do
+						local share = string.find(lower, "for [%d%.]+%%")
+						for count = 1, share and 0 or table.getn(GEAR_COUNTS) do
 							local _, _, number = string.find(lower, GEAR_COUNTS[count][1])
 							if number then
 								AddGearStat(gear, GEAR_COUNTS[count][2], tonumber(number), "")
@@ -1093,7 +1096,7 @@ end
 -- II" for Whirlwind): it changes how that spell plays, so the spell's row
 -- carries its icon, with the amulet's tooltip on hover. Its slot, or nil.
 local NECK_SLOT = 2
-local NECK_ICON_SIZE = 16
+local NECK_ICON_SIZE = 12
 
 local function NeckFor(spell)
 	local _, _, item = string.find(GetInventoryItemLink("player", NECK_SLOT) or "", "%[(.-)%]")
