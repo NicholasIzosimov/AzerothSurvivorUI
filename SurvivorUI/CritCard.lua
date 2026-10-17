@@ -225,8 +225,35 @@ end
 local function SourceLines(text, hex)
 	local shown = {}
 	for line in string.gfind(text, "[^\n]+") do
+		-- The spell the run starts with, before its clause is cut: what the
+		-- rest calls "its" or "they" ("each of its bolts" is "each of Holy
+		-- Shock's bolts", "everything they hit" "everything Swipe and Shred
+		-- hit").
+		local _, _, spell = string.find(line, "^You start every run with ([^,;%.]-)[,;] ")
+		if not spell then
+			_, _, spell = string.find(line, "^%a+%. You start every run with ([^,;%.]-)[,;] ")
+		end
+		spell = spell and string.gsub(spell, " instead of .*$", "")
 		for index = 1, table.getn(SOURCE_CUTS) do
 			line = string.gsub(line, SOURCE_CUTS[index], "")
+		end
+		-- Only where the rest does not name it already.
+		if spell and not string.find(line, spell, 1, true) then
+			line = " "..line
+			-- Not "on its own" (by itself).
+			local named = 0
+			local at = string.find(line, "%sits ")
+			while at and string.sub(line, at + 5, at + 7) == "own" do
+				at = string.find(line, "%sits ", at + 1)
+			end
+			if at then
+				line = string.sub(line, 1, at)..spell.."'s "..string.sub(line, at + 5)
+				named = 1
+			end
+			if named == 0 then
+				line = string.gsub(line, "([%s])they ", "%1"..spell.." ", 1)
+			end
+			line = string.sub(line, 2)
 		end
 		line = string.upper(string.sub(line, 1, 1))..string.sub(line, 2)
 		line = string.gsub(line, "(%d[%d%.]*)(%%?)", function(digits, percent)
