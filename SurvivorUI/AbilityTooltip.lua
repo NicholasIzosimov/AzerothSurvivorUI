@@ -341,6 +341,10 @@ local FACTS = {
 	-- "Afflicts the 4 healthiest enemies", "the 3 nearest enemies", "the
 	-- nearest enemy": how many it picks.
 	{ "the (%d+) %a+est enem%a*", function(n) return TARGETS, n, "Targets" end },
+	-- "Fires 10 missiles at random enemies": how many it sends out, in the
+	-- targets' place ("10 Targets"), though several may find the same enemy.
+	{ "fires (%d+) missiles?[%a ]-enem%a*", function(n) return TARGETS, n, "Targets" end },
+	{ "fires (%d+) missiles?", function(n) return TARGETS, n, "Targets" end },
 	{ "the %a+est enemy", function() return TARGETS, "1", "Targets" end },
 	{ "up to (%d+) enem%a*", function(n) return TARGETS, n, "Targets" end },
 	{ "up to (%d+) targets?", function(n) return TARGETS, n, "Targets" end },
@@ -394,15 +398,45 @@ local function Trim(text)
 	return (string.gsub(string.gsub(text, "^[%s,]+", ""), "[%s,%.]+$", ""))
 end
 
+-- Words that carry no meaning of their own, left over once the rules have
+-- read a sentence ("makes you", "deals to").
+local GLUE = {
+	a = true, an = true, the = true, of = true, to = true, ["and"] = true, ["or"] = true, ["for"] = true,
+	you = true, your = true, it = true, its = true, with = true, ["in"] = true, on = true, at = true,
+	that = true, them = true, they = true, makes = true, deals = true, deal = true, hits = true, hit = true,
+	casts = true, cast = true, also = true, each = true, all = true, is = true, are = true,
+}
+
+-- Whether the rules read a sentence only in part: more than one word of
+-- meaning left over ("enemies you slay have a"), or a rule that took the
+-- rest of its sentence with holes where other rules cut their numbers out.
+local function HalfRead(residue, captures)
+	for index = 1, table.getn(captures) do
+		if type(captures[index]) == "string" and string.find(captures[index], "%s%s") then
+			return true
+		end
+	end
+	local words = 0
+	for word in string.gfind(residue, "%a+") do
+		if not GLUE[word] then
+			words = words + 1
+		end
+	end
+	return words > 1
+end
+
 -- The facts of a description (its lines, joined), as { place, value, label,
--- school } in the order they were read.
+-- school } in the order they were read, and whether a sentence of it was
+-- read only in part (then the description is best shown as written).
 local function ReadFacts(lines)
 	local facts = {}
+	local partial = false
 	local text = table.concat(lines, " ").." . "
 	for clause in string.gfind(text, "(.-)[%.;]%s") do
 		local original = Trim(clause)
 		local lower = string.lower(original)
 		local matched = false
+		local captures = {}
 		for index = 1, table.getn(FACTS) do
 			local rule = FACTS[index]
 			while true do
@@ -411,6 +445,9 @@ local function ReadFacts(lines)
 					break
 				end
 				matched = true
+				table.insert(captures, found[3])
+				table.insert(captures, found[4])
+				table.insert(captures, found[5])
 				local place, value, label, school, text = rule[2](found[3], found[4], found[5])
 				if place then
 					table.insert(facts, { place = place, value = value, label = label, school = school, text = text })
@@ -423,8 +460,11 @@ local function ReadFacts(lines)
 		if not matched and string.find(original, "%d") then
 			table.insert(facts, { place = OTHER, text = original })
 		end
+		if matched and HalfRead(lower, captures) then
+			partial = true
+		end
 	end
-	return facts
+	return facts, partial
 end
 
 -- The echo line ("34% chance to cast twice"), wherever it was written.
@@ -466,8 +506,8 @@ local function FactText(fact, school, tint)
 	end
 	-- One is "1 Target".
 	local label = fact.label
-	if count and tonumber(count) == 1 and label == "Targets" then
-		label = "Target"
+	if count and tonumber(count) == 1 and fact.place == TARGETS then
+		label = string.gsub(label, "s$", "")
 	end
 	-- A number in the label is white too: "over 11 sec" on a damage over time.
 	return value.." "..Highlight(label)
@@ -500,7 +540,12 @@ local function AllFacts(ability)
 	if ability.critChance then
 		table.insert(facts, { place = CRIT, crit = true })
 	end
-	local read = ReadFacts(ability.description)
+	-- A description read only in part is shown as written (Compose), so none
+	-- of its facts are listed; the reach, crit and echo above still are.
+	local read, partial = ReadFacts(ability.description)
+	if partial then
+		read = {}
+	end
 	for index = 1, table.getn(read) do
 		local fact = read[index]
 		-- "within 7 yd" says again what "7 yd range" said.
@@ -528,7 +573,7 @@ local function AllFacts(ability)
 		end
 		return a.order < b.order
 	end)
-	return facts
+	return facts, partial
 end
 
 -- The lines of the layout: { left, right, r, g, b, rr, rg, rb } a double
@@ -560,7 +605,17 @@ local function Compose(ability, simple)
 
 	local others = ability.other
 	if simple or ShowSimplified() then
-		local facts = AllFacts(ability)
+		local facts, partial = AllFacts(ability)
+		-- Its wording too unusual to read in full ("burst in holy light,
+		-- dealing 240 Holy damage to every enemy within 9.8 yd of the body"):
+		-- the description as the game wrote it, its numbers lit, over the
+		-- facts that come from elsewhere (reach, crit, the echo).
+		if partial and table.getn(ability.description) > 0 then
+			Spacer(tint)
+			for index = 1, table.getn(ability.description) do
+				Line(Highlight(ability.description[index], school, tint), DESCRIPTION_COLOR)
+			end
+		end
 		if table.getn(facts) > 0 then
 			Spacer(tint)
 			for index = 1, table.getn(facts) do
@@ -679,7 +734,9 @@ function SurvivorUI_HitsEveryEnemy(slot)
 	if not ability then
 		return nil
 	end
-	local listed, facts = pcall(AllFacts, ability)
+	-- Read off the description itself: one read only in part still says
+	-- where it hits.
+	local listed, facts = pcall(ReadFacts, ability.description)
 	if not (listed and facts) then
 		return nil
 	end

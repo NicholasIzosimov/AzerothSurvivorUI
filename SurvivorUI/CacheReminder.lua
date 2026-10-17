@@ -195,8 +195,8 @@ local ARROW_SIZE = 56           -- the arrow's size until one is chosen
 local ARROW_MIN, ARROW_MAX = 24, 96
 local NEAR, FAR = 15, 150       -- yards: fully green at NEAR, fully red from FAR
 local SWITCH_MARGIN = 10        -- yards another cache must be nearer by to take the arrow
-local TURN_RATE = 10            -- how quickly the arrow catches up with its bearing
-local AIM_EVERY = 0.1           -- seconds between readings of the hero and the caches
+local TURN_RATE = 16            -- how quickly the arrow catches up with its bearing
+local AIM_EVERY = 0.05          -- seconds between readings of the hero and the caches
 local REFRESH_EVERY = 2         -- seconds between full looks, standing still or not
 
 local function ArrowSize()
@@ -393,7 +393,7 @@ end
 -- turn shows within a step rather than after the old way has been walked
 -- off; standing still (under HEADING_MIN yards in that time) keeps the last
 -- heading.
-local HEADING_WINDOW = 0.2      -- seconds of movement the heading is read over
+local HEADING_WINDOW = 0.15     -- seconds of movement the heading is read over
 local HEADING_MIN = 0.3         -- yards moved in that time before it counts
 local trail = {}                -- { x, y, t } of the hero's map position, oldest first
 local heading
