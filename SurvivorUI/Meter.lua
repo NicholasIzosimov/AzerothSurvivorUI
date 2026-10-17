@@ -571,6 +571,11 @@ end
 -- the book or the talents change; a miss is tried again a few seconds later,
 -- as the action bar is empty while the cards are up.
 local MELEE_ICON = "Interface\\Icons\\INV_Sword_04"
+-- Sources whose icon is always the same, whatever else shares the name:
+-- Leech is WoW's own life drain.
+local FIXED_ICONS = {
+	leech = "Interface\\Icons\\Spell_Shadow_LifeDrain02",
+}
 local ICON_RETRY = 10
 local icons = {}                -- [source] = texture
 local iconMissed = {}           -- [source] = when it was last looked for in vain
@@ -642,7 +647,9 @@ local function IconOf(name)
 	end
 	local wanted = string.lower(name or "")
 	local texture
-	if name == "Melee" then
+	if FIXED_ICONS[wanted] then
+		texture = FIXED_ICONS[wanted]
+	elseif name == "Melee" then
 		texture = BookIcon("attack") or MELEE_ICON
 	else
 		texture = BookIcon(wanted) or ItemIcon(wanted) or OwnTalentIcon(wanted)
@@ -902,7 +909,8 @@ Draw = function()
 		room = math.max(20, room)
 		bar.name:SetWidth(room)
 		local rank = mode.key ~= "taken" and RankOf(name)
-		bar.name:SetText(place..". "..name..(rank and rank > 0 and "  |cffbdbdbd"..Roman(rank).."|r" or ""))
+		local rankText = rank and rank > 0 and (Settings().meterRoman == false and rank or Roman(rank))
+		bar.name:SetText(place..". "..name..(rankText and "  |cffbdbdbd"..rankText.."|r" or ""))
 		if proc then
 			bar.tag:ClearAllPoints()
 			bar.tag:SetPoint("LEFT", bar, "LEFT", 4 + math.min(bar.name:GetStringWidth(), room) + 4, 0)
@@ -1127,6 +1135,17 @@ if SurvivorUI_RegisterOption then
 		toggle = function()
 			local settings = Settings()
 			settings.meterDistinct = not settings.meterDistinct
+		end,
+	})
+	SurvivorUI_RegisterOption({
+		section = "General",
+		label = "Damage Meter Rank Roman Numerals",
+		parent = "Damage meter",
+		tip = "Each spell's rank after its name as a Roman numeral (Holy Wrath XII). Off, as a number (Holy Wrath 12).",
+		get = function() return Settings().meterRoman ~= false end,
+		toggle = function()
+			local settings = Settings()
+			settings.meterRoman = settings.meterRoman == false
 		end,
 	})
 	SurvivorUI_RegisterOption({

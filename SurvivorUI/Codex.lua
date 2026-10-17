@@ -229,6 +229,10 @@ local function Rarity(hex)
 	return RARITY[string.lower(hex or "")] or 1
 end
 
+-- Slots to read again since the gear last changed (or the world was
+-- entered), until a whole tooltip is read.
+local reread = {}
+
 local function Learn()
 	if not GetInventoryItemLink then
 		return
@@ -265,13 +269,15 @@ local function Learn()
 				-- Its tooltip is kept once the game has sent it in full (more
 				-- than the name: until then the slot shows only that), and read
 				-- again while it is worn until it is.
-				if piece.link ~= item or table.getn(piece.lines or {}) < 2 then
+				-- After a change of gear it is read again whatever its link says:
+				-- the game reuses an item's id for a new copy.
+				if piece.link ~= item or table.getn(piece.lines or {}) < 2 or reread[slot] then
 					local lines, only = ReadSlot(slot)
 					if table.getn(lines) > 1 then
+						reread[slot] = nil
 						piece.lines, piece.only = lines, only
-						-- Its least rare version seen too: the same rank can drop
-						-- at a higher rarity with bigger numbers, and the Rank I
-						-- baseline is the least of them.
+						-- Its least rare version seen too, kept for later: the
+						-- numbers of one rank vary from copy to copy.
 						if not piece.low or Rarity(hex) < Rarity(piece.low.hex) then
 							piece.low = { hex = hex, lines = lines }
 						end
@@ -361,12 +367,6 @@ local function Pieces(kind)
 		end
 		entry.icon = entry.icon or info.icon
 		entry.only = entry.only or info.only
-		-- Its first rank's description too, the baseline its tooltip shows
-		-- under the best.
-		if rank == 1 then
-			local low = info.low and Whole(info.low.lines) and info.low.lines
-			entry.firstLines = low or (Whole(info.lines) and info.lines) or entry.firstLines
-		end
 		if Whole(info.lines) and (not entry.linesRank or rank > entry.linesRank) then
 			entry.lines, entry.linesRank = info.lines, rank
 		end
@@ -821,9 +821,6 @@ local function WornSlot(piece)
 	end
 end
 
--- The lines of a piece's tooltip that say what it gives.
-local GIVES_LINES = { "^Equip: ", "^Use: ", "^Chance on hit: " }
-
 local function PieceTooltip(owner, piece)
 	GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
 	-- The best description kept, titled with the piece's plain name; else,
@@ -838,25 +835,6 @@ local function PieceTooltip(owner, piece)
 				GameTooltip:AddDoubleLine(line[1], line[5], line[2], line[3], line[4], line[2], line[3], line[4])
 			else
 				GameTooltip:AddLine(line[1], line[2], line[3], line[4], 1)
-			end
-		end
-		-- The baseline: what rank I gives, where the best shown is a higher
-		-- rank and rank I was seen.
-		if piece.firstLines and piece.linesRank and piece.linesRank > 1 then
-			local shown = false
-			for index = 2, table.getn(piece.firstLines) do
-				local line = piece.firstLines[index]
-				for pattern = 1, table.getn(GIVES_LINES) do
-					if string.find(line[1] or "", GIVES_LINES[pattern]) then
-						if not shown then
-							GameTooltip:AddLine(" ")
-							GameTooltip:AddLine("Rank I", 1, 0.82, 0)
-							shown = true
-						end
-						GameTooltip:AddLine(line[1], line[2], line[3], line[4], 1)
-						break
-					end
-				end
 			end
 		end
 	elseif slot then
@@ -1362,6 +1340,16 @@ learner:RegisterEvent("UNIT_INVENTORY_CHANGED")
 learner:SetScript("OnEvent", function()
 	if event == "UNIT_INVENTORY_CHANGED" and arg1 ~= "player" then
 		return
+	end
+	-- Every jewelry slot read afresh, the shared reader's copy too (this may
+	-- run before Gear.lua's own handler forgets it).
+	for index = 1, table.getn(KINDS) do
+		for slotIndex = 1, table.getn(KINDS[index].slots or {}) do
+			reread[KINDS[index].slots[slotIndex]] = true
+		end
+	end
+	if SurvivorUI_ForgetWornTooltips then
+		SurvivorUI_ForgetWornTooltips()
 	end
 	Learn()
 	if book:IsShown() then

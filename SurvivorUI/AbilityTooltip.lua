@@ -320,6 +320,18 @@ local FACTS = {
 	{ "deals? "..NUMBER.."%% less damage", function(p) return EFFECT, "-"..p.."%", "enemy damage" end },
 	{ "damage increased by "..NUMBER.."%%", function(p) return EFFECT, "+"..p.."%", "damage" end },
 	{ "attackers take "..NUMBER.." damage", function(n) return EFFECT, n, "damage to melee attackers" end },
+	-- A patch of ground that burns: "Marks the ground where you stand once
+	-- enemies come within 12 yd: every enemy within 12 yd of that spot takes
+	-- 60 Holy damage every 1 sec for 18 sec, 1082 in all" is a damage over
+	-- time, "1.1k Holy Damage over 18 sec", over a "12 yd radius" and AoE.
+	-- Where it lands ("marks the ground where you stand once enemies come
+	-- within 12 yd") is left to the full description.
+	{ "takes "..NUMBER.." (%a+) damage every "..NUMBER.." sec for "..NUMBER.." sec, "..NUMBER.." in all",
+		function(tick, school, every, t, total)
+			return DAMAGE, total, Capital(school).." Damage over "..t.." sec", school end },
+	{ "within "..NUMBER.." yds? of that spot", function(n) return REACH, n.." yd", "radius" end },
+	{ "marks the ground where you stand once enem%a* come within "..NUMBER.." yds?", function() return nil end },
+	{ "lands on the thickest group of enem%a* within "..NUMBER.." yds?", function(n) return REACH, n.." yd", "range" end },
 	-- A shield or heal sized by your health: "Absorbs the next 293 damage
 	-- you take, 42% of your max health" is "293 Absorb Shield (42% of max health)",
 	-- not 293 damage dealt; "Heals you for 120, 15% of your max health" is
@@ -445,10 +457,12 @@ local function ReadFacts(lines)
 					break
 				end
 				matched = true
-				table.insert(captures, found[3])
-				table.insert(captures, found[4])
-				table.insert(captures, found[5])
-				local place, value, label, school, text = rule[2](found[3], found[4], found[5])
+				for capture = 3, 7 do
+					if found[capture] then
+						table.insert(captures, found[capture])
+					end
+				end
+				local place, value, label, school, text = rule[2](found[3], found[4], found[5], found[6], found[7])
 				if place then
 					table.insert(facts, { place = place, value = value, label = label, school = school, text = text })
 				end

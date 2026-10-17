@@ -115,6 +115,9 @@ gearWatch:SetScript("OnEvent", function()
 	if event == "UNIT_INVENTORY_CHANGED" and arg1 ~= "player" then
 		return
 	end
+	if SurvivorUI_ForgetWornTooltips then
+		SurvivorUI_ForgetWornTooltips()
+	end
 	lastGearEvent = (event == "PLAYER_ENTERING_WORLD" and "entering the world (a reload)" or "a gear change")
 		.." at "..(date and date("%H:%M:%S") or "?")
 	gearElapsed = GEAR_CHECK
@@ -296,8 +299,15 @@ end
 -- changes rather than many times a second. A tooltip the game had not yet
 -- sent in full (the name alone) is read again every WORN_RETRY seconds until
 -- it is. Lines are { text, r, g, b, right text }.
+-- The game reuses an item's id for another copy of it (another rank, or the
+-- same rank with other numbers), so the same link can stand for a new piece:
+-- every change of gear forgets what was kept (SurvivorUI_ForgetWornTooltips).
 local WORN_RETRY = 5
 local wornTooltips = {}         -- [slot] = { link, lines, at }
+
+function SurvivorUI_ForgetWornTooltips()
+	wornTooltips = {}
+end
 
 function SurvivorUI_WornTooltip(slot)
 	local link = GetInventoryItemLink("player", slot)
