@@ -1563,11 +1563,32 @@ local function BuffAbsorb(buffIndex)
 			for index = 1, table.getn(ABSORB_PATTERNS) do
 				local _, _, amount = string.find(text, ABSORB_PATTERNS[index])
 				if amount then
+					-- What the shield says of itself, for the meter's card of it
+					-- (SurvivorUI_AbsorbText): a buff's name need not be what
+					-- made it (Ardent Defender's shield goes as Blessed Life).
+					if name and SurvivorUI_RunMemory then
+						local said = {}
+						for other = 2, buffScan:NumLines() do
+							local said_line = getglobal("SurvivorUIBuffScanTextLeft"..other)
+							said_line = said_line and said_line:GetText()
+							if said_line and not string.find(said_line, "remaining$") then
+								table.insert(said, said_line)
+							end
+						end
+						local memory = SurvivorUI_RunMemory("absorbs")
+						memory.texts = memory.texts or {}
+						memory.texts[name] = table.concat(said, "\n")
+					end
 					return tonumber(amount), name
 				end
 			end
 		end
 	end
+end
+
+function SurvivorUI_AbsorbText(name)
+	local memory = SurvivorUI_RunMemory and SurvivorUI_RunMemory("absorbs")
+	return memory and memory.texts and memory.texts[name]
 end
 
 -- What each shield has absorbed this run, by name, for the damage meter's

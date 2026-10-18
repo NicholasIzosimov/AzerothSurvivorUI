@@ -370,6 +370,12 @@ local FACTS = {
 	-- it strikes: "8 Targets", AllFacts), "12 yd between targets" and "8%
 	-- weaker with each target hit".
 	{ "jumps to up to (%d+) more enem%a*", function(n) return TARGETS, "+"..n, "Targets" end },
+	-- A leap or a fork for a share of the hit (Holy Shock's talent, Lightning
+	-- Bolt's amulet): more targets, at that share: "+2 Targets at 40%".
+	{ "leaps? to (%d+) more enem%a* for "..NUMBER.."%%[%a ]*", function(n, p)
+		return TARGETS, "+"..n, "Targets at "..p.."%" end },
+	{ "forks? to (%d+) more enem%a* for "..NUMBER.."%%[%a ]*", function(n, p)
+		return TARGETS, "+"..n, "Targets at "..p.."%" end },
 	{ "within "..NUMBER.." yds? of the last", function(n) return REACH, n.." yd", "between targets" end },
 	{ NUMBER.."%% weaker with each jump", function(p) return OTHER, p.."%", "weaker with each target hit" end },
 	-- "Fires 10 missiles at random enemies": how many it sends out, in the
@@ -553,7 +559,7 @@ local function FactText(fact, school, tint)
 	-- Targets as a count ("3"), colored by how many.
 	local _, _, count = string.find(fact.place == TARGETS and fact.value or "", "^%+?(%d+)$")
 	if count then
-		value = TargetsText(tonumber(count))
+		value = (string.find(fact.value, "^%+") and "+" or "")..TargetsText(tonumber(count))
 	elseif fact.place == DAMAGE and fact.school and SCHOOL_COLORS[Capital(fact.school)] then
 		value = Hex(SCHOOL_COLORS[Capital(fact.school)])..shown.."|r"
 	end
@@ -563,7 +569,7 @@ local function FactText(fact, school, tint)
 	-- One is "1 Target".
 	local label = fact.label
 	if count and tonumber(count) == 1 and fact.place == TARGETS then
-		label = string.gsub(label, "s$", "")
+		label = string.gsub(string.gsub(label, "s$", ""), "^Targets ", "Target ")
 	end
 	-- A number in the label is white too: "over 11 sec" on a damage over time.
 	return value.." "..Highlight(label)
@@ -703,13 +709,65 @@ local function TitleTinted(text, title, tint)
 	return (string.gsub(text, "("..name.."s?)", hex.."%1|r"))
 end
 
+-- Whether a talent makes a spell itself hit more: strike again or twice,
+-- strike more enemies, splash, leap, fork or jump. A talent in which the
+-- spell is only what something else sets off ("every 7th kill unleashes a
+-- free Whirlwind", "every Hammer of Justice ... a free Consecration") does
+-- not, nor one that only shields or adds to stats (Ardent Defender).
+local HITS_MORE = {
+	"strikes? again", "strikes? twice", "struck again", "struck for", "splash", "leaps?", "forks?",
+	"jumps?", "more enem", "more target", "strikes? [%d%a]+ more",
+}
+
+local function HitsMore(raw, title)
+	local lower = string.lower(raw)
+	local name = string.lower(title or "")
+	if name ~= "" and (string.find(lower, "free "..name, 1, true) or string.find(lower, "additional "..name, 1, true)) then
+		return false
+	end
+	for index = 1, table.getn(HITS_MORE) do
+		if string.find(lower, HITS_MORE[index]) then
+			return true
+		end
+	end
+	return false
+end
+
+-- The spell a talent sets off for free when this one does: the talent names
+-- this spell and "a free <another>" ("Every Hammer of Justice that lands ...:
+-- a free Consecration" is Consecration on Hammer of Justice); nil where it
+-- does not, or where the free one is this spell itself (Rampage on
+-- Whirlwind: kills set that off).
+local function AlsoCasts(raw, title)
+	if not (title and title ~= "" and string.find(raw, title, 1, true)) then
+		return nil
+	end
+	local _, stop = string.find(raw, "a free ")
+	if not stop then
+		return nil
+	end
+	-- The free spell's name: its words while they start with a capital.
+	local words = {}
+	for word in string.gfind(string.sub(raw, stop + 1), "[^%s,%.]+") do
+		if not string.find(word, "^%u") then
+			break
+		end
+		table.insert(words, word)
+	end
+	local other = table.concat(words, " ")
+	if other == "" or other == title then
+		return nil
+	end
+	return other
+end
+
 -- A talent's text as the spell's tooltip reads it: its kind ("Milestone.")
 -- and the spells it names cut, since the tooltip is one of them already:
 -- "Lightning Bolt and Chain Lightning have a 40% chance to strike again" is
 -- "have a 40% chance to strike again", "Curse of Agony's cooldown is 8%
 -- shorter" "cooldown is 8% shorter".
 local TALENT_VERBS = {
-	"deals?", "heals?", "reach%a*", "lasts?", "ha[sv]e?", "strikes?", "jumps?", "fires?", "cover",
+	"deals?", "heals?", "reach%a*", "lasts?", "ha[sv]e?", "strikes?", "jumps?", "fires?", "cover", "leaps?", "forks?",
 }
 
 local function TalentSentence(text)
@@ -728,6 +786,51 @@ local function TalentSentence(text)
 		end
 	end
 	return text
+end
+
+-- What a spell's milestone talents and worn gear add to its reach as more
+-- targets at a share of the hit ("each of its bolts leaps to 2 more enemies
+-- for 40% of it", "hits leap to 2 more enemies for 30%"): those read as
+-- target lines, { fact, tag } each, to stand under the spell's own targets;
+-- and which talents (by name) and gear lines (by text) they come from, so
+-- their own blocks leave them out.
+local function Leaps(ability)
+	local found, talents, effects = {}, {}, {}
+	local function Read(text, tag)
+		local facts, partial = ReadFacts({ TalentSentence(text) })
+		-- "Shadow Bolt splits: every bolt that lands forks to ...": the leap
+		-- is in what follows the colon.
+		local _, _, after = string.find(text, ": ([^:]+)$")
+		if (partial or table.getn(facts) == 0) and after then
+			facts, partial = ReadFacts({ TalentSentence(string.upper(string.sub(after, 1, 1))..string.sub(after, 2)) })
+		end
+		if partial or table.getn(facts) == 0 then
+			return false
+		end
+		for index = 1, table.getn(facts) do
+			if facts[index].place ~= TARGETS or not string.find(facts[index].label or "", "^Targets at ") then
+				return false
+			end
+		end
+		for index = 1, table.getn(facts) do
+			table.insert(found, { fact = facts[index], tag = tag })
+		end
+		return true
+	end
+	local names = SpellTalents(ability)
+	for index = 1, table.getn(names) do
+		local raw = SurvivorUI_TalentRaw and SurvivorUI_TalentRaw(names[index])
+		if raw and (string.find(raw, "^Milestone%. ") or string.find(raw, "^Capstone%. ")) and Read(raw, "talent") then
+			talents[names[index]] = true
+		end
+	end
+	local gear = SurvivorUI_GearEffects and SurvivorUI_GearEffects(ability.title) or {}
+	for index = 1, table.getn(gear) do
+		if Read(gear[index], "gear") then
+			effects[gear[index]] = true
+		end
+	end
+	return found, talents, effects
 end
 
 -- The lines of the layout: { left, right, r, g, b, rr, rg, rb } a double
@@ -762,8 +865,25 @@ local function Compose(ability, simple)
 	Double(cooldown, ability.cast, MUTED, MUTED)
 
 	local others = ability.other
+	-- Talents and gear that make it leap to more enemies stand with its
+	-- targets (simplified list only; the build's card leaves talents and gear
+	-- out), and leave their own blocks.
+	local leaps, leapTalents, leapEffects = {}, {}, {}
+	if not simple and ShowSimplified() then
+		leaps, leapTalents, leapEffects = Leaps(ability)
+	end
 	if simple or ShowSimplified() then
 		local facts, partial = AllFacts(ability)
+		local after = 0
+		for index = 1, table.getn(facts) do
+			if facts[index].place == DAMAGE or facts[index].place == TARGETS then
+				after = index
+			end
+		end
+		for index = 1, table.getn(leaps) do
+			leaps[index].fact.tag = leaps[index].tag
+			table.insert(facts, after + index, leaps[index].fact)
+		end
 		-- A chain's falloff is gone where one of its talents says it loses
 		-- nothing with each jump (Elemental Fury).
 		if NoFalloff(ability) then
@@ -816,7 +936,8 @@ local function Compose(ability, simple)
 				elseif fact.crit then
 					Line(CRIT_HEX..ability.critChance.."|r crit", MUTED)
 				else
-					Line(FactText(fact, school, tint), MUTED)
+					local tag = fact.tag and " |cff8a8a8a("..fact.tag..")|r" or ""
+					Line(FactText(fact, school, tint)..tag, MUTED)
 				end
 			end
 		elseif not partial and table.getn(ability.description) > 0 then
@@ -856,7 +977,12 @@ local function Compose(ability, simple)
 	-- Effects" heading in the gear's orange, each effect indented, light, its
 	-- percentages orange. Left off the build's card, which lists the gear
 	-- itself.
-	local effects = not simple and SurvivorUI_GearEffects and SurvivorUI_GearEffects(ability.title) or {}
+	local effects = {}
+	for _, effect in ipairs(not simple and SurvivorUI_GearEffects and SurvivorUI_GearEffects(ability.title) or {}) do
+		if not leapEffects[effect] then
+			table.insert(effects, effect)
+		end
+	end
 	if table.getn(effects) > 0 then
 		Spacer(GEAR_ORANGE)
 		Line("Gear Effects", GEAR_ORANGE)
@@ -880,11 +1006,11 @@ local function Compose(ability, simple)
 		for item = 1, table.getn(names) do
 			local name = names[item]
 			local raw = SurvivorUI_TalentRaw and SurvivorUI_TalentRaw(name)
-			-- Only the talents that change how the spell plays: the game's
-			-- milestones and capstones. A plain upgrade ("deals 15% more
-			-- damage and recovers faster", "deals an extra 3% of your maximum
-			-- health") is left to the spell's own numbers.
-			local major = raw and (string.find(raw, "^Milestone%. ") or string.find(raw, "^Capstone%. "))
+			-- Only the talents that make the spell itself hit more: a
+			-- milestone or capstone (a plain upgrade, "deals 15% more damage",
+			-- is left to the spell's own numbers) that HitsMore says so of.
+			local major = raw and not leapTalents[name] and (string.find(raw, "^Milestone%. ") or string.find(raw, "^Capstone%. "))
+				and HitsMore(raw, ability.title)
 			local facts, partial = {}, true
 			if major then
 				facts, partial = ReadFacts({ TalentSentence(raw) })
@@ -920,6 +1046,14 @@ local function Compose(ability, simple)
 				local text = SurvivorUI_TalentText(name)
 				if text then
 					table.insert(talents, { text = TitleTinted(text, ability.title, tint) })
+				end
+			elseif raw and not leapTalents[name] then
+				-- This spell sets off another for free (Hallowed Ground: every
+				-- Hammer of Justice that lands, a free Consecration): "Also
+				-- casts Consecration".
+				local other = AlsoCasts(raw, ability.title)
+				if other then
+					table.insert(talents, { text = "Also casts |cffffffff"..other.."|r" })
 				end
 			end
 		end

@@ -1000,7 +1000,9 @@ local function PieceTooltip(owner, piece)
 		table.sort(worn)
 		GameTooltip:AddLine("Worn as: "..table.concat(worn, ", "), 0.7, 0.7, 0.7, 1)
 	end
-	if piece.details then
+	-- The game's details only where the Codex kept no description of its
+	-- own: what was recorded says it already.
+	if piece.details and not Whole(piece.lines) then
 		GameTooltip:AddLine(" ")
 		AddDetails(piece, RarityName(piece.hex))
 	end

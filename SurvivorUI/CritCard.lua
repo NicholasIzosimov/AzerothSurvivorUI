@@ -359,7 +359,14 @@ end
 
 -- A proc's source text, by its meter name, or nil: a piece of jewelry first,
 -- then a talent of that name.
-local function SourceText(ability)
+local function SourceText(ability, absorb)
+	-- A shield: what its buff says of itself, which names no talent (the
+	-- game calls Ardent Defender's shield Blessed Life).
+	-- Never a talent of the same name: that need not be what made it.
+	if absorb then
+		local shield = SurvivorUI_AbsorbText and SurvivorUI_AbsorbText(ability)
+		return shield and shield ~= "" and SourceLines(shield, TALENT_GOLD) or nil
+	end
 	local item = ItemText(ability)
 	if item then
 		return SourceLines(item, ITEM_GREEN)
@@ -504,7 +511,7 @@ local function CritTooltip(row)
 		Add("row", TOTAL_LABEL[view] or "Damage", Short(Num(row.damage)))
 	end
 	local shownTargets = math.min(TARGETS_SHOWN, table.getn(targets))
-	local source = shownTargets == 0 and not casts[ability] and SourceText(ability)
+	local source = shownTargets == 0 and not casts[ability] and SourceText(ability, row.absorb)
 	-- As wide as its words need, never narrower than the bars (or than a
 	-- source's text needs to read in a few lines).
 	local wide = math.max(critTip.title:GetStringWidth() + 4, source and SOURCE_WIDTH or TIP_WIDTH)

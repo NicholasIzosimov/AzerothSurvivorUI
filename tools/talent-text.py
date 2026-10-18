@@ -89,10 +89,13 @@ def fill(text):
     if '{v}' not in text:
         return text
     percent = '{v}%' in text
+    # A value the text already writes out is one of its fixed numbers, not
+    # its {v} ("stacking up to 30%": Ardent Defender's {v} is 8, not 30).
+    written = set(re.findall(r'(?<![\d.])(\d+(?:\.\d+)?)', text.replace('{v}', '')))
     for f in candidates(text):
-        if percent and 0 < f <= 1:
+        if percent and 0 < f <= 1 and number(f * 100) not in written:
             return text.replace('{v}', number(f * 100))
-        if not percent and f >= 1 and f == int(f):
+        if not percent and f >= 1 and f == int(f) and number(f) not in written:
             return text.replace('{v}', number(f))
     if not percent:
         n = whole_number(text)

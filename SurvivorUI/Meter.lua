@@ -926,6 +926,7 @@ Draw = function()
 		color = color or ColorOf(name)
 		local bar = Bar(index)
 		bar.tag:SetText(line.absorb and "(absorb)" or "(proc)")
+		bar.absorb = line.absorb
 
 		bar:ClearAllPoints()
 		bar:SetPoint("TOPLEFT", meter, "TOPLEFT", 4 + ICON, -20 - (index - 1) * (BAR_HEIGHT + BAR_GAP))
