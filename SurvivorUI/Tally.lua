@@ -49,6 +49,7 @@ local function Short(value, up)
 	local text = string.format("%.1f", tenths / 10)
 	return (string.gsub(text, "%.0$", ""))..suffix
 end
+SurvivorUI_Short = Short
 
 local function TextSize()
 	local size = tonumber(Settings().tallySize) or TEXT_SIZE

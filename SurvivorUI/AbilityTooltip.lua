@@ -49,8 +49,8 @@ local SCHOOL_COLORS = {
 local PHYSICAL_COLOR = { 0.90, 0.68, 0.45 }
 
 -- The summary's numbers, each kind in a color of its own; the words stay muted.
-local COOLDOWN_HEX = "|cff8cccff"   -- light blue
-local REACH_HEX = "|cff99f2bf"      -- mint
+local COOLDOWN_HEX = "|cffffffff"   -- white, as the other numbers
+local REACH_HEX = "|cffffffff"      -- white, as the other numbers
 local CRIT_HEX = "|cffffc214"       -- the gold of a critical strike's number
 local MUTED = { 0.62, 0.62, 0.62 }
 local ECHO_COLOR = { 1, 0.82, 0 }   -- the game's own gold for "chance to cast twice"
@@ -788,12 +788,11 @@ local function TalentSentence(text)
 	return text
 end
 
--- What a spell's milestone talents and worn gear add to its reach as more
--- targets at a share of the hit ("each of its bolts leaps to 2 more enemies
--- for 40% of it", "hits leap to 2 more enemies for 30%"): those read as
--- target lines, { fact, tag } each, to stand under the spell's own targets;
--- and which talents (by name) and gear lines (by text) they come from, so
--- their own blocks leave them out.
+-- What a spell's milestone talents add to its reach as more targets at a
+-- share of the hit ("each of its bolts leaps to 2 more enemies for 40% of
+-- it"): those read as target lines, { fact, tag } each, to stand under the
+-- spell's own targets; and which talents (by name) they come from, so their
+-- own block leaves them out. Gear keeps its own Gear Effects block always.
 local function Leaps(ability)
 	local found, talents, effects = {}, {}, {}
 	local function Read(text, tag)
@@ -822,12 +821,6 @@ local function Leaps(ability)
 		local raw = SurvivorUI_TalentRaw and SurvivorUI_TalentRaw(names[index])
 		if raw and (string.find(raw, "^Milestone%. ") or string.find(raw, "^Capstone%. ")) and Read(raw, "talent") then
 			talents[names[index]] = true
-		end
-	end
-	local gear = SurvivorUI_GearEffects and SurvivorUI_GearEffects(ability.title) or {}
-	for index = 1, table.getn(gear) do
-		if Read(gear[index], "gear") then
-			effects[gear[index]] = true
 		end
 	end
 	return found, talents, effects

@@ -129,6 +129,12 @@ end
 local function ShowRatio()
 	local run = AZS_RUN or {}
 	local gold, price = tonumber(run.gold), tonumber(run.chest)
+	-- Short as the stat tracker words them, gold rounded down; the price
+	-- rounded up only while it is out of reach, so the shown numbers never
+	-- say other than the real ones (1,350 / 1,350 reads 1.3k / 1.3k).
+	local short = gold and price and gold < price
+	gold = gold and SurvivorUI_Short(gold)
+	price = price and SurvivorUI_Short(price, short)
 	if TextShown() then
 		ratio:SetText("|cffffd24d"..(gold or "-").."|r |cff9a9a9a/|r |cff8cd98c"..(price or "-").."|r")
 	else

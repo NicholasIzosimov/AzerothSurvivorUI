@@ -45,6 +45,7 @@ If Windows warns about the file the first time, choose **More info → Run anywa
 | `/sui build` | Build panel on/off |
 | `/sui codex` | Open the Codex |
 | `/sui spells` | Each of your spells: whether its tooltip says it casts twice or crits, and every upgrade seen on it |
+| `/sui fillbar` | Put any of the run's spells missing from the ability bar back on it (done by itself every few seconds of a run) |
 | `/sui gear` | Your jewelry slots as the game sees them, and a log of when any slot lost or regained its piece |
 | `/sui meter` | Damage meter on/off |
 | `/sui tally` | Tally on/off |

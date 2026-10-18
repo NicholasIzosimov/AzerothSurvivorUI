@@ -657,12 +657,14 @@ local function UpdateUnitFrame(frame)
 	elseif unit ~= "player" then
 		-- An enemy's frame keeps to the percentage; its nameplate has the numbers.
 		frame.value:SetText(showPercent and percent.."%" or "")
+	-- The hero's shield after the health, in its band's blue ("999 +4.8k |
+	-- 100%"), set by the absorb section below.
 	elseif showValue and showPercent then
-		frame.value:SetText(HealthText(health).." | "..percent.."%")
+		frame.value:SetText(HealthText(health)..(frame.shieldText or "").." | "..percent.."%")
 	elseif showValue then
-		frame.value:SetText(HealthText(health))
+		frame.value:SetText(HealthText(health)..(frame.shieldText or ""))
 	elseif showPercent then
-		frame.value:SetText(percent.."%")
+		frame.value:SetText(percent.."%"..(frame.shieldText or ""))
 	else
 		frame.value:SetText("")
 	end
@@ -1523,7 +1525,8 @@ SurvivorUI_RegisterOption({
 -- number is used as it stands. A hit absorbed whole names no amount, so it
 -- cannot be taken off.
 
-local ABSORB_PATTERNS = { "[Aa]bsorbs up to (%d+)", "[Aa]bsorbs (%d+) damage", "[Aa]bsorbing (%d+)" }
+local ABSORB_PATTERNS = { "[Aa]bsorbs up to (%d+)", "[Aa]bsorbs (%d+) damage", "[Aa]bsorbing (%d+)",
+	"[Aa]bsorbs the next (%d+)", "[Aa]bsorb[%a ]-(%d+)" }
 
 local absorbBand = player.health:CreateTexture(nil, "ARTWORK")
 absorbBand:SetTexture(FLAT)
@@ -1711,6 +1714,14 @@ end
 local function DrawAbsorb()
 	local left = AbsorbShown() and Styled() and AbsorbLeft() or 0
 	local most = UnitHealthMax("player") or 0
+	-- What the shields hold, in the health text ("999 +4.8k | 100%"), with
+	-- or without the band (/sui opt, Absorb number on the health bar).
+	local held = Settings().absorbNumber ~= false and Styled() and AbsorbLeft() or 0
+	local text = held >= 1 and " |cffbfe6ff+"..AbsorbText(held).."|r" or nil
+	if text ~= player.shieldText then
+		player.shieldText = text
+		UpdateUnitFrame(player)
+	end
 	if left <= 0 or most <= 0 then
 		absorbBand:Hide()
 		absorbEdge:Hide()
@@ -1752,12 +1763,32 @@ local function CountAbsorbed(amount)
 	end
 end
 
+-- This game's shields take hits whole and log them as plain hits ("Kobold
+-- hits you for 53."), naming no absorbed amount: while a shield is up, every
+-- hit on the hero is what the shields took. Where the log does name one
+-- ("(120 absorbed)"), only that part is.
+local function HitOnYou(text)
+	local _, _, amount = string.find(text, " hits you for (%d+)")
+	if not amount then
+		_, _, amount = string.find(text, " crits you for (%d+)")
+	end
+	if not amount then
+		_, _, amount = string.find(text, "^You suffer (%d+) ")
+	end
+	return tonumber(amount)
+end
+
 absorbWatch:SetScript("OnEvent", function()
+	local text = arg1 or ""
 	-- "Kobold Vermin hits you for 5. (120 absorbed)"
-	local _, _, amount = string.find(arg1 or "", "%((%d+) absorbed%)")
+	local _, _, amount = string.find(text, "%((%d+) absorbed%)")
+	amount = tonumber(amount)
+	if not amount and next(shields) then
+		amount = HitOnYou(text)
+	end
 	if amount then
-		soaked = soaked + tonumber(amount)
-		CountAbsorbed(tonumber(amount))
+		soaked = soaked + amount
+		CountAbsorbed(amount)
 	end
 end)
 
@@ -1776,10 +1807,21 @@ SurvivorUI_RegisterOption({
 	section = "Unit frames",
 	label = "Absorb on the health bar",
 	parent = "Unit frames",
-	tip = "A pale band over your health bar, from its right end leftward, as long as the shield you have left against your most health. Worked out from your shields' tooltips and the combat log; a hit absorbed whole cannot be counted.",
+	tip = "A pale band over your health bar, from its right end leftward, as long as the shield you have left against your most health. Worked out from your shields' tooltips and the combat log; while a shield is up, every hit the log shows on you counts as absorbed, as this game's shields take hits whole.",
 	get = AbsorbShown,
 	toggle = function()
 		Settings().absorbBar = not AbsorbShown()
+	end,
+})
+
+SurvivorUI_RegisterOption({
+	section = "Unit frames",
+	label = "Absorb number on the health bar",
+	parent = "Unit frames",
+	tip = "What your shields hold, after your health in the health text: \"999 +4.8k | 100%\".",
+	get = function() return Settings().absorbNumber ~= false end,
+	toggle = function()
+		Settings().absorbNumber = Settings().absorbNumber == false
 	end,
 })
 
@@ -2834,6 +2876,10 @@ SlashCmdList["SURVIVORUI"] = function(msg)
 		SurvivorUI_GearReport()
 	elseif command == "logwatch" and argument ~= "" then
 		SurvivorUI_LogWatch(argument)
+	elseif msg == "fillbar" then
+		if SurvivorUI_FillBar then
+			SurvivorUI_FillBar(true)
+		end
 	elseif msg == "spells" then
 		if SurvivorUI_SpellReport then
 			SurvivorUI_SpellReport()

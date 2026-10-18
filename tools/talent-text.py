@@ -104,7 +104,16 @@ def fill(text):
     return text
 
 
+# Numbers the reader cannot find in the talent data, as the game's own talent
+# pane shows them.
+SEEN_IN_GAME = {
+    'Pyroclasm': '25',
+}
+
 out = {k: fill(v) for k, v in texts.items()}
+for k, v in SEEN_IN_GAME.items():
+    if k in out:
+        out[k] = out[k].replace('{v}', v)
 
 
 def snake(text):

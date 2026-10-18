@@ -368,6 +368,172 @@ local function LearnSpellNames()
 end
 SurvivorUI_LearnSpellNames = LearnSpellNames
 
+-- The bar kept full: a run's spell missing from its button (dropped off the
+-- bar by a slip of the mouse) is put back from the spellbook the game keeps
+-- out of sight. The game lays the run's spells out in order, the n-th on
+-- button n, the racial, last, on the = button (RACIAL_SLOT).
+local RACIAL_SLOT = 12
+
+-- A spell's place in the spellbook by its name, or one whose name starts so
+-- ("Fire Nova Totem" for the run's Fire Nova); nil where none.
+local function BookIndex(name)
+	if not (name and GetSpellName) then
+		return nil
+	end
+	local wanted, partly = string.lower(name), nil
+	local index = 1
+	while true do
+		local spell = GetSpellName(index, BOOKTYPE_SPELL or "spell")
+		if not spell then
+			break
+		end
+		local lower = string.lower(spell)
+		if lower == wanted then
+			return index
+		end
+		if not partly and string.sub(lower, 1, string.len(wanted)) == wanted then
+			partly = index
+		end
+		index = index + 1
+	end
+	return partly
+end
+
+local fillWarned = false
+local BAR_SLOTS = 12
+local GamePickupAction, GamePlaceAction, GameUseAction = PickupAction, PlaceAction, UseAction
+
+-- Whether the spell at this spellbook place sits on any button of the bar,
+-- told by its icon: the player may have moved it anywhere.
+local function OnBar(book)
+	local icon = GetSpellTexture and GetSpellTexture(book, BOOKTYPE_SPELL or "spell")
+	if not icon then
+		return true
+	end
+	for slot = 1, BAR_SLOTS do
+		if GetActionTexture(slot) == icon then
+			return true
+		end
+	end
+	return false
+end
+
+-- The spell's own button when empty, else the first empty one; nil when the
+-- bar is full.
+local function FreeSlot(home)
+	if not HasAction(home) then
+		return home
+	end
+	for slot = 1, BAR_SLOTS do
+		if not HasAction(slot) then
+			return slot
+		end
+	end
+	return nil
+end
+
+-- report: say what was done even when nothing was missing (/sui fillbar).
+function SurvivorUI_FillBar(report)
+	local say = function(text) DEFAULT_CHAT_FRAME:AddMessage("|cffffd100Survivor UI:|r "..text) end
+	local spells = AZS_SPELLS or {}
+	local count = table.getn(spells)
+	if count == 0 then
+		if report then
+			say("no run spells known yet: start a run first.")
+		end
+		return
+	end
+	local placed, failed = 0, {}
+	for index = 1, count do
+		local home = index == count and RACIAL_SLOT or index
+		local key = Field(spells[index], "key", 1)
+		local name = SpellName(key)
+		local book = BookIndex(name) or BookIndex(KeyName(key))
+		local slot = book and not OnBar(book) and FreeSlot(home)
+		if slot then
+			if PickupSpell and GamePlaceAction then
+				PickupSpell(book, BOOKTYPE_SPELL or "spell")
+				GamePlaceAction(slot)
+				if ClearCursor then
+					ClearCursor()
+				end
+			end
+			if HasAction(slot) then
+				placed = placed + 1
+			else
+				table.insert(failed, name)
+			end
+		elseif not book and (home <= SLOTS or home == RACIAL_SLOT) and not HasAction(home) then
+			table.insert(failed, name)
+		end
+	end
+	if placed > 0 then
+		say("put "..placed.." spell"..(placed == 1 and "" or "s").." back on the bar.")
+	end
+	if table.getn(failed) > 0 and (report or not fillWarned) then
+		fillWarned = true
+		say("could not put back "..table.concat(failed, ", ").." (the game may not let the interface take spells from its hidden spellbook).")
+	elseif report and placed == 0 then
+		say("every run spell is on the bar.")
+	end
+end
+
+-- A spell dragged onto another's button swaps places with it: the game
+-- leaves the one it displaced on the cursor, which goes straight to the
+-- button the first came from. Remembered: the button a spell was picked up
+-- from (PickupAction), until it is put down (PlaceAction).
+-- A click on a button while holding a spell puts it down too (UseAction).
+local pickedFrom
+
+local function Held()
+	return (CursorHasSpell and CursorHasSpell()) or (CursorHasItem and CursorHasItem())
+end
+
+local function PutDown(place, slot, a, b)
+	local from = pickedFrom
+	pickedFrom = nil
+	place(slot, a, b)
+	if from and from ~= slot and not HasAction(from) and Held() then
+		GamePlaceAction(from)
+	end
+end
+
+if GamePickupAction and GamePlaceAction then
+	PickupAction = function(slot)
+		pickedFrom = HasAction(slot) and slot or nil
+		GamePickupAction(slot)
+	end
+	PlaceAction = function(slot)
+		PutDown(GamePlaceAction, slot)
+	end
+	if GameUseAction then
+		UseAction = function(slot, a, b)
+			if pickedFrom and Held() then
+				PutDown(GameUseAction, slot, a, b)
+			else
+				GameUseAction(slot, a, b)
+			end
+		end
+	end
+end
+
+-- Every few seconds of a run, unless the mouse is busy with a drag (a spell
+-- held to swap places: its own button is empty for that moment).
+local fillWatch = CreateFrame("Frame")
+fillWatch.elapsed = 0
+fillWatch:SetScript("OnUpdate", function()
+	this.elapsed = this.elapsed + arg1
+	if this.elapsed < 2 then
+		return
+	end
+	this.elapsed = 0
+	local dragging = (CursorHasSpell and CursorHasSpell()) or (CursorHasItem and CursorHasItem())
+		or (IsMouseButtonDown and IsMouseButtonDown("LeftButton"))
+	if not dragging and Running() then
+		SurvivorUI_FillBar(false)
+	end
+end)
+
 -- A worn piece's tooltip texts from its second line on, each piece of a line
 -- with breaks on its own, from the one shared reader (SurvivorUI.lua), which
 -- reads a slot only when its piece changes.
@@ -743,6 +909,10 @@ local function ShowCard(owner, title, color, rank, heading, entries, empty, scor
 			local text = entries[index]
 			local _, _, value, label = string.find(text, "^([%+%-]?[%d%.]+%%?) (.+)$")
 			if value then
+				-- "+1 target" and the gear's "targets" are one row.
+				if string.lower(label) == "target" then
+					label = "targets"
+				end
 				local stat = string.lower(label)
 				if gear and gear.stats[stat] then
 					value = value.."  "..GEAR_HEX..Signed(gear.stats[stat], gear.units[stat]).."|r"
@@ -1261,6 +1431,78 @@ end
 ------------------------------------------------------------------------------
 -- The gear: neck, rings, trinkets, each in its quality's color.
 
+-- What a worn piece gives, short, in its row's right side: "-32% CD",
+-- "+80% Luck +67% Gold", "2.4% Leech"; nil where no line reads as a stat.
+-- A line is read whole, its number tied to the words around it: an effect
+-- first (a leech, an explosion), then a stat raised or cut "by N%" (or
+-- "N% more ..."), the more particular stats before the plainer ones.
+local NUMBER = "(%d+%.?%d*%%)"
+local GEAR_EFFECTS = {
+	{ "heals you for "..NUMBER.." of all damage", "Leech" },
+	{ "explode for "..NUMBER, "Explode" },
+}
+local GEAR_STAT_WORDS = {
+	{ "cooldown", "CD" }, { "critical strike damage", "Crit Damage" },
+	{ "critical strike", "Crit" }, { "crit", "Crit" }, { "luck", "Luck" }, { "gold", "Gold" },
+	{ "experience", "Experience" }, { "healing", "Healing" }, { "health", "Health" },
+	{ "movement speed", "Speed" }, { "attack speed", "Attack Speed" }, { "casting speed", "Cast Speed" },
+	{ "area", "Area" }, { "duration", "Duration" }, { "damage", "Damage" },
+}
+
+local function GearStat(lower)
+	for index = 1, table.getn(GEAR_EFFECTS) do
+		local _, _, number = string.find(lower, GEAR_EFFECTS[index][1])
+		if number then
+			return number.." "..GEAR_EFFECTS[index][2]
+		end
+	end
+	local sign = (string.find(lower, "^equip: reduces") or string.find(lower, "^equip: lowers")) and "-" or "+"
+	for index = 1, table.getn(GEAR_STAT_WORDS) do
+		local word = GEAR_STAT_WORDS[index][1]
+		local _, _, number = string.find(lower, word.."[%a ]- by "..NUMBER)
+		if not number then
+			_, _, number = string.find(lower, NUMBER.." [%a ]-"..word)
+		end
+		if number then
+			return sign..number.." "..GEAR_STAT_WORDS[index][2]
+		end
+	end
+	return nil
+end
+
+local function GearStats(slot)
+	local parts = {}
+	local texts = WornTexts(slot)
+	for index = 1, table.getn(texts) do
+		if string.find(texts[index], "^Equip: ") then
+			local stat = GearStat(string.lower(texts[index]))
+			if stat then
+				table.insert(parts, stat)
+			end
+		end
+	end
+	if table.getn(parts) == 0 then
+		return nil
+	end
+	return table.concat(parts, " ")
+end
+
+-- A piece's rank from its name, as the spells' ranks show: 2 or II
+-- ("Blooddrinker's Band II"), 1 where the name has no numeral, 10+ or X+
+-- for the game's last rank.
+local function GearRank(name)
+	local _, value, numeral = BaseName(name)
+	if Settings().buildRoman then
+		return numeral
+	end
+	return value == math.floor(value) and tostring(value) or math.floor(value).."+"
+end
+
+-- Each piece's stats ("-32% CD") in its rank's place: /sui opt, Build.
+local function ItemStatsShown()
+	return Settings().buildItemStats == true
+end
+
 local function DrawGear(y)
 	if Settings().gearFolded then
 		HideAll(gearRows)
@@ -1271,6 +1513,7 @@ local function DrawGear(y)
 		local row = Row(gearRows, index)
 		row.gearSlot, row.gearKind = slot, label
 		row.share:SetText("")
+		row.rank:SetFont(FONT, 10 + FONT_BUMP, "OUTLINE")
 		local link = GetInventoryItemLink and GetInventoryItemLink("player", slot)
 		if link then
 			local _, _, name = string.find(link, "%[(.-)%]")
@@ -1285,7 +1528,9 @@ local function DrawGear(y)
 			row.icon:SetVertexColor(1, 1, 1)
 			row.icon:SetAlpha(1)
 			row.name:SetText(row.itemName)
-			row.rank:SetText(label)
+			local stats = ItemStatsShown() and GearStats(slot)
+			row.rank:SetFont(FONT, (stats and 8 or 10) + FONT_BUMP, "OUTLINE")
+			row.rank:SetText(stats or GearRank(row.itemName))
 			Paint(row, color, 1, true)
 			row.rank:SetTextColor(0.85, 0.85, 0.85)
 		else
@@ -1301,7 +1546,7 @@ local function DrawGear(y)
 				row.icon:SetVertexColor(1, 1, 1)
 				row.icon:SetAlpha(row.guess.icon and 1 or 0.8)
 				row.name:SetText(row.guess.name..(row.guess.unreliable and " (Unreliable)" or ""))
-				row.rank:SetText(label)
+				row.rank:SetText(GearRank(row.guess.name))
 				Paint(row, color, 1, true)
 				row.rank:SetTextColor(0.85, 0.85, 0.85)
 			else
@@ -1313,6 +1558,8 @@ local function DrawGear(y)
 				Paint(row, MUTED, 0.6)
 			end
 		end
+		-- The name gives way to a long stat line rather than run under it.
+		row.name:SetWidth(math.min(WIDTH - ROW_HEIGHT - 70, WIDTH - ROW_HEIGHT - 12 - row.rank:GetStringWidth()))
 		y = Place(row, y)
 	end
 	return y
@@ -1394,6 +1641,16 @@ if SurvivorUI_RegisterOption then
 		get = function() return Settings().buildRoman == true end,
 		toggle = function()
 			Settings().buildRoman = not Settings().buildRoman
+		end,
+	})
+	SurvivorUI_RegisterOption({
+		section = "General",
+		label = "Show Item Stats",
+		parent = "Build",
+		tip = "What each worn neck, ring and trinket gives (\"-32% CD\", \"2.4% Leech\") in place of its rank.",
+		get = ItemStatsShown,
+		toggle = function()
+			Settings().buildItemStats = not ItemStatsShown()
 		end,
 	})
 end
