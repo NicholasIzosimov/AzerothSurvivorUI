@@ -608,12 +608,19 @@ local function GearForSpell(spell)
 	if wanted == "" then
 		return gear
 	end
+	-- A set's bonus ("(8) Set: ...") stands on every piece of the set but
+	-- counts once; an effect the same words as one already listed is left out.
+	local setsRead, effectsListed = {}, {}
 	for slot = 1, 19 do
 		if GetInventoryItemLink and GetInventoryItemLink("player", slot) then
 			local texts = WornTexts(slot)
 			for index = 1, table.getn(texts) do
 				local text = texts[index]
-				if string.find(string.lower(text), wanted, 1, true) then
+				local isSet = string.find(text, "^%(%d+%) Set: ")
+				if string.find(string.lower(text), wanted, 1, true) and not (isSet and setsRead[text]) then
+					if isSet then
+						setsRead[text] = true
+					end
 					local body = string.gsub(text, "^Equip: ", "")
 					local lower = string.lower(body)
 					local _, _, verb, stat, value = string.find(lower, GEAR_STAT)
@@ -636,8 +643,10 @@ local function GearForSpell(spell)
 								break
 							end
 						end
-						if not counted then
-							table.insert(gear.effects, (string.gsub(body, "%.$", "")))
+						local effect = string.gsub(body, "%.$", "")
+						if not counted and not effectsListed[effect] then
+							effectsListed[effect] = true
+							table.insert(gear.effects, effect)
 						end
 					end
 				end

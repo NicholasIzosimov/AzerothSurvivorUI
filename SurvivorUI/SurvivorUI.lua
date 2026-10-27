@@ -1074,6 +1074,8 @@ local function LayoutBar()
 		"BonusActionBarTexture0", "BonusActionBarTexture1",
 		"MainMenuXPBarTexture0", "MainMenuXPBarTexture1", "MainMenuXPBarTexture2", "MainMenuXPBarTexture3",
 		"ExhaustionTick",
+		-- The game's frame around the racial's button on its own bar.
+		"AZS_RacialRim",
 	}) do
 		Hide(name)
 	end
