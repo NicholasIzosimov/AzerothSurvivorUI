@@ -1275,11 +1275,10 @@ end
 
 -- The icon layout (the default; "Build as list" in /sui opt for the rows):
 -- each spell and piece a square of its icon, its rarity's color around it,
--- its rank in the corner, in two labelled rows, "Spells" and "Items". The
--- rows are the list's own, reshaped, so their hover cards and clicks stay.
+-- its rank in the corner, in two rows, the spells over the items. The rows
+-- are the list's own, reshaped, so their hover cards and clicks stay.
 local TILE = 26
 local TILE_GAP = 3
-local LABEL_WIDTH = 46
 
 local function TilesShown()
 	return Settings().buildAsList ~= true
@@ -1333,20 +1332,10 @@ end
 
 local function PlaceTile(row, place, y)
 	row:ClearAllPoints()
-	row:SetPoint("TOPLEFT", list, "TOPLEFT", 6 + LABEL_WIDTH + (place - 1) * (TILE + TILE_GAP), y)
+	row:SetPoint("TOPLEFT", list, "TOPLEFT", 6 + (place - 1) * (TILE + TILE_GAP), y)
 	row:Show()
 end
 
--- A row's label in the icon layout, left of its tiles.
-local function TileLabel(text)
-	local label = list:CreateFontString(nil, "OVERLAY")
-	label:SetFont(FONT, 10 + FONT_BUMP, "OUTLINE")
-	label:SetTextColor(0.85, 0.85, 0.85)
-	label:SetText(text)
-	return label
-end
-
-local spellLabel, itemLabel = TileLabel("Spells"), TileLabel("Items")
 local tileRule = list:CreateTexture(nil, "ARTWORK")
 tileRule:SetTexture(FLAT)
 tileRule:SetHeight(1)
@@ -1686,25 +1675,17 @@ local function Fold(heading)
 	SurvivorUI_SetPlus(heading.fold, Settings()[heading.key])
 end
 
--- The icon layout: "Spells" and its tiles, a faint rule, "Items" and theirs.
+-- The icon layout: the spells' tiles, a faint rule, the items'.
 local function DrawTiles()
 	spellHeading:Hide()
 	gearHeading:Hide()
-	list:SetWidth(12 + LABEL_WIDTH + SLOTS * (TILE + TILE_GAP) - TILE_GAP)
-	local y = -8
-	spellLabel:ClearAllPoints()
-	spellLabel:SetPoint("LEFT", list, "TOPLEFT", 8, y - TILE / 2)
-	spellLabel:Show()
-	y = DrawSpells(y, true) - 5
+	list:SetWidth(12 + SLOTS * (TILE + TILE_GAP) - TILE_GAP)
+	local y = DrawSpells(-8, true) - 5
 	tileRule:ClearAllPoints()
 	tileRule:SetPoint("TOPLEFT", list, "TOPLEFT", 6, y)
 	tileRule:SetPoint("TOPRIGHT", list, "TOPRIGHT", -6, y)
 	tileRule:Show()
-	y = y - 6
-	itemLabel:ClearAllPoints()
-	itemLabel:SetPoint("LEFT", list, "TOPLEFT", 8, y - TILE / 2)
-	itemLabel:Show()
-	return DrawGear(y, true)
+	return DrawGear(y - 6, true)
 end
 
 Draw = function()
@@ -1712,8 +1693,6 @@ Draw = function()
 	if TilesShown() then
 		y = DrawTiles()
 	else
-		spellLabel:Hide()
-		itemLabel:Hide()
 		tileRule:Hide()
 		list:SetWidth(WIDTH + 12)
 		spellHeading:Show()
