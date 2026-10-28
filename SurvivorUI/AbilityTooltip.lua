@@ -458,6 +458,9 @@ local FACTS = {
 	-- stack first, then enemies not yet afflicted, then the rest"), and how a
 	-- damage over time is split ("in 10 ticks").
 	{ "[%a ,]*take every stack first.*", function() return nil end },
+	-- A damage over time that does not stack picks enemies "that are not
+	-- already afflicted": also how it picks, also left to the full description.
+	{ "that are not already afflicted", function() return nil end },
 	{ "in %d+ ticks", function() return nil end },
 }
 
