@@ -7,6 +7,9 @@
 -- addons for the whole map, so a bar stays live at any distance, unlike a
 -- nameplate.
 --
+-- Right of each bar, its debuffs (AZS_GetDebuffs): icon, stacks and the time
+-- left, a card on hover; switched with "Debuffs on the boss bars".
+--
 -- Click a bar to target that enemy. In edit mode (tap Alt), drag a bar to move the column.
 -- The game's own boss bars are put away while these are on, and come back with
 -- /sui bosses. Needs the game's addon API (AZS_UNITS); without it nothing shows.
@@ -27,10 +30,16 @@ local KINDS = {
 	elite    = { order = 4, color = { 1.00, 0.55, 0.10 } },
 }
 
+local MAX_DEBUFFS = 8
+local DEBUFF_GAP = 2
+
 local function Settings()
 	SurvivorUIDB = SurvivorUIDB or {}
 	if SurvivorUIDB.bossBars == nil then
 		SurvivorUIDB.bossBars = true
+	end
+	if SurvivorUIDB.bossDebuffs == nil then
+		SurvivorUIDB.bossDebuffs = true
 	end
 	return SurvivorUIDB
 end
@@ -86,6 +95,106 @@ end
 
 local bars = {}
 
+-- 4.2, 12, 1:05
+local function TimeLeft(seconds)
+	if seconds >= 60 then
+		return string.format("%d:%02d", math.floor(seconds / 60), math.mod(math.floor(seconds), 60))
+	elseif seconds >= 10 then
+		return math.floor(seconds + 0.5)
+	end
+	return string.format("%.1f", seconds)
+end
+
+-- An icon the game names bare ("Spell_Shadow_Curse") lives in Interface\Icons.
+local function IconPath(icon)
+	if not icon or icon == "" then
+		return "Interface\\Icons\\INV_Misc_QuestionMark"
+	end
+	if string.find(icon, "\\", 1, true) then
+		return icon
+	end
+	return "Interface\\Icons\\"..icon
+end
+
+-- A debuff's square on a bar: its icon in an edge of its dispel type's color
+-- (black for none), its stacks in the corner, its time left under it.
+local function DebuffIcon(bar, index)
+	local icon = bar.debuffs[index]
+	if icon then
+		return icon
+	end
+	icon = CreateFrame("Button", nil, bar)
+	icon:SetWidth(BAR_HEIGHT)
+	icon:SetHeight(BAR_HEIGHT)
+	icon:SetPoint("LEFT", bar, "RIGHT", 4 + (index - 1) * (BAR_HEIGHT + DEBUFF_GAP), 0)
+	icon.edge = icon:CreateTexture(nil, "BACKGROUND")
+	icon.edge:SetTexture(FLAT)
+	icon.edge:SetPoint("TOPLEFT", icon, "TOPLEFT", -1, 1)
+	icon.edge:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 1, -1)
+	icon.texture = icon:CreateTexture(nil, "ARTWORK")
+	icon.texture:SetAllPoints(icon)
+	icon.texture:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+	icon.stacks = icon:CreateFontString(nil, "OVERLAY")
+	icon.stacks:SetFont(FONT, 8 + FONT_BUMP, "OUTLINE")
+	icon.stacks:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", 1, 0)
+	icon.stacks:SetTextColor(1, 1, 1)
+	icon.time = icon:CreateFontString(nil, "OVERLAY")
+	icon.time:SetFont(FONT, 8 + FONT_BUMP, "OUTLINE")
+	icon.time:SetPoint("TOP", icon, "BOTTOM", 0, -1)
+	icon.time:SetTextColor(1, 0.82, 0)
+	icon:SetScript("OnEnter", function()
+		local debuff = this.debuff
+		if not debuff then
+			return
+		end
+		GameTooltip:SetOwner(this, "ANCHOR_BOTTOMRIGHT")
+		GameTooltip:SetText(debuff.name or "?", 1, 0.3, 0.3)
+		if debuff.dispelType then
+			GameTooltip:AddLine(debuff.dispelType, 0.7, 0.7, 0.7)
+		end
+		if (tonumber(debuff.stacks) or 0) > 1 then
+			GameTooltip:AddDoubleLine("Stacks", debuff.stacks, 0.7, 0.7, 0.7, 1, 1, 1)
+		end
+		if debuff.permanent then
+			GameTooltip:AddLine("Lasts until it dies", 0.7, 0.7, 0.7)
+		elseif debuff.remaining then
+			GameTooltip:AddDoubleLine("Time left", TimeLeft(debuff.remaining).." sec", 0.7, 0.7, 0.7, 1, 1, 1)
+		end
+		GameTooltip:Show()
+	end)
+	icon:SetScript("OnLeave", function() GameTooltip:Hide() end)
+	bar.debuffs[index] = icon
+	return icon
+end
+
+local function FillDebuffs(bar, id)
+	local list = {}
+	if Settings().bossDebuffs and id and AZS_GetDebuffs then
+		list = AZS_GetDebuffs(tonumber(id) or id) or {}
+	end
+	local count = math.min(MAX_DEBUFFS, table.getn(list))
+	for index = 1, count do
+		local debuff = list[index]
+		local icon = DebuffIcon(bar, index)
+		icon.debuff = debuff
+		icon.texture:SetTexture(IconPath(debuff.icon))
+		local color = debuff.dispelType and DebuffTypeColor and DebuffTypeColor[debuff.dispelType]
+		if color then
+			icon.edge:SetVertexColor(color.r, color.g, color.b, 1)
+		else
+			icon.edge:SetVertexColor(0, 0, 0, 1)
+		end
+		local stacks = tonumber(debuff.stacks) or 0
+		icon.stacks:SetText(stacks > 1 and stacks or "")
+		icon.time:SetText((not debuff.permanent and debuff.remaining) and TimeLeft(debuff.remaining) or "")
+		icon:Show()
+	end
+	for index = count + 1, table.getn(bar.debuffs) do
+		bar.debuffs[index]:Hide()
+		bar.debuffs[index].debuff = nil
+	end
+end
+
 local function Bar(index)
 	local bar = bars[index]
 	if bar then
@@ -96,6 +205,7 @@ local function Bar(index)
 	bar:SetWidth(BAR_WIDTH)
 	bar:SetHeight(BAR_HEIGHT)
 	bar:SetPoint("TOPLEFT", holder, "TOPLEFT", 0, -(index - 1) * (BAR_HEIGHT + BAR_GAP))
+	bar.debuffs = {}
 
 	bar.border = bar:CreateTexture(nil, "BACKGROUND")
 	bar.border:SetTexture(FLAT)
@@ -203,6 +313,7 @@ local function Fill(bar, unit)
 	else
 		bar.border:SetVertexColor(0, 0, 0, 1)
 	end
+	FillDebuffs(bar, Field(unit, "id", 2))
 	bar:Show()
 end
 
@@ -309,6 +420,18 @@ if SurvivorUI_RegisterOption then
 		command = "/sui bosses elites",
 		get = function() return Settings().bossBarsElites end,
 		toggle = function() SurvivorUI_BossBars("elites") end,
+	})
+	SurvivorUI_RegisterOption({
+		section = "General",
+		label = "Debuffs on the boss bars",
+		parent = "Boss bars",
+		tip = "Right of each boss and guardian bar, the debuffs on it: stacks, time left, and its dispel type's color around it.",
+		get = function() return Settings().bossDebuffs end,
+		toggle = function()
+			local settings = Settings()
+			settings.bossDebuffs = not settings.bossDebuffs
+			Update()
+		end,
 	})
 end
 

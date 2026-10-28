@@ -118,6 +118,11 @@ local UPGRADES = "Upgrades: "   -- how a tooltip begins its list of upgrades
 local GEAR_SLOTS = {            -- inventory slot, label
 	{ 2, "Neck" }, { 11, "Ring" }, { 12, "Ring" }, { 13, "Trinket" }, { 14, "Trinket" },
 }
+local EMPTY_SLOT_ICONS = {
+	Neck = "Interface\\PaperDoll\\UI-PaperDoll-Slot-Neck",
+	Ring = "Interface\\PaperDoll\\UI-PaperDoll-Slot-Finger",
+	Trinket = "Interface\\PaperDoll\\UI-PaperDoll-Slot-Trinket",
+}
 -- Lines of an item's tooltip that say nothing about what it gives.
 local ITEM_SKIP = { "^Durability", "^Requires", "^Item Level", "^Sell Price", "^Binds", "^Unique", "^Classes" }
 
@@ -1268,6 +1273,85 @@ local function HideAll(pool)
 	end
 end
 
+-- The icon layout (the default; "Build as list" in /sui opt for the rows):
+-- each spell and piece a square of its icon, its rarity's color around it,
+-- its rank in the corner, in two labelled rows, "Spells" and "Items". The
+-- rows are the list's own, reshaped, so their hover cards and clicks stay.
+local TILE = 26
+local TILE_GAP = 3
+local LABEL_WIDTH = 46
+
+local function TilesShown()
+	return Settings().buildAsList ~= true
+end
+
+local function Shape(row, tiles)
+	if row.tiles == tiles then
+		return
+	end
+	row.tiles = tiles
+	row.icon:ClearAllPoints()
+	row.rank:ClearAllPoints()
+	if tiles then
+		row:SetWidth(TILE)
+		row:SetHeight(TILE)
+		row.icon:SetPoint("TOPLEFT", row, "TOPLEFT", 1, -1)
+		row.icon:SetPoint("BOTTOMRIGHT", row, "BOTTOMRIGHT", -1, 1)
+		row.rank:SetPoint("BOTTOMRIGHT", row, "BOTTOMRIGHT", -1, 2)
+		row.name:Hide()
+		row.share:Hide()
+		row.rule:Hide()
+	else
+		row:SetWidth(WIDTH)
+		row:SetHeight(ROW_HEIGHT)
+		row.icon:SetWidth(ROW_HEIGHT - 4)
+		row.icon:SetHeight(ROW_HEIGHT - 4)
+		row.icon:SetPoint("LEFT", row, "LEFT", 2, 0)
+		row.rank:SetPoint("RIGHT", row, "RIGHT", -4, 0)
+		row.name:Show()
+		row.share:Show()
+		row.rule:Show()
+	end
+end
+
+-- A filled tile: a dark ground, its rarity's color around it, the rank in
+-- white; an empty one dim.
+local function TileLook(row, rank)
+	row.wash:SetVertexColor(0, 0, 0, 0.6)
+	row.rank:SetFont(FONT, 10 + FONT_BUMP, "OUTLINE")
+	row.rank:SetTextColor(1, 1, 1)
+	row.rank:SetText(rank or "")
+	if row.color then
+		Border(row, row.color, 1)
+	else
+		Border(row, MUTED, 0.5)
+	end
+	if row.neck then
+		row.neck:Hide()
+	end
+end
+
+local function PlaceTile(row, place, y)
+	row:ClearAllPoints()
+	row:SetPoint("TOPLEFT", list, "TOPLEFT", 6 + LABEL_WIDTH + (place - 1) * (TILE + TILE_GAP), y)
+	row:Show()
+end
+
+-- A row's label in the icon layout, left of its tiles.
+local function TileLabel(text)
+	local label = list:CreateFontString(nil, "OVERLAY")
+	label:SetFont(FONT, 10 + FONT_BUMP, "OUTLINE")
+	label:SetTextColor(0.85, 0.85, 0.85)
+	label:SetText(text)
+	return label
+end
+
+local spellLabel, itemLabel = TileLabel("Spells"), TileLabel("Items")
+local tileRule = list:CreateTexture(nil, "ARTWORK")
+tileRule:SetTexture(FLAT)
+tileRule:SetHeight(1)
+tileRule:SetVertexColor(1, 1, 1, 0.12)
+
 ------------------------------------------------------------------------------
 -- The spells.
 
@@ -1369,7 +1453,7 @@ local function EmptySpell(row)
 	Paint(row, MUTED, 0.6)
 end
 
-local function DrawSpells(y)
+local function DrawSpells(y, tiles)
 	LearnSpellNames()
 	local spells = AZS_SPELLS or {}
 	local count = table.getn(spells)
@@ -1402,7 +1486,7 @@ local function DrawSpells(y)
 			spellColors[string.lower(other)] = spellColors[string.lower(name)]
 		end
 	end
-	if Settings().buildFolded then
+	if Settings().buildFolded and not tiles then
 		HideAll(spellRows)
 		return y
 	end
@@ -1426,15 +1510,21 @@ local function DrawSpells(y)
 	end)
 	for place = 1, SLOTS do
 		local row = Row(spellRows, place)
+		Shape(row, tiles)
 		local index = order[place]
 		if index then
 			FillSpell(row, spells[index], slots[index])
 		else
 			EmptySpell(row)
 		end
-		y = Place(row, y)
+		if tiles then
+			TileLook(row, row.rank:GetText())
+			PlaceTile(row, place, y)
+		else
+			y = Place(row, y)
+		end
 	end
-	return y
+	return tiles and y - TILE or y
 end
 
 ------------------------------------------------------------------------------
@@ -1512,14 +1602,8 @@ local function ItemStatsShown()
 	return Settings().buildItemStats == true
 end
 
-local function DrawGear(y)
-	if Settings().gearFolded then
-		HideAll(gearRows)
-		return y
-	end
-	for index = 1, table.getn(GEAR_SLOTS) do
+local function FillGear(row, index)
 		local slot, label = GEAR_SLOTS[index][1], GEAR_SLOTS[index][2]
-		local row = Row(gearRows, index)
 		row.gearSlot, row.gearKind = slot, label
 		row.share:SetText("")
 		row.rank:SetFont(FONT, 10 + FONT_BUMP, "OUTLINE")
@@ -1559,19 +1643,40 @@ local function DrawGear(y)
 				Paint(row, color, 1, true)
 				row.rank:SetTextColor(0.85, 0.85, 0.85)
 			else
-				row.icon:SetTexture(FLAT)
-				row.icon:SetVertexColor(0.15, 0.15, 0.18)
+				-- The character pane's own empty-slot picture, dimmed: which
+				-- kind of piece goes there.
+				row.icon:SetTexture(EMPTY_SLOT_ICONS[label] or FLAT)
+				row.icon:SetVertexColor(0.6, 0.6, 0.6)
 				row.icon:SetAlpha(0.8)
 				row.name:SetText(row.unloaded and "not loaded" or "empty")
 				row.rank:SetText(label)
 				Paint(row, MUTED, 0.6)
 			end
 		end
-		-- The name gives way to a long stat line rather than run under it.
-		row.name:SetWidth(math.min(WIDTH - ROW_HEIGHT - 70, WIDTH - ROW_HEIGHT - 12 - row.rank:GetStringWidth()))
-		y = Place(row, y)
+end
+
+-- tiles: the icon layout, each piece's rank in its corner (its stats, too
+-- long for a tile, stay on its card).
+local function DrawGear(y, tiles)
+	if Settings().gearFolded and not tiles then
+		HideAll(gearRows)
+		return y
 	end
-	return y
+	for index = 1, table.getn(GEAR_SLOTS) do
+		local row = Row(gearRows, index)
+		Shape(row, tiles)
+		FillGear(row, index)
+		if tiles then
+			local name = row.itemName or (row.guess and row.guess.name)
+			TileLook(row, name and GearRank(name))
+			PlaceTile(row, index, y)
+		else
+			-- The name gives way to a long stat line rather than run under it.
+			row.name:SetWidth(math.min(WIDTH - ROW_HEIGHT - 70, WIDTH - ROW_HEIGHT - 12 - row.rank:GetStringWidth()))
+			y = Place(row, y)
+		end
+	end
+	return tiles and y - TILE or y
 end
 
 ------------------------------------------------------------------------------
@@ -1581,18 +1686,49 @@ local function Fold(heading)
 	SurvivorUI_SetPlus(heading.fold, Settings()[heading.key])
 end
 
+-- The icon layout: "Spells" and its tiles, a faint rule, "Items" and theirs.
+local function DrawTiles()
+	spellHeading:Hide()
+	gearHeading:Hide()
+	list:SetWidth(12 + LABEL_WIDTH + SLOTS * (TILE + TILE_GAP) - TILE_GAP)
+	local y = -8
+	spellLabel:ClearAllPoints()
+	spellLabel:SetPoint("LEFT", list, "TOPLEFT", 8, y - TILE / 2)
+	spellLabel:Show()
+	y = DrawSpells(y, true) - 5
+	tileRule:ClearAllPoints()
+	tileRule:SetPoint("TOPLEFT", list, "TOPLEFT", 6, y)
+	tileRule:SetPoint("TOPRIGHT", list, "TOPRIGHT", -6, y)
+	tileRule:Show()
+	y = y - 6
+	itemLabel:ClearAllPoints()
+	itemLabel:SetPoint("LEFT", list, "TOPLEFT", 8, y - TILE / 2)
+	itemLabel:Show()
+	return DrawGear(y, true)
+end
+
 Draw = function()
 	local y = -4
-	spellHeading:ClearAllPoints()
-	spellHeading:SetPoint("TOPLEFT", list, "TOPLEFT", 6, y)
-	Fold(spellHeading)
-	y = DrawSpells(y - HEADER_HEIGHT)
+	if TilesShown() then
+		y = DrawTiles()
+	else
+		spellLabel:Hide()
+		itemLabel:Hide()
+		tileRule:Hide()
+		list:SetWidth(WIDTH + 12)
+		spellHeading:Show()
+		spellHeading:ClearAllPoints()
+		spellHeading:SetPoint("TOPLEFT", list, "TOPLEFT", 6, y)
+		Fold(spellHeading)
+		y = DrawSpells(y - HEADER_HEIGHT)
 
-	y = y - SECTION_GAP
-	gearHeading:ClearAllPoints()
-	gearHeading:SetPoint("TOPLEFT", list, "TOPLEFT", 6, y)
-	Fold(gearHeading)
-	y = DrawGear(y - HEADER_HEIGHT)
+		y = y - SECTION_GAP
+		gearHeading:Show()
+		gearHeading:ClearAllPoints()
+		gearHeading:SetPoint("TOPLEFT", list, "TOPLEFT", 6, y)
+		Fold(gearHeading)
+		y = DrawGear(y - HEADER_HEIGHT)
+	end
 
 	-- The Codex's button, at the foot inside the box.
 	local footer = SurvivorUI_BuildFooter
@@ -1650,6 +1786,16 @@ if SurvivorUI_RegisterOption then
 		get = function() return Settings().buildRoman == true end,
 		toggle = function()
 			Settings().buildRoman = not Settings().buildRoman
+		end,
+	})
+	SurvivorUI_RegisterOption({
+		section = "General",
+		label = "Build as list",
+		parent = "Build",
+		tip = "Your spells and jewelry as rows with their names, damage share and stats, instead of icons.",
+		get = function() return not TilesShown() end,
+		toggle = function()
+			Settings().buildAsList = TilesShown()
 		end,
 	})
 	SurvivorUI_RegisterOption({

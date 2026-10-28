@@ -157,11 +157,20 @@ function Update-Addon($addOns) {
 	}
 }
 
+# The AddOns folder: the one last picked; else the game's own, beside its exe
+# (benilla-config\AddOns), which is the one it loads; else the default.
 function Get-AddOns {
 	if (Test-Path -LiteralPath $Remembered) {
 		$last = Get-Content -LiteralPath $Remembered -TotalCount 1
 		if ($last) {
 			return $last.Trim()
+		}
+	}
+	$exe = Find-Game
+	if ($exe) {
+		$own = Join-Path (Split-Path -Parent $exe) 'benilla-config\AddOns'
+		if (Test-Path -LiteralPath $own -PathType Container) {
+			return $own
 		}
 	}
 	return $DefaultAddOns

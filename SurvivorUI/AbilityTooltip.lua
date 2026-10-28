@@ -341,6 +341,14 @@ local FACTS = {
 	-- within 30 yd", "Cast when you fall below 35% health") is left to the full
 	-- description where it stands alone; here, after its effect, it is dropped.
 	{ "cast once enem%a* are within "..NUMBER.." yds?", function() return nil end },
+	-- A spell a resource sets off (Soulfire): "Your kills gather soul shards,
+	-- at most one every 0.6 sec" is "Soul shards from kills, at most one every
+	-- 0.6 sec"; "At 5 shards a free Soulfire strikes ..." is "Casts at 5
+	-- shards", the strike itself read by the rules below.
+	{ "kills gather ([%a ]+), at most one every "..NUMBER.." sec", function(what, t)
+		return OTHER, t, "", nil, Capital(what).." from kills, at most one every "..t.." sec" end },
+	{ "^at (%d+) (%a+),? a free [%a' ]- strikes", function(n, what)
+		return EFFECT, n, "", nil, "Casts at "..n.." "..what end },
 	-- A shield or heal sized by your health: "Absorbs the next 293 damage
 	-- you take, 42% of your max health" is "293 Absorb Shield (42% of max health)",
 	-- not 293 damage dealt; "Heals you for 120, 15% of your max health" is
@@ -790,9 +798,9 @@ end
 
 -- What a spell's milestone talents add to its reach as more targets at a
 -- share of the hit ("each of its bolts leaps to 2 more enemies for 40% of
--- it"): those read as target lines, { fact, tag } each, to stand under the
--- spell's own targets; and which talents (by name) they come from, so their
--- own block leaves them out. Gear keeps its own Gear Effects block always.
+-- it"): those read as target lines, { fact, tag } each, for the talents'
+-- block; and which talents (by name) they come from, so that block lists the
+-- line in place of the talent's sentence. Gear keeps its own Gear Effects block always.
 local function Leaps(ability)
 	local found, talents, effects = {}, {}, {}
 	local function Read(text, tag)
@@ -858,25 +866,16 @@ local function Compose(ability, simple)
 	Double(cooldown, ability.cast, MUTED, MUTED)
 
 	local others = ability.other
-	-- Talents and gear that make it leap to more enemies stand with its
-	-- targets (simplified list only; the build's card leaves talents and gear
-	-- out), and leave their own blocks.
+	-- Talents that make it leap to more enemies are read as targets ("+2
+	-- Targets at 15%") and listed so in the talents' block, in place of their
+	-- whole sentence (simplified list only; the build's card leaves talents
+	-- out).
 	local leaps, leapTalents, leapEffects = {}, {}, {}
 	if not simple and ShowSimplified() then
 		leaps, leapTalents, leapEffects = Leaps(ability)
 	end
 	if simple or ShowSimplified() then
 		local facts, partial = AllFacts(ability)
-		local after = 0
-		for index = 1, table.getn(facts) do
-			if facts[index].place == DAMAGE or facts[index].place == TARGETS then
-				after = index
-			end
-		end
-		for index = 1, table.getn(leaps) do
-			leaps[index].fact.tag = leaps[index].tag
-			table.insert(facts, after + index, leaps[index].fact)
-		end
 		-- A chain's falloff is gone where one of its talents says it loses
 		-- nothing with each jump (Elemental Fury).
 		if NoFalloff(ability) then
@@ -995,6 +994,12 @@ local function Compose(ability, simple)
 		-- that talents of the same kind add to ("+10% damage" twice is "+20%
 		-- damage (2 talents)").
 		local talents, bonuses = {}, {}
+		-- The leaps first, read as targets: "+2 Targets at 15%", its numbers gold.
+		for index = 1, table.getn(leaps) do
+			local fact = leaps[index].fact
+			local label = string.gsub(fact.label or "", "(%d+%%)", TALENT_HEX.."%1|r")
+			table.insert(talents, { text = TALENT_HEX..(fact.value or "").."|r "..label })
+		end
 		local names = SpellTalents(ability)
 		for item = 1, table.getn(names) do
 			local name = names[item]

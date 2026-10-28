@@ -18,6 +18,7 @@ XPBar.lua
 CacheReminder.lua
 AbilityTooltip.lua
 BossBars.lua
+Timers.lua
 LootLog.lua
 BuildList.lua
 Codex.lua

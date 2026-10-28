@@ -28,7 +28,7 @@ If Windows warns about the file the first time, choose **More info → Run anywa
 - **Action bar**: one compact row with cooldown numbers (size, color, rounding) and a configurable number of abilities per row.
 - **Ability tooltips**: a simplified layout listing each number on its own line, value first (3 Targets, 7 yd, 26% crit · 219% crit damage, 826 Physical Damage, 50% Leech).
 - **Buffs**: a centered buff row above the player frame with an optional clock sweep that darkens as a buff runs out; shields with no timer show what they have left to absorb.
-- **Damage meter**: muted bars, spell icons and a hover card per line with the average cast and the targets hit; a proc shows what it comes from: its jewelry's lines or its talent's text.
+- **Damage meter**: replaces the game's meter with Damage, Healing, Boss damage (the last boss fight), Party DPS (in a party, by class color) and Damage taken views; muted bars, spell icons and a hover card per line with the average cast and the targets hit; a proc shows what it comes from: its jewelry's lines or its talent's text.
 - **Build**: your spells colored by the rarity their upgrades add up to, your jewelry, and hover cards with upgrades and gear stats.
 - **Codex**: a book of every amulet, ring and trinket you have worn, across runs, with the classes that wore them (and, greyed, the ones not yet worn, with each piece's worth at every rarity from the game's own item details), and of your class's abilities with the best average cast each has reached. Click a row of the build to open it at that kind.
 - **Tally**: kills, gold, gold per second and gold needed; **Tracker**: run timer with per-class best boss times, speedrun style; **XP bar** with a next-level estimate; **Boss bars**; **Loot log**.

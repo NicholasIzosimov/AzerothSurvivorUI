@@ -5,10 +5,13 @@
 -- color of its own, a talent's or amulet's own damage tagged as a proc. Hover a line for its card: its damage, share and damage per second,
 -- and its critical strikes and normal hits from the combat log.
 --
--- Three views, picked from a menu by the title (the arrow beside it, or a
--- right click on the title): Damage, Healing (AZS_GetHealing) and Damage
--- taken (AZS_TAKEN, by the enemy that dealt it). Each keeps its own Reset;
--- the build's colors read the damage shares whichever view shows.
+-- The views, picked from a menu by the title (the arrow beside it, or a
+-- right click on the title): Damage, Healing (AZS_GetHealing), Boss damage
+-- (AZS_GetBossMeter, the last boss fight), Party DPS (AZS_GetPartyMeter, a
+-- line a hero, only in a party) and Damage taken (AZS_TAKEN, by the enemy
+-- that dealt it). Each run-long view keeps its own Reset; the game starts the
+-- boss and party views over itself. The build's colors read the damage shares
+-- whichever view shows.
 --
 -- Reset starts the meter over from that moment and clears the crits. Its
 -- size holds through a run: ten lines unless the grip in its bottom right corner
@@ -85,21 +88,37 @@ local function Running()
 	return phase and phase ~= "ready"
 end
 
--- The meter's views. rate names the per second figure by the title.
+-- The meter's views. rate names the per second figure by the title; fight:
+-- the game's numbers cover one fight and start over on their own, so there is
+-- no Reset; party: a line a hero; api: the game's function the view reads.
+-- empty: what the view says while it has no lines.
 local MODES = {
-	{ key = "damage",  title = "Damage",       rate = "DPS" },
-	{ key = "healing", title = "Healing",      rate = "HPS" },
-	{ key = "taken",   title = "Damage taken", rate = "DTPS" },
+	{ key = "damage",  title = "Damage",       rate = "DPS",  api = "AZS_GetMeter",      empty = "No damage yet." },
+	{ key = "healing", title = "Healing",      rate = "HPS",  api = "AZS_GetHealing",    empty = "No healing yet." },
+	{ key = "boss",    title = "Boss damage",  rate = "DPS",  api = "AZS_GetBossMeter",  empty = "No boss fight yet.", fight = true },
+	{ key = "party",   title = "Party DPS",    rate = "DPS",  api = "AZS_GetPartyMeter", empty = "Not in a party.", fight = true, party = true },
+	{ key = "taken",   title = "Damage taken", rate = "DTPS", empty = "No damage taken yet." },
 }
 
-local function Mode()
-	local wanted = Settings().meterMode
+local function ModeOf(key)
 	for index = 1, table.getn(MODES) do
-		if MODES[index].key == wanted then
+		if MODES[index].key == key then
 			return MODES[index]
 		end
 	end
-	return MODES[1]
+end
+
+local function Mode()
+	return ModeOf(Settings().meterMode) or MODES[1]
+end
+
+-- What a view without lines says: why it is empty, or that this version of
+-- the game does not share its numbers.
+local function EmptyText(mode)
+	if mode.api and not getglobal(mode.api) then
+		return "The game does not share this meter ("..mode.api..")."
+	end
+	return mode.empty
 end
 
 -- A view's lines as the game shares them ({ name, dmg, share, proc } each),
@@ -152,6 +171,23 @@ local function GameLines(key)
 		end
 		local seconds = (AZS_GetRunTime and AZS_GetRunTime()) or 0
 		return list, total, seconds > 0 and total / seconds or 0
+	elseif key == "boss" or key == "party" then
+		-- The game's own lines, rates and shares, per second over the fight:
+		-- the last boss fight's damage to bosses, or a line a hero of the
+		-- party ({ name, class, dmg, dps, share, top, topdps }).
+		local get = key == "boss" and AZS_GetBossMeter or AZS_GetPartyMeter
+		if not get then
+			return {}, 0, 0
+		end
+		local game, total, rate = get()
+		local lines = {}
+		for index = 1, table.getn(game or {}) do
+			local line = game[index]
+			table.insert(lines, { name = line.name, dmg = Num(line.dmg), dps = Num(line.dps), share = Num(line.share),
+				proc = line.proc, class = line.class, top = line.top, topdps = line.topdps })
+		end
+		table.sort(lines, function(a, b) return a.dmg > b.dmg end)
+		return lines, Num(total), Num(rate)
 	end
 	if not AZS_GetMeter then
 		return {}, 0, 0
@@ -267,7 +303,7 @@ meter.title:SetText("Damage")
 
 -- The title row is the meter's handle: grab it anywhere left of Reset and
 -- drag, no edit mode needed (the grid's snap applies). Its tooltip says what the
--- meter leaves to the game's: healing and boss damage.
+-- view shown counts.
 local function TitleDragStart()
 	meter:StartMoving()
 end
@@ -291,14 +327,26 @@ local MODE_TIPS = {
 	damage = "The game's own numbers, for the whole run or since you last pressed Reset. Hover a line for its average cast and targets.",
 	healing = "What your spells healed, for the whole run or since Reset. Hover a line for its average heal and whom it healed.",
 	taken = "The damage you took, by the enemy that dealt it, for the whole run or since Reset. Hover a line for its average hit and what it hit you with.",
+	boss = "Your damage to bosses in the last boss fight, per second over that fight. It starts over with each boss fight.",
+	party = "Each hero's damage in your party, per second, with the spell that dealt them the most. Empty out of a party.",
 }
+
+-- Every view by title: "Damage, Healing, ... or Damage taken".
+local function ViewTitles()
+	local titles = {}
+	for index = 1, table.getn(MODES) do
+		table.insert(titles, MODES[index].title)
+	end
+	local last = table.remove(titles)
+	return table.concat(titles, ", ").." or "..last
+end
 
 titleHover:SetScript("OnEnter", function()
 	local mode = Mode()
 	GameTooltip:SetOwner(this, "ANCHOR_TOPLEFT")
 	GameTooltip:SetText(mode.title, 1, 0.82, 0)
 	GameTooltip:AddLine(MODE_TIPS[mode.key], 1, 1, 1, 1)
-	GameTooltip:AddLine("Right-click the title, or click the arrow beside it, for Damage, Healing or Damage taken.", 0.7, 0.7, 0.7, 1)
+	GameTooltip:AddLine("Right-click the title, or click the arrow beside it, for "..ViewTitles()..".", 0.7, 0.7, 0.7, 1)
 	GameTooltip:AddLine("Drag this title to move the meter; the corner grip sizes it.", 0.7, 0.7, 0.7, 1)
 	GameTooltip:Show()
 end)
@@ -404,7 +452,7 @@ arrow:SetScript("OnClick", ToggleMenu)
 arrow:SetScript("OnEnter", function()
 	this.edge:SetVertexColor(1, 0.82, 0, 1)
 	GameTooltip:SetOwner(this, "ANCHOR_TOPLEFT")
-	GameTooltip:SetText("Damage, Healing or Damage taken", 1, 1, 1)
+	GameTooltip:SetText(ViewTitles(), 1, 1, 1)
 	GameTooltip:Show()
 end)
 arrow:SetScript("OnLeave", function()
@@ -434,6 +482,15 @@ meter.total = meter:CreateFontString(nil, "OVERLAY")
 meter.total:SetFont(FONT, 13 + FONT_BUMP, "OUTLINE")
 meter.total:SetPoint("TOPRIGHT", meter, "TOPRIGHT", -50, -4)
 meter.total:SetTextColor(1, 1, 1)
+
+-- A view with no lines says why, where its first line would be.
+meter.empty = meter:CreateFontString(nil, "OVERLAY")
+meter.empty:SetFont(FONT, 10 + FONT_BUMP, "OUTLINE")
+meter.empty:SetPoint("TOPLEFT", meter, "TOPLEFT", 6, -24)
+meter.empty:SetPoint("TOPRIGHT", meter, "TOPRIGHT", -6, -24)
+meter.empty:SetJustifyH("LEFT")
+meter.empty:SetTextColor(0.6, 0.6, 0.6)
+meter.empty:Hide()
 
 -- Reset as a boxed button, as the build's fold buttons: a dark square with a
 -- thin edge that turns gold on hover.
@@ -694,6 +751,36 @@ local function Dull(color)
 	return { color[1] * 0.65 + 0.08, color[2] * 0.65 + 0.08, color[3] * 0.65 + 0.08 }
 end
 
+-- A class's color by the game's key ("warrior"), shamans in their modern
+-- blue as on the unit frames; nil for one unknown.
+local CLASS_OVERRIDES = { SHAMAN = { r = 0.00, g = 0.44, b = 0.87 } }
+
+local function ClassColor(class)
+	local token = string.upper(class or "")
+	local color = CLASS_OVERRIDES[token] or (RAID_CLASS_COLORS and RAID_CLASS_COLORS[token])
+	return color and { color.r, color.g, color.b } or nil
+end
+
+-- A hero's card in the party view: the line's numbers and the spell that
+-- dealt them the most.
+local function ShowPartyCard(bar)
+	local color = bar.color or { 1, 1, 1 }
+	GameTooltip:SetOwner(bar, "ANCHOR_NONE")
+	GameTooltip:ClearAllPoints()
+	GameTooltip:SetPoint("TOPRIGHT", meter, "TOPLEFT", -6, 0)
+	GameTooltip:SetText(bar.ability or "?", color[1], color[2], color[3])
+	if bar.class and bar.class ~= "" then
+		local class = string.upper(string.sub(bar.class, 1, 1))..string.sub(bar.class, 2)
+		GameTooltip:AddLine((string.gsub(class, "_", " ")), 0.7, 0.7, 0.7)
+	end
+	GameTooltip:AddDoubleLine("Damage", Short(Num(bar.damage)).."  ("..math.floor(Num(bar.share) * 100 + 0.5).."%)", 0.85, 0.85, 0.85, 1, 1, 1)
+	GameTooltip:AddDoubleLine("DPS", Short(Num(bar.rate)), 0.85, 0.85, 0.85, 1, 1, 1)
+	if bar.top and bar.top ~= "" then
+		GameTooltip:AddDoubleLine("Top spell", bar.top.."  "..Short(Num(bar.topdps)).." DPS", 0.85, 0.85, 0.85, 1, 0.82, 0)
+	end
+	GameTooltip:Show()
+end
+
 -- Lines past the meter's size are reached with the mouse wheel anywhere over
 -- it: the title, the bars or the space between (scrollOffset, by Draw).
 local function MeterWheel()
@@ -722,7 +809,14 @@ local function ShowBarCard(bar)
 	bar.hovered = true
 	local shift = IsShiftKeyDown() and true or false
 	bar.shiftShown = shift
-	local damage = (bar.mode or "damage") == "damage"
+	if bar.mode == "party" then
+		if SurvivorUI_CritCardHide then
+			SurvivorUI_CritCardHide()
+		end
+		ShowPartyCard(bar)
+		return
+	end
+	local damage = (bar.mode or "damage") == "damage" or bar.mode == "boss"
 	if not shift and damage and SurvivorUI_ShowSpellCard and SurvivorUI_ShowSpellCard(bar, bar.ability, meter) then
 		if SurvivorUI_CritCardHide then
 			SurvivorUI_CritCardHide()
@@ -836,7 +930,8 @@ local function Lines(key)
 	local lines, total, dps = GameLines(key)
 	local seconds = RunSeconds()
 	local memory = Memory()
-	local base = memory.bases[key]
+	local mode = ModeOf(key)
+	local base = not (mode and mode.fight) and memory.bases[key] or nil
 	-- The clock going back means a new run: the reset goes with the old one.
 	if base and lastSeconds[key] and seconds + 3 < lastSeconds[key] then
 		base = nil
@@ -851,11 +946,11 @@ local function Lines(key)
 			local line = lines[index]
 			local dmg = Num(line.dmg)
 			local rate = Num(line.dps)
-			if rate <= 0 and seconds > 0 then
+			if rate <= 0 and seconds > 0 and not (mode and mode.fight) then
 				rate = dmg / seconds
 			end
 			table.insert(shown, { name = line.name or "?", dmg = dmg, share = Num(line.share), proc = Num(line.proc) == 1,
-				absorb = line.absorb, rate = rate })
+				absorb = line.absorb, rate = rate, class = line.class, top = line.top, topdps = line.topdps })
 		end
 		return shown, total, dps
 	end
@@ -893,10 +988,28 @@ Draw = function()
 	end
 	meter.title:SetText(mode.title)
 	meter.total:SetText(Short(dps).." |cffb0b0b0"..mode.rate.."|r")
+	-- A fight's view has no Reset: its rate takes Reset's place.
+	if mode.fight ~= reset.fight then
+		reset.fight = mode.fight
+		meter.total:ClearAllPoints()
+		if mode.fight then
+			reset:Hide()
+			meter.total:SetPoint("TOPRIGHT", meter, "TOPRIGHT", -6, -4)
+		else
+			reset:Show()
+			meter.total:SetPoint("TOPRIGHT", meter, "TOPRIGHT", -50, -4)
+		end
+	end
 
 	-- The lines scrolled to, kept in range as lines come and go; the bars
 	-- keep the top line's scale, and each its place in the whole list.
 	local all = table.getn(lines)
+	if all == 0 then
+		meter.empty:SetText(EmptyText(mode))
+		meter.empty:Show()
+	else
+		meter.empty:Hide()
+	end
 	scrollOffset = math.max(0, math.min(scrollOffset, all - shownLines))
 	local count = math.min(shownLines, all - scrollOffset)
 	local top = all > 0 and lines[1].dmg or 0
@@ -919,8 +1032,11 @@ Draw = function()
 		-- proc or melee keeps a palette color of its own. With Distinguishing
 		-- Colors on, every line takes a palette color of its own instead, each
 		-- far from the next, so neighbours never look alike.
+		-- A hero of the party wears their class's color.
 		local color
-		if not Settings().meterDistinct and SurvivorUI_SpellColor then
+		if mode.party then
+			color = ClassColor(line.class)
+		elseif not Settings().meterDistinct and SurvivorUI_SpellColor then
 			color = SurvivorUI_SpellColor(name)
 		end
 		color = color or ColorOf(name)
@@ -939,8 +1055,11 @@ Draw = function()
 		bar.color = color
 		bar.damage, bar.share, bar.rate = line.dmg, line.share, line.rate
 		bar.mode = mode.key
+		bar.class, bar.top, bar.topdps = line.class, line.top, line.topdps
 		if mode.key == "taken" then
 			bar.icon:SetTexture(TAKEN_ICON)
+		elseif mode.party then
+			bar.icon:SetTexture(line.top and IconOf(line.top) or nil)
 		else
 			bar.icon:SetTexture(IconOf(name))
 		end
@@ -956,7 +1075,7 @@ Draw = function()
 		end
 		room = math.max(20, room)
 		bar.name:SetWidth(room)
-		local rank = mode.key ~= "taken" and RankOf(name)
+		local rank = mode.key ~= "taken" and not mode.party and RankOf(name)
 		local rankText = rank and rank > 0 and (Settings().meterRoman == false and rank or Roman(rank))
 		bar.name:SetText(place..". "..name..(rankText and "  |cffbdbdbd"..rankText.."|r" or ""))
 		if proc then
@@ -1170,7 +1289,7 @@ function SurvivorUI_ToggleMeter()
 	ApplyGameHud()
 	DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: "..(settings.meter
 		and "damage meter on; the game's own meter is put away."
-		or "damage meter off; the game's own is back, with its healing and boss damage."))
+		or "damage meter off; the game's own is back."))
 end
 
 if SurvivorUI_RegisterOption then
@@ -1199,7 +1318,7 @@ if SurvivorUI_RegisterOption then
 	SurvivorUI_RegisterOption({
 		section = "General",
 		label = "Damage meter",
-		tip = "The addon's damage meter, with the crits on hover, in place of the game's own. Off, the game's meter is back, with its healing and boss damage.",
+		tip = "The addon's meter in place of the game's own: damage, healing, boss damage, your party's DPS and damage taken, with a card on hover. Off, the game's meter is back.",
 		command = "/sui meter",
 		get = function() return Settings().meter end,
 		toggle = SurvivorUI_ToggleMeter,

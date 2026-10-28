@@ -199,6 +199,7 @@ local ELEMENT_OPTIONS = {
 	["Build"] = { "Build" },
 	["Damage meter"] = { "Damage meter" },
 	["Boss bars"] = { "Boss bars" },
+	["Talent timers"] = { "Talent timers" },
 	["Loot"] = { "Loot log" },
 	["Cache reminder"] = { "Next Cache Reminder" },
 	["Minimap"] = { "Caches on the minimap", "Minimap button" },
@@ -1024,34 +1025,11 @@ local function FocusOptions(bySection, order)
 	return found
 end
 
-Draw = function()
-	local bySection, order = Sections()
-	local open = OpenTab()
-	if not bySection[open] or table.getn(bySection[open]) == 0 then
-		open = order[1]
-	end
-	-- Searching: a Search tab at the front, open, with what matches.
-	local searching = query ~= ""
-	if searching then
-		bySection[SEARCH] = Matches(bySection, order)
-		table.insert(order, 1, SEARCH)
-		open = SEARCH
-	end
-	-- A piece's box: its options alone, no tabs.
-	if focus then
-		searching = false
-		bySection[FOCUS] = FocusOptions(bySection, order)
-		order = { FOCUS }
-		open = FOCUS
-	end
-	local compact = searching or focus ~= nil
-	if focus then
-		window.noMatch:SetText(table.getn(bySection[FOCUS]) == 0 and "No options for this piece." or "")
-	else
-		window.noMatch:SetText(searching and table.getn(bySection[SEARCH]) == 0 and "No option matches \""..query.."\"." or "")
-	end
+-- Draw's parts, each its own function: the game's Lua lets one function
+-- reach at most 32 of the file's locals, and Draw alone would reach more.
 
-	-- The tabs, sharing the width.
+-- The tabs, sharing the width.
+local function DrawTabs(order, open)
 	local count = focus and 0 or table.getn(order)
 	local tabWidth = (WIDTH - 2 * PAD - (count - 1) * TAB_GAP) / math.max(1, count)
 	for index = 1, count do
@@ -1067,52 +1045,12 @@ Draw = function()
 	for index = count + 1, table.getn(tabs) do
 		tabs[index]:Hide()
 	end
+end
 
-	-- The open tab's options.
-	local top = focus and (-TITLE_HEIGHT - 2) or (-TITLE_HEIGHT - TAB_HEIGHT - 10)
-	local y = top
+-- The open tab's options from y down, those inside the room only; the
+-- rows, sliders and swatches drawn, counted.
+local function DrawEntries(entries, y, Inside, unfolded, hasChildren, compact)
 	local rowCount, sliderCount, swatchCount = 0, 0, 0
-	local entries = Nest(bySection[open] or {})
-	local hasChildren = {}
-	for _, entry in ipairs(entries) do
-		if entry.parent then
-			hasChildren[entry.parent.label] = true
-		end
-	end
-	-- A search shows every match's sub-options, folded or not.
-	local unfolded = compact and setmetatable({}, { __index = function() return true end }) or OpenGroups()
-
-	-- The room the options have: as tall as the fullest tab (the search's
-	-- results left out), never shorter than it has been. A search's results
-	-- past it scroll; only those inside it are drawn.
-	for _, name in ipairs(order) do
-		if name ~= SEARCH then
-			tallest = math.max(tallest, Height(bySection[name]))
-		end
-	end
-	local chosen = SurvivorUIDB and tonumber(SurvivorUIDB.optionsRoom)
-	local room = chosen and math.max(ROOM_MIN, math.min(chosen, tallest)) or tallest
-	local content = Height(bySection[open] or {})
-	-- A piece's box is as tall as its options.
-	if focus then
-		room = math.max(content, 24)
-	else
-		shownRoom = room
-	end
-	searchScroll = math.max(0, math.min(searchScroll, content - room))
-	y = top + searchScroll
-	local function Inside(at, height)
-		return at <= top + 0.5 and at - height >= top - room - 0.5
-	end
-	if content > room then
-		scrollMark:ClearAllPoints()
-		scrollMark:SetHeight(math.max(10, room * room / content))
-		scrollMark:SetPoint("TOPRIGHT", window, "TOPRIGHT", -4, top - room * searchScroll / content)
-		scrollMark:Show()
-	else
-		scrollMark:Hide()
-	end
-
 	local ruleCount = 0
 	local first = true
 	for _, entry in ipairs(entries) do
@@ -1182,9 +1120,11 @@ Draw = function()
 	for index = swatchCount + 1, table.getn(swatches) do
 		swatches[index]:Hide()
 	end
-	shownRows, shownSliders, shownSwatches = rowCount, sliderCount, swatchCount
+	return rowCount, sliderCount, swatchCount
+end
 
-	-- The whole window, or a piece's box: no footer, search or grip there.
+-- The whole window, or a piece's box: no footer, search or grip there.
+local function DrawFrame(top, room)
 	local whole = not focus
 	for _, part in pairs({ reload, hint, grip, searchBox, editButton }) do
 		if whole then
@@ -1196,6 +1136,84 @@ Draw = function()
 	window.title:SetText(focus and focus.title or "Survivor UI")
 	window:SetWidth(shownWidth)
 	window:SetHeight(-top + room + 8 + (whole and FOOTER_HEIGHT or 0) + PAD)
+end
+
+Draw = function()
+	local bySection, order = Sections()
+	local open = OpenTab()
+	if not bySection[open] or table.getn(bySection[open]) == 0 then
+		open = order[1]
+	end
+	-- Searching: a Search tab at the front, open, with what matches.
+	local searching = query ~= ""
+	if searching then
+		bySection[SEARCH] = Matches(bySection, order)
+		table.insert(order, 1, SEARCH)
+		open = SEARCH
+	end
+	-- A piece's box: its options alone, no tabs.
+	if focus then
+		searching = false
+		bySection[FOCUS] = FocusOptions(bySection, order)
+		order = { FOCUS }
+		open = FOCUS
+	end
+	local compact = searching or focus ~= nil
+	if focus then
+		window.noMatch:SetText(table.getn(bySection[FOCUS]) == 0 and "No options for this piece." or "")
+	else
+		window.noMatch:SetText(searching and table.getn(bySection[SEARCH]) == 0 and "No option matches \""..query.."\"." or "")
+	end
+
+	DrawTabs(order, open)
+
+	-- The open tab's options.
+	local top = focus and (-TITLE_HEIGHT - 2) or (-TITLE_HEIGHT - TAB_HEIGHT - 10)
+	local y = top
+	local entries = Nest(bySection[open] or {})
+	local hasChildren = {}
+	for _, entry in ipairs(entries) do
+		if entry.parent then
+			hasChildren[entry.parent.label] = true
+		end
+	end
+	-- A search shows every match's sub-options, folded or not.
+	local unfolded = compact and setmetatable({}, { __index = function() return true end }) or OpenGroups()
+
+	-- The room the options have: as tall as the fullest tab (the search's
+	-- results left out), never shorter than it has been. A search's results
+	-- past it scroll; only those inside it are drawn.
+	for _, name in ipairs(order) do
+		if name ~= SEARCH then
+			tallest = math.max(tallest, Height(bySection[name]))
+		end
+	end
+	local chosen = SurvivorUIDB and tonumber(SurvivorUIDB.optionsRoom)
+	local room = chosen and math.max(ROOM_MIN, math.min(chosen, tallest)) or tallest
+	local content = Height(bySection[open] or {})
+	-- A piece's box is as tall as its options.
+	if focus then
+		room = math.max(content, 24)
+	else
+		shownRoom = room
+	end
+	searchScroll = math.max(0, math.min(searchScroll, content - room))
+	y = top + searchScroll
+	local function Inside(at, height)
+		return at <= top + 0.5 and at - height >= top - room - 0.5
+	end
+	if content > room then
+		scrollMark:ClearAllPoints()
+		scrollMark:SetHeight(math.max(10, room * room / content))
+		scrollMark:SetPoint("TOPRIGHT", window, "TOPRIGHT", -4, top - room * searchScroll / content)
+		scrollMark:Show()
+	else
+		scrollMark:Hide()
+	end
+
+	shownRows, shownSliders, shownSwatches = DrawEntries(entries, y, Inside, unfolded, hasChildren, compact)
+
+	DrawFrame(top, room)
 end
 
 -- Every switch painted again, and every child dimmed or not: one can change

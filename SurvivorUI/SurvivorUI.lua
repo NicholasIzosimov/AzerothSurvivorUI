@@ -1066,7 +1066,6 @@ local function LayoutBar()
 	end
 
 	for _, name in pairs({
-		"MainMenuBarTexture0", "MainMenuBarTexture1", "MainMenuBarTexture2", "MainMenuBarTexture3",
 		"MainMenuBarLeftEndCap", "MainMenuBarRightEndCap",
 		"ActionBarUpButton", "ActionBarDownButton", "MainMenuBarPageNumber",
 		"MainMenuBarBackpackButton", "CharacterBag0Slot", "CharacterBag1Slot", "CharacterBag2Slot", "CharacterBag3Slot",
@@ -1078,6 +1077,13 @@ local function LayoutBar()
 		"AZS_RacialRim",
 	}) do
 		Hide(name)
+	end
+	-- The game cuts its bar's art into slices: the stock textures first, then
+	-- new ones of its own past them ("AZS_MainMenuBarTexture4"), however many.
+	for _, prefix in pairs({ "MainMenuBarTexture", "AZS_MainMenuBarTexture", "MainMenuMaxLevelBar", "AZS_MainMenuMaxLevelBar" }) do
+		for index = 0, 9 do
+			Hide(prefix..index)
+		end
 	end
 
 	-- The experience bar: a thin flat strip under the whole row (the last of
