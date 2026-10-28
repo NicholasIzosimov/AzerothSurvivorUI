@@ -1305,6 +1305,11 @@ local function LayoutAuras(shown)
 	end
 end
 
+-- The buff icons' size and gap, for what lines up with them (Timers.lua).
+function SurvivorUI_AuraSize()
+	return AuraSize(), AURA_GAP
+end
+
 function SurvivorUI_SetAuraSize(size)
 	Settings().buffSize = math.max(AURA_SIZE_MIN, math.min(AURA_SIZE_MAX, math.floor((tonumber(size) or AURA_SIZE) + 0.5)))
 	ApplyAuraSize()
