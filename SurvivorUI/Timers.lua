@@ -1,7 +1,8 @@
 -- Survivor UI: talent timers.
 --
 -- A row of the clocks the run's talents and jewelry keep (AZS_GetTimers): a
--- proc's, a heal's or a second life's wait, the next demon or Legion Gate wave.
+-- proc's, a heal's or a second life's wait, the next demon or Legion Gate wave;
+-- waits shorter than MIN_WAIT are left out.
 -- Each is its icon, dimmed and filling back up from the bottom while it
 -- waits, the seconds left on it; bright with a gold edge once it may go. A
 -- card on hover names it. Centered above the action bar until moved; in edit
@@ -15,6 +16,9 @@ local FONT_BUMP = SurvivorUI_FONT_BUMP or 0
 local SIZE = 26
 local GAP = 4
 local MAX_TIMERS = 10
+-- Placeholder: a clock whose whole wait is shorter than this (Nightfall's half
+-- second between procs) only flickers, so it is left out.
+local MIN_WAIT = 5
 local READY = { 1, 0.82, 0 }
 local WAITING = { 0, 0, 0 }
 
@@ -176,7 +180,11 @@ local function Update()
 	local settings = Settings()
 	local list = {}
 	if settings.timers and Playing() then
-		list = AZS_GetTimers() or {}
+		for _, timer in ipairs(AZS_GetTimers() or {}) do
+			if (tonumber(timer.duration) or 0) >= MIN_WAIT then
+				table.insert(list, timer)
+			end
+		end
 	end
 	-- In preview, with no clock running, a sample stands in so the row can
 	-- be placed.
