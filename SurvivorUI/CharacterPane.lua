@@ -227,10 +227,10 @@ local function Build()
 	-- and a section once none of its rows shows; "needs" names a check the
 	-- section waits on besides.
 	local SECTIONS = {
-		{ title = "Offense", color = { 1.00, 0.45, 0.25 }, rows = {
+		{ title = "Offense", color = { 1.00, 1.00, 1.00 }, rows = {
 			{ "Damage",   function(s) return Pct(s.dmg - 1) end, "Every spell you cast deals this much more damage. It grows with your level, gear, talents, jewelry and buffs." },
-			{ "Crit",     function(s) return string.format("%.1f%%", s.crit * 100) end, "The chance a spell strikes critically. Past 100%, the rest adds to your critical damage." },
 			{ "Crit Dmg", function(s) return string.format("%.0f%%", s.cm * 100) end, "A critical strike deals this much of a spell's damage." },
+			{ "Crit",     function(s) return string.format("%.1f%%", s.crit * 100) end, "The chance a spell strikes critically. Past 100%, the rest adds to your critical damage." },
 			{ "CDR",         function(s) return string.format("%.0f%%", (1 - s.cd) * 100) end, "Your spells come back this much sooner." },
 			{ "Casts Twice", function(s) return string.format("%.0f%%", s.echo * 100) end, "The chance a spell strikes twice. Past 100%, every spell strikes twice and the rest is the chance of a third." },
 		} },
