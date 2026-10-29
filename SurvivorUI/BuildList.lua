@@ -1463,9 +1463,8 @@ local function DrawSpells(y, tiles)
 	-- The racial comes last in the game's list and takes no slot.
 	local slotted = math.max(0, count - 1)
 	spellHeading.count:SetText((slotted >= SLOTS and "|cffff8080" or "|cffd0d0d0")..math.min(slotted, SLOTS).." / "..SLOTS.."|r")
-	-- The rarest first; within a rarity, the damage spells by their share of
-	-- the damage, the most first, then the utility ones under them by rank.
-	-- Ties go to the earlier slot. Each spell keeps its own action button for
+	-- The highest rank first, ties to the earlier slot: an order that holds
+	-- still between picks. Each spell keeps its own action button for
 	-- its icon and its tooltip. The tiers are worked out even while the box is
 	-- folded, as the damage meter wears their colors too.
 	local order, standing, slots = {}, {}, {}
@@ -1479,9 +1478,7 @@ local function DrawSpells(y, tiles)
 		slots[index] = SpellSlot(name) or index
 		local score = SpellScore(name, slots[index], rank)
 		local color, _, tier = SpellTier(name, score, rank)
-		-- A spell with no damage on the meter is a utility one ("Util").
-		local share = ShareOf(name)
-		standing[index] = { tier = tier, rank = rank, share = share or 0, util = not share or share <= 0 }
+		standing[index] = rank
 		spellColors[string.lower(name)] = tier == table.getn(TIERS) and COMMON_BAR or color
 		-- Under its other name too, which the meter may use.
 		local other = otherName[string.lower(name)]
@@ -1494,20 +1491,8 @@ local function DrawSpells(y, tiles)
 		return y
 	end
 	table.sort(order, function(a, b)
-		local sa, sb = standing[a], standing[b]
-		if sa.tier ~= sb.tier then
-			return sa.tier < sb.tier
-		end
-		-- Within a rarity, the damage spells first, the utility ones under them.
-		if sa.util ~= sb.util then
-			return sb.util
-		end
-		-- Damage spells by their share of the damage; utility ones by rank.
-		if not sa.util and sa.share ~= sb.share then
-			return sa.share > sb.share
-		end
-		if sa.util and sa.rank ~= sb.rank then
-			return sa.rank > sb.rank
+		if standing[a] ~= standing[b] then
+			return standing[a] > standing[b]
 		end
 		return a < b
 	end)
