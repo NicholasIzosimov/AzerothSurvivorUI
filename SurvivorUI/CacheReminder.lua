@@ -245,10 +245,15 @@ local function Turn(angle)
 	arrow:SetTexCoord(ulx, uly, llx, lly, urx, ury, lrx, lry)
 end
 
--- The hero's facing, radians counterclockwise from north, from the minimap's
--- player arrow model; nil if it cannot be found.
+-- The hero's facing, radians counterclockwise from north: the game's own
+-- (AZS_RUN pf, as WoW's orientation), else the minimap's player arrow model;
+-- nil if neither can be read.
 local playerArrow
 local function Facing()
+	local sent = AZS_RUN and tonumber(AZS_RUN.pf)
+	if sent then
+		return sent
+	end
 	if not playerArrow and Minimap then
 		local children = { Minimap:GetChildren() }
 		for index = 1, table.getn(children) do
