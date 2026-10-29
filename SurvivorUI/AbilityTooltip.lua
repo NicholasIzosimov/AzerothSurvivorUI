@@ -1222,6 +1222,25 @@ function SurvivorUI_HitsEveryEnemy(slot)
 	return false
 end
 
+-- Whether the ability on an action button deals damage over time ("300
+-- Shadow damage over 12 sec", "60 Holy damage every 1 sec for 18 sec"), for
+-- the character pane; nil where it cannot be read.
+local DOT_WORDING = { "damage over [%d%.]+ sec", "damage every [%d%.]+ sec", "every [%d%.]+ sec for [%d%.]+ sec" }
+
+function SurvivorUI_DealsDamageOverTime(slot)
+	local ability = ScanAbility(slot)
+	if not ability then
+		return nil
+	end
+	local text = string.lower(table.concat(ability.description, " "))
+	for index = 1, table.getn(DOT_WORDING) do
+		if string.find(text, DOT_WORDING[index]) then
+			return true
+		end
+	end
+	return false
+end
+
 function SurvivorUI_SimplifiedLines(slot)
 	local ability = ScanAbility(slot)
 	if not ability then

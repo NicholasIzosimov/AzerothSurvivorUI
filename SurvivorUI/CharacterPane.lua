@@ -25,8 +25,8 @@ local function Build()
 	local STATS_WIDTH = 204
 	-- The list sizes itself to fit without scrolling: rows shrink as more of them
 	-- show, between these bounds.
-	local ROW_MAX, ROW_MIN = 14, 9
-	local HEADER_HEIGHT = 16
+	local ROW_MAX, ROW_MIN = 21, 9
+	local HEADER_HEIGHT = 24
 
 	local function Line(parent, r, g, b, a)
 		local line = parent:CreateTexture(nil, "ARTWORK")
@@ -223,28 +223,22 @@ local function Build()
 		return string.format("%+.0f%%", value * 100)
 	end
 
-	-- label, value(s), what it means, and for the conditional rows when to show.
+	-- label, value, what it means. A row whose value reads as zero is left out,
+	-- and a section once none of its rows shows; "needs" names a check the
+	-- section waits on besides.
 	local SECTIONS = {
 		{ title = "Offense", color = { 1.00, 0.45, 0.25 }, rows = {
 			{ "Damage",   function(s) return Pct(s.dmg - 1) end, "Every spell you cast deals this much more damage. It grows with your level, gear, talents, jewelry and buffs." },
 			{ "Crit",     function(s) return string.format("%.1f%%", s.crit * 100) end, "The chance a spell strikes critically. Past 100%, the rest adds to your critical damage." },
 			{ "Crit Dmg", function(s) return string.format("%.0f%%", s.cm * 100) end, "A critical strike deals this much of a spell's damage." },
-			{ "Haste",    function(s) return Pct(1 - s.cd) end, "Your spells come back this much sooner." },
-			{ "Echo",     function(s) return string.format("%.0f%%", s.echo * 100) end, "The chance a spell strikes twice. Past 100%, every spell strikes twice and the rest is the chance of a third." },
-		} },
-		{ title = "Reach", color = { 0.72, 0.45, 1.00 }, rows = {
-			{ "Area",     function(s) return Pct(s.area - 1) end, "Your spells' areas and ranges are this much larger." },
-			{ "Targets",  function(s) return string.format("+%d", s.cnt) end, "Every spell that picks its targets picks this many more." },
-			{ "Pickup",   function(s) return string.format("%.0f yd", s.pick) end, "Experience and gold fly to you from this far." },
+			{ "CDR",         function(s) return string.format("%.0f%%", (1 - s.cd) * 100) end, "Your spells come back this much sooner." },
+			{ "Casts Twice", function(s) return string.format("%.0f%%", s.echo * 100) end, "The chance a spell strikes twice. Past 100%, every spell strikes twice and the rest is the chance of a third." },
 		} },
 		{ title = "Defense", color = { 0.30, 0.65, 1.00 }, rows = {
-			{ "Health",    function(s) return string.format("%.0f", s.hp) end, "The most health you can have." },
-			{ "Armor",     function(s) return string.format("%.0f%%", s.arm * 100) end, "Damage you take is reduced by this much (60% at most)." },
 			{ "Regen",     function(s) return string.format("%.1f", s.reg) end, "Health you regain every second." },
-			{ "Lifesteal", function(s) return string.format("%.1f%%", s.lch * 100) end, "Heals you for this much of all the damage you deal." },
+			{ "Leech",     function(s) return string.format("%.1f%%", s.lch * 100) end, "Heals you for this much of all the damage you deal." },
 			{ "Kill Heal", function(s) return string.format("%.0f", s.heal) end, "Every kill heals you for this much." },
 			{ "Thorns",    function(s) return string.format("%.0f%%", s.thn * 100) end, "This much of the melee damage you take is dealt back to the attacker." },
-			{ "Lives",     function(s) return string.format("%d", s.liv) end, "Times you rise again instead of dying." },
 		} },
 		{ title = "Utility", color = { 0.35, 0.90, 0.55 }, rows = {
 			{ "Speed",      function(s) return Pct(s.spd - 1) end, "You run this much faster." },
@@ -253,18 +247,18 @@ local function Build()
 			{ "Luck",       function(s) return Pct(s.luck) end, "Better odds of rarer upgrades when you level up." },
 			{ "Buff Power", function(s) return Pct(s.bp) end, "Your damage, haste, shield and thorns buffs are this much stronger." },
 		} },
-		{ title = "Damage over time", color = { 0.25, 0.85, 0.85 }, rows = {
+		{ title = "Damage over time", needs = "dots", color = { 0.25, 0.85, 0.85 }, rows = {
 			{ "DoT Stacks", function(s) return string.format("%d", s.dots) end, "How many of each of your damage-over-time effects one enemy carries at once." },
 			{ "DoT Haste",  function(s) return Pct(s.doth) end, "Your damage-over-time effects tick this much faster." },
 		} },
 		{ title = "Bonus damage", color = { 1.00, 0.82, 0.00 }, rows = {
-			{ "Vs Elites",     function(s) return Pct(s.big) end,  "More damage to elites and bosses.", "big" },
-			{ "Execute",       function(s) return Pct(s.exe) end,  "More damage to enemies below 30% health.", "exe" },
-			{ "Vs Controlled", function(s) return Pct(s.cc) end,   "More damage to rooted, stunned, slowed or fleeing enemies.", "cc" },
-			{ "Vs Afflicted",  function(s) return Pct(s.dotd) end, "More damage to enemies carrying one of your damage-over-time effects.", "dotd" },
-			{ "Shielded",      function(s) return Pct(s.shd) end,  "More damage while you hold an absorb shield.", "shd" },
-			{ "Melee",         function(s) return Pct(s.auto) end, "Your melee swings deal this much more damage.", "auto" },
-			{ "Pet Damage",    function(s) return Pct(s.pet) end,  "Your pets deal this much more damage.", "pet" },
+			{ "Vs Elites",     function(s) return Pct(s.big) end,  "More damage to elites and bosses." },
+			{ "Execute",       function(s) return Pct(s.exe) end,  "More damage to enemies below 30% health." },
+			{ "Vs Controlled", function(s) return Pct(s.cc) end,   "More damage to rooted, stunned, slowed or fleeing enemies." },
+			{ "Vs Afflicted",  function(s) return Pct(s.dotd) end, "More damage to enemies carrying one of your damage-over-time effects." },
+			{ "Shielded",      function(s) return Pct(s.shd) end,  "More damage while you hold an absorb shield." },
+			{ "Melee",         function(s) return Pct(s.auto) end, "Your melee swings deal this much more damage." },
+			{ "Pet Damage",    function(s) return Pct(s.pet) end,  "Your pets deal this much more damage." },
 		} },
 	}
 
@@ -277,22 +271,43 @@ local function Build()
 		return setmetatable({}, { __index = function(_, key) return AZS_STATS[key] or 0 end })
 	end
 
+	-- "+0%", "0.0%", "0": what reads as nothing.
+	local function IsZero(text)
+		return tonumber((string.gsub(text, "[^%d%.]", ""))) == 0
+	end
+
+	-- The DoT section counts only once a spell on the bar deals damage over
+	-- time; the bar is read again whenever the game sends the run's spells.
+	local dotsRead, knowsDots
+	local NEEDS = {
+		dots = function()
+			local stamp = AZS_SPELLS_UPDATED or 0
+			if dotsRead ~= stamp then
+				dotsRead = stamp
+				knowsDots = false
+				for slot = 1, 12 do
+					if SurvivorUI_DealsDamageOverTime and SurvivorUI_DealsDamageOverTime(slot) then
+						knowsDots = true
+						break
+					end
+				end
+			end
+			return knowsDots
+		end,
+	}
+
 	local stats = CreateFrame("Frame", "SurvivorUICharacterStats", panel)
 	stats:SetPoint("TOPLEFT", panel, "TOPLEFT", ART_WIDTH + 1, 0)
 	stats:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", 0, 0)
 
-	-- The headline: the damage bonus, with the hero's health under it.
-	local headline = stats:CreateFontString(nil, "OVERLAY")
-	headline:SetFont(FONT, 20 + FONT_BUMP, "OUTLINE")
-	headline:SetPoint("TOP", stats, "TOP", 0, -14)
-	headline:SetTextColor(0.72, 0.45, 1)
-
-	local headlineCaption = stats:CreateFontString(nil, "OVERLAY")
-	headlineCaption:SetFont(FONT, 10 + FONT_BUMP)
-	headlineCaption:SetPoint("TOP", headline, "BOTTOM", 0, -3)
+	-- Shown in place of the numbers outside a run.
+	local noRun = stats:CreateFontString(nil, "OVERLAY")
+	noRun:SetFont(FONT, 10 + FONT_BUMP)
+	noRun:SetPoint("TOP", stats, "TOP", 0, -40)
+	noRun:SetText("|cffa0a0a0Start a run to see its numbers|r")
 
 	local scroll = CreateFrame("ScrollFrame", "SurvivorUICharacterScroll", stats)
-	scroll:SetPoint("TOPLEFT", stats, "TOPLEFT", 12, -54)
+	scroll:SetPoint("TOPLEFT", stats, "TOPLEFT", 12, -30)
 	scroll:SetPoint("BOTTOMRIGHT", stats, "BOTTOMRIGHT", -12, 8)
 
 	local content = CreateFrame("Frame", nil, scroll)
@@ -323,7 +338,7 @@ local function Build()
 			header:SetWidth(STATS_WIDTH - 24)
 			header:SetHeight(HEADER_HEIGHT)
 			header.text = header:CreateFontString(nil, "OVERLAY")
-			header.text:SetFont(FONT, 10 + FONT_BUMP, "OUTLINE")
+			header.text:SetFont(FONT, 13 + FONT_BUMP, "OUTLINE")
 			header.text:SetPoint("CENTER", header, "CENTER", 0, -2)
 			header.left = Line(header, 1, 1, 1)
 			header.left:SetHeight(1)
@@ -363,11 +378,9 @@ local function Build()
 		local s = Stats()
 
 		if s then
-			headline:SetText(Pct(s.dmg - 1))
-			headlineCaption:SetText("|cffa0a0a0Damage  \194\183  Health:|r |cff4da6ff"..string.format("%.0f", s.hp).."|r")
+			noRun:Hide()
 		else
-			headline:SetText("-")
-			headlineCaption:SetText("|cffa0a0a0Start a run to see its numbers|r")
+			noRun:Show()
 		end
 
 		-- What shows: a section appears once one of its rows does.
@@ -375,9 +388,12 @@ local function Build()
 		local totalRows, totalHeaders = 0, 0
 		for index, section in ipairs(SECTIONS) do
 			local visible = {}
-			for _, entry in ipairs(section.rows) do
-				if not entry[4] or (s and s[entry[4]] ~= 0) then
-					table.insert(visible, entry)
+			if s and (not section.needs or NEEDS[section.needs]()) then
+				for _, entry in ipairs(section.rows) do
+					local value = entry[2](s)
+					if not IsZero(value) then
+						table.insert(visible, { entry[1], value, entry[3] })
+					end
 				end
 			end
 			shown[index] = visible
@@ -393,7 +409,7 @@ local function Build()
 		if totalRows > 0 and room > 0 then
 			rowHeight = math.max(ROW_MIN, math.min(ROW_MAX, math.floor(room / totalRows)))
 		end
-		local fontSize = math.max(8, math.min(11, rowHeight - 3))
+		local fontSize = math.max(8, math.min(15, rowHeight - 5))
 
 		local y = 0
 		local headerCount, rowCount = 0, 0
@@ -422,7 +438,7 @@ local function Build()
 						row.label:SetFont(FONT, fontSize + FONT_BUMP)
 						row.value:SetFont(FONT, fontSize + FONT_BUMP)
 					end
-					local value = s and entry[2](s) or "-"
+					local value = entry[2]
 					row:ClearAllPoints()
 					row:SetPoint("TOPLEFT", content, "TOPLEFT", 0, -y)
 					row.label:SetText(entry[1])
