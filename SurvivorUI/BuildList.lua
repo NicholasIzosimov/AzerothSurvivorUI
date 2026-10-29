@@ -541,19 +541,32 @@ end)
 
 -- A worn piece's tooltip texts from its second line on, each piece of a line
 -- with breaks on its own, from the one shared reader (SurvivorUI.lua), which
--- reads a slot only when its piece changes.
+-- reads a slot only when its piece changes. Also which of them are written
+-- in grey, as a set's bonus is until it holds: [index] = true. A piece's own
+-- color code counts first, else the line's color.
+local function IsGrey(r, g, b)
+	return r ~= nil and r < 0.8 and math.abs(r - g) < 0.08 and math.abs(g - b) < 0.08
+end
+
 local function WornTexts(slot)
 	local lines = SurvivorUI_WornTooltip and SurvivorUI_WornTooltip(slot) or {}
-	local texts = {}
+	local texts, greys = {}, {}
 	for index = 2, table.getn(lines) do
-		for piece in string.gfind((lines[index][1] or "").."\n", "([^\n]*)\n") do
+		local line = lines[index]
+		for piece in string.gfind((line[1] or "").."\n", "([^\n]*)\n") do
 			local text = Plain(piece)
 			if text ~= "" then
 				table.insert(texts, text)
+				local _, _, r, g, b = string.find(piece, "|c%x%x(%x%x)(%x%x)(%x%x)")
+				if r then
+					greys[table.getn(texts)] = IsGrey(tonumber(r, 16) / 255, tonumber(g, 16) / 255, tonumber(b, 16) / 255)
+				else
+					greys[table.getn(texts)] = IsGrey(line[2], line[3], line[4])
+				end
 			end
 		end
 	end
-	return texts
+	return texts, greys
 end
 
 -- An item's rank, where its tooltip names one, and what it gives: its
@@ -614,15 +627,16 @@ local function GearForSpell(spell)
 		return gear
 	end
 	-- A set's bonus ("(8) Set: ...") stands on every piece of the set but
-	-- counts once; an effect the same words as one already listed is left out.
+	-- counts once, and only once it holds (no longer grey); an effect the same
+	-- words as one already listed is left out.
 	local setsRead, effectsListed = {}, {}
 	for slot = 1, 19 do
 		if GetInventoryItemLink and GetInventoryItemLink("player", slot) then
-			local texts = WornTexts(slot)
+			local texts, greys = WornTexts(slot)
 			for index = 1, table.getn(texts) do
 				local text = texts[index]
 				local isSet = string.find(text, "^%(%d+%) Set: ")
-				if string.find(string.lower(text), wanted, 1, true) and not (isSet and setsRead[text]) then
+				if string.find(string.lower(text), wanted, 1, true) and not (isSet and (setsRead[text] or greys[index])) then
 					if isSet then
 						setsRead[text] = true
 					end

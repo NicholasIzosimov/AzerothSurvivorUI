@@ -1439,6 +1439,42 @@ local function GameBuffLeft(buffIndex, texture)
 	end
 end
 
+-- A talent's lasting state (Dire Bear Form, a capstone's aura): a buff named
+-- after a talent, with no timer and no stacks. The build already shows it, so
+-- it is left out of the row. Names are kept per icon.
+local buffNames = {}            -- [icon] = the buff's name
+
+local function TalentState(buffIndex)
+	if not SurvivorUI_TALENT_TEXTS then
+		return false
+	end
+	local texture = GetPlayerBuffTexture(buffIndex)
+	local left = GetPlayerBuffTimeLeft(buffIndex)
+	if left and left > 0 and left < PERMANENT then
+		return false
+	end
+	left = GameBuffLeft(buffIndex, texture)
+	if left and left > 0 and left < PERMANENT then
+		return false
+	end
+	local count = GetPlayerBuffApplications(buffIndex)
+	if count and count > 1 then
+		return false
+	end
+	local name = texture and buffNames[texture]
+	if not name then
+		buffScan:SetOwner(WorldFrame, "ANCHOR_NONE")
+		buffScan:ClearLines()
+		buffScan:SetPlayerBuff(buffIndex)
+		local line = getglobal("SurvivorUIBuffScanTextLeft1")
+		name = line and line:GetText()
+		if texture and name then
+			buffNames[texture] = name
+		end
+	end
+	return name ~= nil and SurvivorUI_TALENT_TEXTS[name] ~= nil
+end
+
 local function UpdateAuras()
 	local shown = 0
 	local seen = {}
@@ -1446,7 +1482,7 @@ local function UpdateAuras()
 		local filter = pass == 1 and "HELPFUL" or "HARMFUL"
 		for slot = 0, 15 do
 			local buffIndex = GetPlayerBuff(slot, filter)
-			if buffIndex and buffIndex >= 0 and shown < AURA_MAX then
+			if buffIndex and buffIndex >= 0 and shown < AURA_MAX and not (pass == 1 and TalentState(buffIndex)) then
 				shown = shown + 1
 				local aura = auras[shown]
 				local texture = GetPlayerBuffTexture(buffIndex)
