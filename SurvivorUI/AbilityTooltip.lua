@@ -561,11 +561,22 @@ local function Thousands(value)
 	return (string.gsub(string.format("%.1f", short), "%.0$", ""))..suffix
 end
 
+-- A minute or more as a clock: "107 sec" is "1:47", "90 sec" "1:30".
+local function Clock(text)
+	return (string.gsub(text or "", "(%d[%d%.]*) sec", function(number)
+		local seconds = math.floor(tonumber(number) + 0.5)
+		if seconds < 60 then
+			return number.." sec"
+		end
+		return string.format("%d:%02d", math.floor(seconds / 60), math.mod(seconds, 60))
+	end))
+end
+
 local function FactText(fact, school, tint)
 	if fact.text then
-		return Highlight(fact.text, school, tint)
+		return Highlight(Clock(fact.text), school, tint)
 	end
-	local shown = fact.place == TARGETS and fact.value or Thousands(fact.value)
+	local shown = fact.place == TARGETS and fact.value or Clock(Thousands(fact.value))
 	local value = "|cffffffff"..shown.."|r"
 	-- Targets as a count ("3"), colored by how many.
 	local _, _, count = string.find(fact.place == TARGETS and fact.value or "", "^%+?(%d+)$")
@@ -578,7 +589,7 @@ local function FactText(fact, school, tint)
 		return value
 	end
 	-- One is "1 Target".
-	local label = fact.label
+	local label = Clock(fact.label)
 	if count and tonumber(count) == 1 and fact.place == TARGETS then
 		label = string.gsub(string.gsub(label, "s$", ""), "^Targets ", "Target ")
 	end
@@ -865,7 +876,8 @@ local function Compose(ability, simple)
 	-- one cast to the next") shows that whole time, the one that counts.
 	local _, _, whole = string.find(table.concat(ability.description, " "), "([%d%.]+) sec from one cast to the next")
 	local cooldown = whole and (whole.." sec cooldown") or ability.cooldown or " "
-	cooldown = string.gsub(cooldown, "^([%d%.]+ sec)", COOLDOWN_HEX.."%1|r")
+	cooldown = Clock(cooldown)
+	cooldown = string.gsub(string.gsub(cooldown, "^([%d%.]+ sec)", COOLDOWN_HEX.."%1|r"), "^(%d+:%d%d)", COOLDOWN_HEX.."%1|r")
 	Double(cooldown, ability.cast, MUTED, MUTED)
 
 	local others = ability.other
@@ -889,8 +901,9 @@ local function Compose(ability, simple)
 			end
 		end
 		-- How far goes up into the heading, on the left under the cooldown:
-		-- its range where it says one, else the first (a radius); the rest
-		-- ("13 yd between targets") are left to the full description.
+		-- the area it covers where it says one (a radius: where it is cast
+		-- from matters less), else its range, else the first; the rest ("13
+		-- yd between targets") are left to the full description.
 		local reaches = {}
 		for index = table.getn(facts), 1, -1 do
 			local fact = facts[index]
@@ -900,13 +913,15 @@ local function Compose(ability, simple)
 				table.remove(facts, index)
 			end
 		end
-		local reaching = reaches[1]
-		for index = 1, table.getn(reaches) do
-			if string.find(reaches[index], "range", 1, true) then
-				reaching = reaches[index]
-				break
+		local reaching
+		for _, word in ipairs({ "radius", "range" }) do
+			for index = 1, table.getn(reaches) do
+				if not reaching and string.find(reaches[index], word, 1, true) then
+					reaching = reaches[index]
+				end
 			end
 		end
+		reaching = reaching or reaches[1]
 		if reaching then
 			Line(reaching, MUTED)
 		end
