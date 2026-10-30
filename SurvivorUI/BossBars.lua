@@ -448,3 +448,104 @@ if SurvivorUI_RegisterMover then
 		holder:SetPoint("TOP", UIParent, "TOP", 0, -90)
 	end)
 end
+
+------------------------------------------------------------------------------
+-- Important nameplates only: with the switch on, an enemy's nameplate shows
+-- only for a boss, a lair guardian or an elite, told by name against the
+-- game's list of them (AZS_UNITS: the whole map's, asleep or awake). Every
+-- other plate is put away as it comes into view; switched off, the game's
+-- plates are set out afresh. The game's own "Enemy Name Plates" must be on.
+
+local function Plates()
+	local found = {}
+	if SurvivorPlatesRegistry then
+		for index = 1, table.getn(SurvivorPlatesRegistry) do
+			local overlay = SurvivorPlatesRegistry[index]
+			if overlay.plate and overlay.stock and overlay.stock.name then
+				table.insert(found, { plate = overlay.plate, name = overlay.stock.name })
+			end
+		end
+		return found
+	end
+	local children = { WorldFrame:GetChildren() }
+	for index = 1, table.getn(children) do
+		local plate = children[index]
+		local border = plate:GetRegions()
+		if border and border.GetObjectType and border:GetObjectType() == "Texture"
+			and border:GetTexture() == "Interface\\Tooltips\\Nameplate-Border" then
+			local regions = { plate:GetRegions() }
+			for region = 1, table.getn(regions) do
+				if regions[region]:GetObjectType() == "FontString" then
+					table.insert(found, { plate = plate, name = regions[region] })
+					break
+				end
+			end
+		end
+	end
+	return found
+end
+
+local function ImportantNames()
+	local names = {}
+	for index = 1, table.getn(AZS_UNITS or {}) do
+		local name = Field(AZS_UNITS[index], "name", 3)
+		if name then
+			names[name] = true
+		end
+	end
+	return names
+end
+
+local RECHECK = 2               -- seconds a plate put away may still come back
+local putAway = {}              -- [plate] = { name, at }
+local plateElapsed = 0
+local plateWatch = CreateFrame("Frame")
+plateWatch:SetScript("OnUpdate", function()
+	plateElapsed = plateElapsed + arg1
+	if plateElapsed < 0.1 then
+		return
+	end
+	plateElapsed = 0
+	if not (Settings().importantPlates and AZS_UNITS) then
+		return
+	end
+	local names = ImportantNames()
+	local now = GetTime()
+	-- The game's list can name a new elite a moment after its plate shows: a
+	-- plate put away lately comes back once its name is on the list.
+	for plate, put in pairs(putAway) do
+		if now - put.at > RECHECK then
+			putAway[plate] = nil
+		elseif names[put.name] then
+			putAway[plate] = nil
+			plate:Show()
+		end
+	end
+	local plates = Plates()
+	for index = 1, table.getn(plates) do
+		local plate = plates[index].plate
+		local name = plates[index].name:GetText() or ""
+		if plate:IsVisible() and not names[name] then
+			plate:Hide()
+			putAway[plate] = { name = name, at = now }
+		end
+	end
+end)
+
+if SurvivorUI_RegisterOption then
+	SurvivorUI_RegisterOption({
+		section = "General",
+		label = "Important nameplates only",
+		tip = "Enemy nameplates only on bosses, lair guardians and elites; the rest are put away. Needs the game's Enemy Name Plates on. A plain enemy that shares an elite's name keeps its plate too.",
+		get = function() return Settings().importantPlates end,
+		toggle = function()
+			local settings = Settings()
+			settings.importantPlates = not settings.importantPlates
+			-- Off, the plates put away come back: the game sets them all out again.
+			if not settings.importantPlates and HideNameplates and ShowNameplates then
+				HideNameplates()
+				ShowNameplates()
+			end
+		end,
+	})
+end

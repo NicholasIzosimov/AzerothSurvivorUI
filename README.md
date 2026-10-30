@@ -54,7 +54,6 @@ If Windows warns about the file the first time, choose **More info → Run anywa
 | `/sui caches` | Cache reminder and minimap pins |
 | `/sui events` | The game's event banners on/off |
 | `/sui sweep` | Buff sweep on/off |
-| `/sui nodamage` | Hide all damage numbers (the game's and the addon's) |
 | `/sui combattext` | Quick damage numbers or the game's floating combat text |
 | `/sui errors` | The game's red error text on/off |
 | `/sui loot` | Loot log on/off |

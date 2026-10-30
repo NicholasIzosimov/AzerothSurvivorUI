@@ -2588,9 +2588,9 @@ local function ApplyTakenText()
 			end
 		end
 	end
-	-- The hits taken float in the stock text only while neither the quick
-	-- numbers nor hidden numbers take them over.
-	local stock = not (on or Settings().damageHidden)
+	-- The hits taken float in the stock text only while the quick numbers
+	-- do not take them over.
+	local stock = not on
 	for kind in pairs(TAKEN_TYPES) do
 		local info = COMBAT_TEXT_TYPE_INFO[kind]
 		if info then
@@ -2607,12 +2607,16 @@ takenWatch:SetScript("OnEvent", function()
 	end
 end)
 
--- The engine's numbers are on when the addon's are off, and the other way round.
--- Hidden, neither shows: the game's CombatDamage masters every number that
--- floats over a unit, and the stock text leaves the hits taken alone.
+-- The quick numbers stand in for the engine's: while they are on, the
+-- game's CombatDamage (its own options' damage numbers) is kept off, and
+-- what it was is remembered; switched off, it goes back to that. With the
+-- quick numbers off the game's setting is never touched, so it stays the
+-- player's to set in the game's options.
 local function ApplyDamageText()
-	local hidden = Settings().damageHidden
-	local on = Settings().damageText and not hidden
+	local settings = Settings()
+	-- The old "hide damage numbers" switch is gone; the game's option does that.
+	settings.damageHidden = nil
+	local on = settings.damageText
 	for _, event in pairs(DAMAGE_EVENTS) do
 		if on then
 			damageEvents:RegisterEvent(event)
@@ -2620,17 +2624,17 @@ local function ApplyDamageText()
 			damageEvents:UnregisterEvent(event)
 		end
 	end
-	SetCVar("CombatDamage", (on or hidden) and "0" or "1")
+	if on then
+		local game = GetCVar("CombatDamage")
+		if game ~= "0" then
+			settings.gameCombatDamage = game
+			SetCVar("CombatDamage", "0")
+		end
+	elseif settings.gameCombatDamage then
+		SetCVar("CombatDamage", settings.gameCombatDamage)
+		settings.gameCombatDamage = nil
+	end
 	ApplyTakenText()
-end
-
-function SurvivorUI_ToggleDamageHidden()
-	local settings = Settings()
-	settings.damageHidden = not settings.damageHidden
-	ApplyDamageText()
-	DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: damage numbers "..(settings.damageHidden
-		and "hidden, the game's and the addon's alike."
-		or "shown again."))
 end
 
 function SurvivorUI_ToggleDamageText()
@@ -2651,14 +2655,6 @@ SurvivorUI_RegisterOption({
 	toggle = SurvivorUI_ToggleDamageText,
 })
 
-SurvivorUI_RegisterOption({
-	section = "Text & Numbers",
-	label = "Hide damage numbers",
-	tip = "No damage numbers at all: neither the quick ones nor the game's floating ones, over enemies or over you. Overrides Quick damage numbers while on.",
-	command = "/sui nodamage",
-	get = function() return Settings().damageHidden == true end,
-	toggle = SurvivorUI_ToggleDamageHidden,
-})
 
 ------------------------------------------------------------------------------
 -- Error text: the red lines over the middle of the screen ("This cache needs
@@ -2941,8 +2937,6 @@ SlashCmdList["SURVIVORUI"] = function(msg)
 		if SurvivorUI_CenterRow then
 			SurvivorUI_CenterRow()
 		end
-	elseif msg == "nodamage" then
-		SurvivorUI_ToggleDamageHidden()
 	elseif msg == "combattext" or msg == "damage" then
 		SurvivorUI_ToggleDamageText()
 	elseif msg == "sweep" then
@@ -2977,7 +2971,6 @@ SlashCmdList["SURVIVORUI"] = function(msg)
 	else
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui opt  opens a window with every switch below")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui combattext  switches between the quick damage numbers and the game's own floating combat text")
-		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui nodamage  hides every damage number, the game's and the addon's")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui frames  switches between the addon's unit frames and the game's")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui sweep  switches the clock sweep over your buffs")
 		DEFAULT_CHAT_FRAME:AddMessage("Survivor UI: /sui errors  shows or hides the game's red error text; /sui events  its event banners")
