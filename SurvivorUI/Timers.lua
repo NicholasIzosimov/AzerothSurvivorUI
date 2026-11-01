@@ -5,8 +5,8 @@
 -- shorter than MIN_WAIT are left out. A row of their icons just above the
 -- buffs, at the buffs' size and growing from the middle as they do, so it
 -- follows them wherever they are moved. Each is dimmed while it waits, a
--- shade over it shrinking away and the seconds left on it; bright with a gold
--- edge once it may go. A card on hover names it. Needs the game's addon API;
+-- shade over it shrinking away and the seconds left on it, and leaves the row
+-- once it is ready again. A card on hover names it. Needs the game's addon API;
 -- without it nothing shows.
 
 local FLAT = "Interface\\ChatFrame\\ChatFrameBackground"
@@ -17,8 +17,7 @@ local MAX_TIMERS = 10
 -- Placeholder: a clock whose whole wait is shorter than this (Nightfall's half
 -- second between procs) only flickers, so it is left out.
 local MIN_WAIT = 5
-local READY = { 1, 0.82, 0 }
-local WAITING = { 0, 0, 0 }
+local EDGE = { 0, 0, 0 }
 
 local function Settings()
 	SurvivorUIDB = SurvivorUIDB or {}
@@ -44,14 +43,18 @@ local function Playing()
 	return phase == "playing" or phase == "choosing" or phase == "paused"
 end
 
--- 4.2, 12, 1:05
+local function Waiting(timer)
+	return not timer.ready and (tonumber(timer.remaining) or 0) > 0
+end
+
+-- 4.2 sec, 12 sec, 1:05
 local function TimeLeft(seconds)
 	if seconds >= 60 then
 		return string.format("%d:%02d", math.floor(seconds / 60), math.mod(math.floor(seconds), 60))
 	elseif seconds >= 10 then
-		return math.floor(seconds + 0.5)
+		return math.floor(seconds + 0.5).." sec"
 	end
-	return string.format("%.1f", seconds)
+	return string.format("%.1f sec", seconds)
 end
 
 local function IconPath(icon)
@@ -116,13 +119,9 @@ local function Icon(index)
 		GameTooltip:SetOwner(this, "ANCHOR_TOPLEFT")
 		GameTooltip:SetText(timer.name or "?", 1, 0.82, 0)
 		GameTooltip:AddLine(timer.kind == "summon" and "Next summon" or "Cooldown", 0.7, 0.7, 0.7)
-		if timer.ready then
-			GameTooltip:AddLine("Ready", 0.3, 1, 0.3)
-		else
-			GameTooltip:AddDoubleLine("Time left", TimeLeft(timer.remaining or 0).." sec", 0.7, 0.7, 0.7, 1, 1, 1)
-		end
+		GameTooltip:AddDoubleLine("Time left", TimeLeft(tonumber(timer.remaining) or 0), 0.7, 0.7, 0.7, 1, 1, 1)
 		if (tonumber(timer.duration) or 0) > 0 then
-			GameTooltip:AddDoubleLine("Whole wait", TimeLeft(timer.duration).." sec", 0.7, 0.7, 0.7, 1, 1, 1)
+			GameTooltip:AddDoubleLine("Whole wait", TimeLeft(tonumber(timer.duration)), 0.7, 0.7, 0.7, 1, 1, 1)
 		end
 		GameTooltip:Show()
 	end)
@@ -139,19 +138,11 @@ local function Fill(icon, timer, size)
 	icon.texture:SetTexture(IconPath(timer.icon))
 	local duration = tonumber(timer.duration) or 0
 	local remaining = tonumber(timer.remaining) or 0
-	if timer.ready or remaining <= 0 then
-		icon.shade:Hide()
-		icon.time:SetText("")
-		icon.texture:SetVertexColor(1, 1, 1)
-		icon.edge:SetVertexColor(READY[1], READY[2], READY[3], 1)
-	else
-		local share = duration > 0 and math.min(1, remaining / duration) or 1
-		icon.shade:SetHeight(math.max(1, size * share))
-		icon.shade:Show()
-		icon.time:SetText(TimeLeft(remaining))
-		icon.texture:SetVertexColor(0.8, 0.8, 0.8)
-		icon.edge:SetVertexColor(WAITING[1], WAITING[2], WAITING[3], 1)
-	end
+	local share = duration > 0 and math.min(1, remaining / duration) or 1
+	icon.shade:SetHeight(math.max(1, size * share))
+	icon.time:SetText((string.gsub(TimeLeft(remaining), " sec$", "")))
+	icon.texture:SetVertexColor(0.8, 0.8, 0.8)
+	icon.edge:SetVertexColor(EDGE[1], EDGE[2], EDGE[3], 1)
 	icon:Show()
 end
 
@@ -160,7 +151,7 @@ local function Update()
 	local list = {}
 	if settings.timers and Playing() then
 		for _, timer in ipairs(AZS_GetTimers() or {}) do
-			if (tonumber(timer.duration) or 0) >= MIN_WAIT then
+			if (tonumber(timer.duration) or 0) >= MIN_WAIT and Waiting(timer) then
 				table.insert(list, timer)
 			end
 		end
@@ -202,7 +193,7 @@ if SurvivorUI_RegisterOption then
 	SurvivorUI_RegisterOption({
 		section = "General",
 		label = "Talent timers",
-		tip = "A row above your buffs with your talents' and jewelry's clocks: a proc's or a second life's wait, the next demon or wave. Each counts down on its icon and lights up gold when ready.",
+		tip = "A row above your buffs with your talents' and jewelry's clocks: a proc's or a second life's wait, the next demon or wave. Each counts down on its icon and leaves the row once ready.",
 		get = function() return Settings().timers end,
 		toggle = function()
 			local settings = Settings()
