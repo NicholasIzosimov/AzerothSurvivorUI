@@ -141,6 +141,7 @@ local function HeadBar(height)
 end
 
 head.zone = HeadText(12)
+head.difficulty = HeadText(9, nil, "RIGHT")
 head.state = HeadText(9)
 head.clock = HeadText(18, "THICKOUTLINE")
 head.timeline = HeadBar(8)
@@ -202,6 +203,18 @@ local STATE_COLORS = {
 	dead = { 0.30, 0.85, 0.35 },
 }
 local WAITING = STATE_COLORS.due
+
+-- The run's difficulty (AZS_ZONE.heroic: 0 Normal, 1 to 5 Heroic I to V),
+-- each a step up the item quality colors.
+local HEROIC_NUMERALS = { "I", "II", "III", "IV", "V" }
+local DIFFICULTY_COLORS = {
+	[0] = { 0.85, 0.85, 0.85 },
+	{ 0.12, 1.00, 0.00 },
+	{ 0.00, 0.44, 0.87 },
+	{ 0.64, 0.21, 0.93 },
+	{ 1.00, 0.50, 0.00 },
+	{ 1.00, 0.25, 0.25 },
+}
 
 local function Hex(color)
 	return string.format("|cff%02x%02x%02x", math.floor(color[1] * 255), math.floor(color[2] * 255), math.floor(color[3] * 255))
@@ -425,6 +438,19 @@ local function Draw(game, phase)
 	head.zone:SetText(zoneName)
 	head.zone:SetTextColor(1, 0.82, 0)
 	y = Put(head.zone, y, 15)
+
+	-- The difficulty, small in the top right corner, beside the zone.
+	local heroic = tonumber(zone.heroic)
+	if heroic and DIFFICULTY_COLORS[heroic] then
+		local color = DIFFICULTY_COLORS[heroic]
+		head.difficulty:SetText(heroic == 0 and "Normal" or "Heroic "..(HEROIC_NUMERALS[heroic] or heroic))
+		head.difficulty:SetTextColor(color[1], color[2], color[3])
+		head.difficulty:ClearAllPoints()
+		head.difficulty:SetPoint("TOPRIGHT", head, "TOPRIGHT", 0, -2)
+		head.difficulty:Show()
+	else
+		head.difficulty:Hide()
+	end
 
 	-- How the run stands: won, fallen or endless, and the lives left, small in
 	-- the top right corner, so it takes no line of its own.
