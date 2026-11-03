@@ -16,6 +16,7 @@ Meter.lua
 Tracker.lua
 XPBar.lua
 CacheReminder.lua
+CacheMarkers.lua
 AbilityTooltip.lua
 BossBars.lua
 Timers.lua

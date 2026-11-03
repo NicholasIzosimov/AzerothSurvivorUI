@@ -2980,6 +2980,10 @@ SlashCmdList["SURVIVORUI"] = function(msg)
 		if SurvivorUI_DebugCaches then
 			SurvivorUI_DebugCaches()
 		end
+	elseif msg == "anchors" then
+		if SurvivorUI_DebugAnchors then
+			SurvivorUI_DebugAnchors()
+		end
 	elseif msg == "icons" then
 		if SurvivorUI_DebugIcons then
 			SurvivorUI_DebugIcons()

@@ -31,9 +31,8 @@ local function Settings()
 	if SurvivorUIDB.cacheArrow == nil then
 		SurvivorUIDB.cacheArrow = true
 	end
-	if SurvivorUIDB.cachePins == nil then
-		SurvivorUIDB.cachePins = true
-	end
+	-- The minimap's cache pins are gone (the cache markers took their place).
+	SurvivorUIDB.cachePins = nil
 	-- The arrow points by the map unless asked otherwise: the game's camera
 	-- does not turn with the hero, so north stays up on the screen.
 	if SurvivorUIDB.cacheArrowByMap == nil then
@@ -181,6 +180,7 @@ local function Affordable()
 	local gold, price = tonumber(AZS_RUN.gold), tonumber(AZS_RUN.chest)
 	return gold ~= nil and price ~= nil and price > 0 and gold >= price
 end
+SurvivorUI_CanAffordCache = Affordable
 
 ------------------------------------------------------------------------------
 -- The arrow: over the reminder, pointing to the nearest cache (the game sends
@@ -537,96 +537,13 @@ local function NearestCache()
 	return math.atan2(target.east, target.north), target.yards
 end
 
-------------------------------------------------------------------------------
--- The caches on the minimap: a small chest icon at each, placed from the
--- hero's position and the minimap's zoom (the minimap shows a fixed number of
--- yards across at each zoom, north up). A cache beyond the minimap's edge sits
--- on the edge, fainter, toward it. Shown whenever the game sends caches, the
--- gold or not; a switch in /sui opt.
-
--- A chest: the game's own box icon, its edges trimmed so its frame does not
--- show, with no border of its own.
-local PIN_ICON = "Interface\\Icons\\INV_Box_02"
-local PIN_SIZE = 11
--- The minimap draws the hero's arrow beneath anything set on it, so a pin
--- over the arrow (within PIN_UNDER pixels of the middle) fades to
--- PIN_UNDER_ALPHA, letting the arrow show through.
-local PIN_UNDER = 9
-local PIN_UNDER_ALPHA = 0.3
--- Yards across the minimap at each zoom level, outdoors.
-local MINIMAP_YARDS = { [0] = 466.67, [1] = 400, [2] = 333.33, [3] = 266.67, [4] = 200, [5] = 133.33 }
-
-local pins = {}
-
-local function Pin(index)
-	local pin = pins[index]
-	if pin then
-		return pin
-	end
-	pin = CreateFrame("Frame", nil, Minimap)
-	pin:SetWidth(PIN_SIZE)
-	pin:SetHeight(PIN_SIZE)
-	pin:SetFrameLevel(Minimap:GetFrameLevel() + 6)
-	pin.icon = pin:CreateTexture(nil, "ARTWORK")
-	pin.icon:SetTexture(PIN_ICON)
-	pin.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-	pin.icon:SetAllPoints(pin)
-	pins[index] = pin
-	return pin
-end
-
-local function HidePins(from)
-	for index = from, table.getn(pins) do
-		pins[index]:Hide()
-	end
-end
-
-local function DrawPins()
-	if not (Minimap and Settings().cachePins and AZS_CHESTS and table.getn(AZS_CHESTS) > 0) then
-		HidePins(1)
-		return
-	end
-	local across = MINIMAP_YARDS[Minimap:GetZoom()] or MINIMAP_YARDS[0]
-	local half = Minimap:GetWidth() / 2
-	local reach = half - PIN_SIZE / 2
-	local shown = 0
-	local offsets = CacheOffsets()
-	for index = 1, table.getn(offsets) do
-		do
-			-- Yards east and north of the hero, then pixels on the minimap.
-			local east, north = offsets[index].east, offsets[index].north
-			local x = east / (across / 2) * half
-			local y = north / (across / 2) * half
-			local outside = math.abs(x) > reach or math.abs(y) > reach
-			if outside then
-				-- On the square's edge, along the way to it.
-				local scale = reach / math.max(math.abs(x), math.abs(y))
-				x, y = x * scale, y * scale
-			end
-			shown = shown + 1
-			local pin = Pin(shown)
-			pin:ClearAllPoints()
-			pin:SetPoint("CENTER", Minimap, "CENTER", x, y)
-			local overArrow = math.abs(x) < PIN_UNDER and math.abs(y) < PIN_UNDER
-			pin:SetAlpha(overArrow and PIN_UNDER_ALPHA or outside and 0.55 or 1)
-			pin:Show()
-		end
-	end
-	HidePins(shown + 1)
-end
-
--- /sui caches: the numbers the arrow and the minimap's chests are made from,
--- to tell which of them is off: the hero's map position, the minimap's zoom
--- and the yards it reckons, the facing read, and each cache as the game sends
+-- /sui caches: the numbers the arrow is made from, to tell which of them is
+-- off: the hero's map position, the facing read, and each cache as the game sends
 -- it (world x, y, z and map mx, my) with where the addon makes it.
 function SurvivorUI_DebugCaches()
 	local say = function(text) DEFAULT_CHAT_FRAME:AddMessage("|cffffd100Survivor UI caches:|r "..text) end
 	local px, py = GetPlayerMapPosition("player")
 	say(string.format("hero map %.4f, %.4f in %s", px or -1, py or -1, (GetRealZoneText and GetRealZoneText()) or "?"))
-	if Minimap then
-		say(string.format("minimap zoom %d, %.0f px wide, %.1f yd across", Minimap:GetZoom(), Minimap:GetWidth(),
-			MINIMAP_YARDS[Minimap:GetZoom()] or -1))
-	end
 	local facing = Facing()
 	local across, down, learned = MapSpan()
 	say("facing "..(facing and string.format("%.0f deg", math.deg(facing)) or "not found (the arrow points by the map)"))
@@ -672,16 +589,6 @@ function SurvivorUI_DebugCaches()
 		say(feed[1]..": "..(table.getn(fields) > 0 and table.concat(fields, " ") or "empty"))
 	end
 end
-
-local pinTicker = CreateFrame("Frame")
-local pinElapsed = 0
-pinTicker:SetScript("OnUpdate", function()
-	pinElapsed = pinElapsed + arg1
-	if pinElapsed >= 0.1 then
-		pinElapsed = 0
-		DrawPins()
-	end
-end)
 
 -- Green through yellow to red as t runs from 0 to 1.
 local function Ramp(t)
@@ -868,16 +775,6 @@ if SurvivorUI_RegisterOption then
 		end,
 	})
 	SurvivorUI_RegisterOption({
-		section = "Interface",
-		label = "Caches on the minimap",
-		tip = "A chest icon on the minimap at every cache the game knows of; one past the minimap's edge sits on the edge, fainter, toward it.",
-		get = function() return Settings().cachePins end,
-		toggle = function()
-			local settings = Settings()
-			settings.cachePins = not settings.cachePins
-		end,
-	})
-	SurvivorUI_RegisterOption({
 		section = "General",
 		label = "Reminder text",
 		parent = "Next Cache Reminder",
@@ -937,3 +834,51 @@ loader:SetScript("OnEvent", function()
 	ApplySize()
 	RestorePlace()
 end)
+
+-- /sui anchors: what the game's world anchors hand an addon, for building
+-- markers on them. On the next world frame (the game's frame handler, where a
+-- projection is current) it reads one anchor of each kind and projects it
+-- with each attachment, a few yards up; the answers are kept whole in
+-- SurvivorUIDB.anchorProbe, to read in the saved file after a reload.
+local probeHandler
+
+local function RunProbe()
+	AZS_UnregisterWorldAnchorFrameHandler(probeHandler)
+	local probe = {}
+	SurvivorUIDB.anchorProbe = probe
+	local requests = {}
+	local kinds = { "enemy", "elite", "guardian", "boss", "finalBoss", "cache", "guardianLair", "downedPartyMember" }
+	for index = 1, table.getn(kinds) do
+		local answer, err = AZS_GetWorldAnchors({ kinds = { kinds[index] } }, nil, 1)
+		local entry = type(answer) == "table" and answer.entries and answer.entries[1]
+		table.insert(probe, { label = "query "..kinds[index], entry = entry, err = err })
+		if entry then
+			table.insert(requests, { anchorId = entry.anchorId, attachment = "position", offsetYards = 2 })
+			table.insert(requests, { anchorId = entry.anchorId, attachment = "overhead", offsetYards = 1 })
+		end
+	end
+	if table.getn(requests) > 0 then
+		local answer, err = AZS_ProjectWorldAnchors(requests)
+		table.insert(probe, { label = "project", requests = requests, answer = answer, err = err })
+	end
+	DEFAULT_CHAT_FRAME:AddMessage("|cffffd100anchors:|r "..table.getn(requests).." projections kept; /reload so the saved file has them.")
+end
+
+function SurvivorUI_DebugAnchors()
+	if not (AZS_GetWorldAnchors and AZS_RegisterWorldAnchorFrameHandler) then
+		DEFAULT_CHAT_FRAME:AddMessage("|cffffd100anchors:|r this game has no world anchors")
+		return
+	end
+	SurvivorUIDB = SurvivorUIDB or {}
+	-- Enemies are tracked from the frame after the first ask.
+	AZS_GetWorldAnchors({ kinds = { "enemy" } }, nil, 1)
+	local frames = 0
+	probeHandler = function()
+		frames = frames + 1
+		if frames >= 3 then
+			RunProbe()
+		end
+	end
+	AZS_RegisterWorldAnchorFrameHandler(probeHandler)
+	DEFAULT_CHAT_FRAME:AddMessage("|cffffd100anchors:|r probing on the next frames...")
+end
