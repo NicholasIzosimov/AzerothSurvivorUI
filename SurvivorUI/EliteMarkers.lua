@@ -4,7 +4,8 @@
 -- the camera move, the yards to it under it, as the cache markers sit on the
 -- caches: the game's world anchors (AZS_GetWorldAnchors) say where each one
 -- is, and each world frame (AZS_RegisterWorldAnchorFrameHandler) projects
--- them onto the screen. A marker fades as the hero closes in.
+-- them onto the screen. An elite's marker fades as the hero closes in; a
+-- guardian's and a lair's stay whole.
 --
 -- A guardian slain leaves its lair empty till it comes back: a grey marker
 -- stays on the lair (where the guardian sleeps, not where it fell) with the
@@ -212,7 +213,7 @@ local function Look()
 		local entry = living[index]
 		if entry.state == "alive" and entry.positionAvailable then
 			table.insert(requests, { anchorId = entry.anchorId, attachment = "overhead", offsetYards = OVERHEAD_LIFT })
-			table.insert(targets, { name = entry.name })
+			table.insert(targets, { name = entry.name, guardian = entry.kind == "guardian" })
 		end
 	end
 	local lairs = Entries({ "guardianLair" })
@@ -237,6 +238,9 @@ end
 local function Fill(marker, target, entry)
 	local distance = entry.playerDistance or FADE_FAR
 	local share = math.max(0, math.min(1, (distance - FADE_NEAR) / (FADE_FAR - FADE_NEAR)))
+	if target.guardian or target.lair then
+		share = 1
+	end
 	marker:SetAlpha(FADE_LOW + (1 - FADE_LOW) * share)
 	marker.yards:SetText(entry.playerDistance and math.floor(entry.playerDistance + 0.5).." yd" or "")
 	local color = target.lair and WAITING or LIVING
@@ -315,7 +319,7 @@ if SurvivorUI_RegisterOption then
 	SurvivorUI_RegisterOption({
 		section = "Interface",
 		label = "Elite markers",
-		tip = "A marker with the portrait over every elite and guardian on the screen, with the yards to it, fading as you close in. A slain guardian's lair keeps a grey marker with the time till it is back. Portraits come once you have targeted or moused over one of that name; a skull till then.",
+		tip = "A marker with the portrait over every elite and guardian on the screen, with the yards to it, an elite's fading as you close in. A slain guardian's lair keeps a grey marker with the time till it is back. Portraits come once you have targeted or moused over one of that name; a skull till then.",
 		get = function() return Settings().eliteMarkers end,
 		toggle = function()
 			local settings = Settings()

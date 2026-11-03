@@ -22,7 +22,7 @@ local MAX_MARKERS = 16
 local GOLD = { 1, 0.82, 0 }
 -- Placeholder: how faint a marker is while the run's gold does not cover the
 -- next cache (SurvivorUI_CanAffordCache, CacheReminder.lua).
-local POOR_ALPHA = 0.12
+local POOR_ALPHA = 0.2
 -- And edged in red instead of gold.
 local POOR_EDGE = { 0.9, 0.15, 0.1 }
 
@@ -59,11 +59,27 @@ local function Marker(index)
 	marker = CreateFrame("Frame", nil, holder)
 	marker:SetWidth(ICON_SIZE)
 	marker:SetHeight(ICON_SIZE)
-	marker.edge = marker:CreateTexture(nil, "BACKGROUND")
-	marker.edge:SetTexture(FLAT)
-	marker.edge:SetVertexColor(GOLD[1], GOLD[2], GOLD[3], 1)
-	marker.edge:SetPoint("TOPLEFT", marker, "TOPLEFT", -1, 1)
-	marker.edge:SetPoint("BOTTOMRIGHT", marker, "BOTTOMRIGHT", 1, -1)
+	-- The edge as four lines round the icon, nothing behind it, so a faint
+	-- icon shows no edge color through it.
+	marker.edges = {}
+	for side = 1, 4 do
+		local line = marker:CreateTexture(nil, "BORDER")
+		line:SetTexture(FLAT)
+		line:SetVertexColor(GOLD[1], GOLD[2], GOLD[3], 1)
+		marker.edges[side] = line
+	end
+	marker.edges[1]:SetPoint("BOTTOMLEFT", marker, "TOPLEFT", -1, 0)
+	marker.edges[1]:SetPoint("BOTTOMRIGHT", marker, "TOPRIGHT", 1, 0)
+	marker.edges[1]:SetHeight(1)
+	marker.edges[2]:SetPoint("TOPLEFT", marker, "BOTTOMLEFT", -1, 0)
+	marker.edges[2]:SetPoint("TOPRIGHT", marker, "BOTTOMRIGHT", 1, 0)
+	marker.edges[2]:SetHeight(1)
+	marker.edges[3]:SetPoint("TOPRIGHT", marker, "TOPLEFT", 0, 0)
+	marker.edges[3]:SetPoint("BOTTOMRIGHT", marker, "BOTTOMLEFT", 0, 0)
+	marker.edges[3]:SetWidth(1)
+	marker.edges[4]:SetPoint("TOPLEFT", marker, "TOPRIGHT", 0, 0)
+	marker.edges[4]:SetPoint("BOTTOMLEFT", marker, "BOTTOMRIGHT", 0, 0)
+	marker.edges[4]:SetWidth(1)
 	marker.icon = marker:CreateTexture(nil, "ARTWORK")
 	marker.icon:SetTexture(ICON)
 	marker.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
@@ -132,7 +148,9 @@ local function Frame()
 			marker:SetPoint("BOTTOM", WorldFrame, "BOTTOMLEFT", entry.x * ratio, entry.y * ratio)
 			marker.yards:SetText(entry.playerDistance and math.floor(entry.playerDistance + 0.5).." yd" or "")
 			marker:SetAlpha(alpha)
-			marker.edge:SetVertexColor(edge[1], edge[2], edge[3], 1)
+			for side = 1, 4 do
+				marker.edges[side]:SetVertexColor(edge[1], edge[2], edge[3], 1)
+			end
 			marker:Show()
 		end
 	end
