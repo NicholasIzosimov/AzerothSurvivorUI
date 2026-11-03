@@ -345,7 +345,7 @@ end
 -- class's own where another class has a talent of the same name (the
 -- Shaman's Flurry is not the Warrior's).
 function SurvivorUI_TalentRaw(name)
-	local _, class = UnitClass("player")
+	local class = SurvivorUI_ClassToken()
 	local own = SurvivorUI_TALENT_TEXTS_BY_CLASS and class and SurvivorUI_TALENT_TEXTS_BY_CLASS[class]
 	return own and own[name] or SurvivorUI_TALENT_TEXTS and SurvivorUI_TALENT_TEXTS[name]
 end

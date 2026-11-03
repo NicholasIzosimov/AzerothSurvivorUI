@@ -116,12 +116,41 @@ local function Book()
 end
 
 local function ClassToken()
-	local _, class = UnitClass("player")
-	return class or "UNKNOWN"
+	return SurvivorUI_ClassToken()
+end
+
+-- Whether the class is the game's word for it, not the client's, which can
+-- still name the last hero's: only then is anything learned about abilities,
+-- so one class's spells never land in another's book.
+local function ClassSure()
+	local _, sure = SurvivorUI_ClassToken()
+	return sure
 end
 
 local function ClassName()
-	return UnitClass("player") or "your class"
+	return SurvivorUI_ClassName() or "your class"
+end
+
+-- A spell kept in more than one class's book (learned under the wrong class
+-- before ClassSure) stays only with the class that took it in the most runs.
+local function SortBooks()
+	local books = Settings().abilityBook or {}
+	local owner = {}
+	for class, book in pairs(books) do
+		for name, info in pairs(book) do
+			local runs = info.runs or 0
+			if not owner[name] or runs > owner[name].runs then
+				owner[name] = { class = class, runs = runs }
+			end
+		end
+	end
+	for class, book in pairs(books) do
+		for name, info in pairs(book) do
+			if owner[name].class ~= class and (info.runs or 0) < owner[name].runs then
+				book[name] = nil
+			end
+		end
+	end
 end
 
 -- This class's abilities: { [name] = { icon, best, bestRank, rank, runs, inBook } }.
@@ -521,7 +550,7 @@ local function ReadSpellTip(ability, fromRun)
 end
 
 local function ReadSpellbook()
-	if not GetSpellName then
+	if not (GetSpellName and ClassSure()) then
 		return
 	end
 	local bookType = BOOKTYPE_SPELL or "spell"
@@ -582,7 +611,7 @@ end
 -- The run's spells (AZS_SPELLS): each one's highest rank, and one more run
 -- for each spell the first time a run is seen to hold it.
 local function LearnRun()
-	if not (AZS_SPELLS and AZS_GetPhase and SurvivorUI_SpellName) then
+	if not (AZS_SPELLS and AZS_GetPhase and SurvivorUI_SpellName and ClassSure()) then
 		return
 	end
 	local phase = AZS_GetPhase()
@@ -656,7 +685,7 @@ end
 -- far this run, over this many casts. Kept for the class's own abilities
 -- only.
 function SurvivorUI_CodexAverage(name, average, casts)
-	if not (name and average and casts and casts >= MIN_CASTS) then
+	if not (name and average and casts and casts >= MIN_CASTS and ClassSure()) then
 		return
 	end
 	if not (ClassAbility(Abilities()[name]) or RankNow(name)) then
@@ -1891,6 +1920,9 @@ learner:RegisterEvent("UNIT_INVENTORY_CHANGED")
 learner:SetScript("OnEvent", function()
 	if event == "UNIT_INVENTORY_CHANGED" and arg1 ~= "player" then
 		return
+	end
+	if event == "PLAYER_ENTERING_WORLD" then
+		SortBooks()
 	end
 	-- Every jewelry slot read afresh, the shared reader's copy too (this may
 	-- run before Gear.lua's own handler forgets it).

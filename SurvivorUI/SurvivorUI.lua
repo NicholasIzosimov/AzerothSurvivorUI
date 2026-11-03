@@ -207,6 +207,35 @@ function SurvivorUI_RunMemory(part)
 	return memory.parts[part]
 end
 
+-- The hero's class token ("HUNTER"), and whether the game said it. The
+-- client's UnitClass lags behind a change of hero for a while, so during a
+-- run the game's own word (AZS_ZONE.class, kept by the run timer through a
+-- reload) comes first; between runs only the client's is there.
+function SurvivorUI_ClassToken()
+	local phase = AZS_GetPhase and AZS_GetPhase()
+	if phase and phase ~= "ready" then
+		local zone = AZS_ZONE
+		if not (zone and zone.class) then
+			zone = SurvivorUI_RunMemory("tracker").zone
+		end
+		local class = zone and zone.class
+		if class and class ~= "" then
+			return string.upper(class), true
+		end
+	end
+	local _, class = UnitClass("player")
+	return class or "UNKNOWN", false
+end
+
+-- The hero's class by name ("Hunter"), from the same token.
+function SurvivorUI_ClassName()
+	local token = SurvivorUI_ClassToken()
+	if token == "UNKNOWN" then
+		return nil
+	end
+	return string.upper(string.sub(token, 1, 1))..string.lower(string.sub(token, 2))
+end
+
 -- A quick fade between two looks, for hover effects: frame.fade runs from 0
 -- (at rest) to 1 (hovered) in FADE_TIME, and paint(frame, fade) draws each
 -- step, eased. SurvivorUI_Fade(frame, 1, paint) on enter, (frame, 0) on leave.

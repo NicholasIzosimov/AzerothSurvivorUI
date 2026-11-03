@@ -277,8 +277,7 @@ end
 local function ClassBests()
 	local settings = Settings()
 	settings.bossBests = settings.bossBests or {}
-	local _, class = UnitClass("player")
-	class = class or "UNKNOWN"
+	local class = SurvivorUI_ClassToken()
 	settings.bossBests[class] = settings.bossBests[class] or {}
 	return settings.bossBests[class]
 end
@@ -685,7 +684,7 @@ head:SetScript("OnEnter", function()
 	local schedule = Schedule()
 	if BestsShown() and table.getn(schedule) > 0 then
 		local bests = ClassBests()
-		local className = UnitClass("player") or "this class"
+		local className = SurvivorUI_ClassName() or "this class"
 		GameTooltip:AddLine("Best times ("..className..")", 1, 0.82, 0)
 		local listed = {}
 		for index = 1, table.getn(schedule) do
