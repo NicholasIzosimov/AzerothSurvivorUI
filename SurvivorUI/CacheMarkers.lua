@@ -4,7 +4,7 @@
 -- on the cache itself as the camera moves: the game's world anchors
 -- (AZS_GetWorldAnchors) say where each cache is, and each world frame
 -- (AZS_RegisterWorldAnchorFrameHandler, after the frame's camera) projects
--- them onto the screen. Faint and tinted red while the gold does not cover
+-- them onto the screen. Faint and edged in red while the gold does not cover
 -- the next cache.
 -- A cache off the screen shows nothing here; the cache
 -- arrow points to it. Needs the game's world anchors; without them nothing
@@ -23,9 +23,8 @@ local GOLD = { 1, 0.82, 0 }
 -- Placeholder: how faint a marker is while the run's gold does not cover the
 -- next cache (SurvivorUI_CanAffordCache, CacheReminder.lua).
 local POOR_ALPHA = 0.12
--- And tinted red: the icon and its edge.
-local POOR_TINT = { 1, 0.8, 0.8 }
-local POOR_EDGE = { 0.75, 0.5, 0.35 }
+-- And edged in red instead of gold.
+local POOR_EDGE = { 0.9, 0.15, 0.1 }
 
 local function Settings()
 	SurvivorUIDB = SurvivorUIDB or {}
@@ -122,7 +121,6 @@ local function Frame()
 	local ratio = WorldFrame:GetEffectiveScale() / holder:GetEffectiveScale()
 	local afford = SurvivorUI_CanAffordCache and SurvivorUI_CanAffordCache()
 	local alpha = afford and 1 or POOR_ALPHA
-	local tint = afford and { 1, 1, 1 } or POOR_TINT
 	local edge = afford and GOLD or POOR_EDGE
 	local shown = 0
 	for index = 1, table.getn(entries) do
@@ -134,7 +132,6 @@ local function Frame()
 			marker:SetPoint("BOTTOM", WorldFrame, "BOTTOMLEFT", entry.x * ratio, entry.y * ratio)
 			marker.yards:SetText(entry.playerDistance and math.floor(entry.playerDistance + 0.5).." yd" or "")
 			marker:SetAlpha(alpha)
-			marker.icon:SetVertexColor(tint[1], tint[2], tint[3])
 			marker.edge:SetVertexColor(edge[1], edge[2], edge[3], 1)
 			marker:Show()
 		end
