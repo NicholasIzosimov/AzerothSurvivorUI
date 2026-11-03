@@ -33,6 +33,7 @@ If Windows warns about the file the first time, choose **More info → Run anywa
 - **Codex**: a book of every amulet, ring and trinket you have worn, across runs, with the classes that wore them (and, greyed, the ones not yet worn, with each piece's worth at every rarity from the game's own item details), and of your class's abilities with the best average cast each has reached, and of what each boss dropped, by zone, for your class or every class (learned from the loot that falls right after a boss; a piece's slot and tooltip once it is worn). Click a row of the build to open it at that kind.
 - **Tally**: kills, gold, gold per second and gold needed; **Tracker**: run timer with per-class best boss times, speedrun style; **XP bar** with a next-level estimate; **Boss bars**; **Loot log**.
 - **Caches**: a reminder and an arrow to the nearest cache (it keeps to one cache until another is 10 yards nearer), plus a marker over every cache on the screen with the yards to it, faint while you cannot afford it.
+- **Elite markers**: a marker with the portrait over every elite and guardian on the screen, with the yards to it, fading as you close in; a slain guardian's lair keeps a grey marker with the time till it is back.
 - **Reloads**: boss fight times, the meter's casts and colors, the loot log and the rates are kept through a `/reload` in the middle of a run.
 
 ## Commands

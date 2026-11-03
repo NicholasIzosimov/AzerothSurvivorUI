@@ -17,6 +17,7 @@ Tracker.lua
 XPBar.lua
 CacheReminder.lua
 CacheMarkers.lua
+EliteMarkers.lua
 AbilityTooltip.lua
 BossBars.lua
 Timers.lua
