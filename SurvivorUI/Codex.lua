@@ -29,6 +29,10 @@
 -- while a run is on): whether the tooltip says it can cast twice or crit,
 -- and every upgrade its "Upgrades:" line has ever named, with the best number
 -- seen for each. /sui spells lists it all.
+--
+-- Drops: what each boss dropped, by zone, for this class or every class,
+-- learned from the loot that falls just after a boss does (see the Drops
+-- section below).
 
 local FLAT = "Interface\\ChatFrame\\ChatFrameBackground"
 local FONT = SurvivorUI_FONT or "Fonts\\FRIZQT__.TTF"
@@ -58,6 +62,7 @@ local KINDS = {
 	{ kind = "Ring",    title = "Rings",     slots = { 11, 12 }, always = true },
 	{ kind = "Trinket", title = "Trinkets",  slots = { 13, 14 }, always = true },
 	{ kind = ABILITY,   title = "Abilities", always = true },
+	{ kind = "Drops",   title = "Drops",     always = true },
 }
 
 -- An average cast counts from this many casts on, so one lucky blow early in
@@ -689,11 +694,268 @@ local function AbilityList()
 	return found
 end
 
+------------------------------------------------------------------------------
+-- Drops: what each boss let fall, learned from the loot itself. A loot line
+-- (LootLog.lua reads them) that comes within LOOT_WINDOW seconds of a boss's
+-- fall is that boss's, kept by zone and boss under the class that looted it.
+-- A boss drops the same slot for every class, the piece each class's own: the
+-- slot most of its pieces were seen in is the boss's, and a piece seen in
+-- another stands out as the exception. A piece's slot, icon and tooltip come
+-- once it is worn (or from its link, when the loot line has one).
+
+local DROPS = "Drops"
+-- Placeholder: a boss's loot was seen about 2 seconds after its fall.
+local LOOT_WINDOW = 15
+
+local SLOT_NAMES = {
+	[1] = "Head", [2] = "Neck", [3] = "Shoulders", [5] = "Chest", [6] = "Waist", [7] = "Legs",
+	[8] = "Feet", [9] = "Wrists", [10] = "Hands", [11] = "Ring", [12] = "Ring", [13] = "Trinket",
+	[14] = "Trinket", [15] = "Back", [16] = "Main Hand", [17] = "Off Hand", [18] = "Ranged",
+}
+local EQUIP_SLOTS = {
+	INVTYPE_HEAD = "Head", INVTYPE_NECK = "Neck", INVTYPE_SHOULDER = "Shoulders", INVTYPE_CHEST = "Chest",
+	INVTYPE_ROBE = "Chest", INVTYPE_WAIST = "Waist", INVTYPE_LEGS = "Legs", INVTYPE_FEET = "Feet",
+	INVTYPE_WRIST = "Wrists", INVTYPE_HAND = "Hands", INVTYPE_FINGER = "Ring", INVTYPE_TRINKET = "Trinket",
+	INVTYPE_CLOAK = "Back", INVTYPE_WEAPON = "Main Hand", INVTYPE_WEAPONMAINHAND = "Main Hand",
+	INVTYPE_2HWEAPON = "Main Hand", INVTYPE_WEAPONOFFHAND = "Off Hand", INVTYPE_SHIELD = "Off Hand",
+	INVTYPE_HOLDABLE = "Off Hand", INVTYPE_RANGED = "Ranged", INVTYPE_RANGEDRIGHT = "Ranged",
+	INVTYPE_THROWN = "Ranged", INVTYPE_RELIC = "Ranged",
+}
+
+-- { [zone] = { [boss] = { order, classes = { [class] = { [name] = piece } } } } },
+-- a piece { hex, icon, link, slot, lines, count }.
+local function Drops()
+	local settings = Settings()
+	settings.codexDrops = settings.codexDrops or {}
+	return settings.codexDrops
+end
+
+local function DropsForAll()
+	return Settings().codexDropsAll == true
+end
+
+-- The run's zone: the game's word for it, kept by the run timer after a
+-- reload, else the client's.
+local function ZoneName()
+	local zone = AZS_ZONE and AZS_ZONE.zname
+	if (not zone or zone == "") and SurvivorUI_RunMemory then
+		local kept = SurvivorUI_RunMemory("tracker").zone
+		zone = kept and kept.zname
+	end
+	if not zone or zone == "" then
+		zone = (GetRealZoneText and GetRealZoneText()) or "?"
+	end
+	return zone
+end
+
+-- Each boss's fall this run, seen as its schedule entry turns dead, kept in
+-- the run's memory so a reload keeps them: { name, order, at }.
+local function BossMemory()
+	local memory = SurvivorUI_RunMemory and SurvivorUI_RunMemory("drops") or {}
+	memory.states = memory.states or {}
+	memory.falls = memory.falls or {}
+	return memory
+end
+
+local function WatchBosses()
+	local seconds = AZS_GetRunTime and AZS_GetRunTime()
+	if not (AZS_SCHEDULE and seconds) then
+		return
+	end
+	local memory = BossMemory()
+	for index = 1, table.getn(AZS_SCHEDULE) do
+		local entry = AZS_SCHEDULE[index]
+		local name = Field(entry, "name", 3)
+		local state = Field(entry, "state", 5)
+		if name and state then
+			local key = index..name
+			local before = memory.states[key]
+			if state == "dead" and before and before ~= "dead" then
+				table.insert(memory.falls, { name = name, order = index, at = seconds })
+			end
+			memory.states[key] = state
+		end
+	end
+end
+
+-- An item link's slot and icon, where the game's item cache has it.
+local function LinkDetails(item)
+	if not (item and GetItemInfo) then
+		return nil
+	end
+	local _, _, id = string.find(item, "item:(%d+)")
+	local _, _, _, _, _, _, _, equip, texture = GetItemInfo(tonumber(id) or item)
+	return EQUIP_SLOTS[equip or ""], texture
+end
+
+-- From the loot log: a piece looted, its color and link where the line had
+-- them. Kept as the last fallen boss's when it fell just before.
+function SurvivorUI_CodexLoot(name, hex, item)
+	WatchBosses()
+	local seconds = AZS_GetRunTime and AZS_GetRunTime()
+	if not (name and seconds) then
+		return
+	end
+	local falls = BossMemory().falls
+	local fall = falls[table.getn(falls)]
+	if not fall or seconds < fall.at or seconds - fall.at > LOOT_WINDOW then
+		return
+	end
+	local drops = Drops()
+	local zoneName = ZoneName()
+	drops[zoneName] = drops[zoneName] or {}
+	local zone = drops[zoneName]
+	zone[fall.name] = zone[fall.name] or { order = fall.order, classes = {} }
+	local boss = zone[fall.name]
+	boss.order = math.min(boss.order or fall.order, fall.order)
+	local class = ClassToken()
+	boss.classes[class] = boss.classes[class] or {}
+	local piece = boss.classes[class][name] or { count = 0 }
+	boss.classes[class][name] = piece
+	piece.count = piece.count + 1
+	piece.hex = hex or piece.hex
+	piece.link = item or piece.link
+	local slot, icon = LinkDetails(item)
+	piece.slot = slot or piece.slot
+	piece.icon = icon or piece.icon
+end
+
+-- The worn slot holding a piece of this name, or nil.
+local function WornDrop(name)
+	if not GetInventoryItemLink then
+		return nil
+	end
+	for slot in pairs(SLOT_NAMES) do
+		local _, _, worn = string.find(GetInventoryItemLink("player", slot) or "", "%[(.-)%]")
+		if worn == name then
+			return slot
+		end
+	end
+end
+
+-- Every looted piece now worn: its slot, icon and tooltip.
+local function LearnDropSlots()
+	for _, bosses in pairs(Drops()) do
+		for _, boss in pairs(bosses) do
+			for _, pieces in pairs(boss.classes) do
+				for name, piece in pairs(pieces) do
+					local slot = WornDrop(name)
+					if slot then
+						piece.slot = SLOT_NAMES[slot]
+						piece.icon = GetInventoryItemTexture("player", slot) or piece.icon
+						if not Whole(piece.lines) then
+							local lines = ReadSlot(slot)
+							if Whole(lines) then
+								piece.lines = lines
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+end
+
+-- A boss's slot: the one most of its pieces were seen in, any class's.
+local function BossSlot(boss)
+	local counts, best, most = {}, nil, 0
+	for _, pieces in pairs(boss.classes) do
+		for _, piece in pairs(pieces) do
+			if piece.slot then
+				counts[piece.slot] = (counts[piece.slot] or 0) + 1
+				if counts[piece.slot] > most then
+					best, most = piece.slot, counts[piece.slot]
+				end
+			end
+		end
+	end
+	return best
+end
+
+-- The page: each zone's name, then its bosses in the order they come, each
+-- followed by its pieces, this class's only or every class's, the rarest first.
+local function DropList()
+	local list = {}
+	local class = ClassToken()
+	local all = DropsForAll()
+	local drops = Drops()
+	local zones = {}
+	for zone in pairs(drops) do
+		table.insert(zones, zone)
+	end
+	table.sort(zones)
+	for zoneIndex = 1, table.getn(zones) do
+		local zone = zones[zoneIndex]
+		local bosses = {}
+		for name, boss in pairs(drops[zone]) do
+			table.insert(bosses, { name = name, boss = boss })
+		end
+		table.sort(bosses, function(a, b)
+			if (a.boss.order or 0) ~= (b.boss.order or 0) then
+				return (a.boss.order or 0) < (b.boss.order or 0)
+			end
+			return a.name < b.name
+		end)
+		table.insert(list, { header = true, name = zone })
+		for bossIndex = 1, table.getn(bosses) do
+			local name, boss = bosses[bossIndex].name, bosses[bossIndex].boss
+			local slot = BossSlot(boss)
+			local byName, pieces = {}, {}
+			for owner, owned in pairs(boss.classes) do
+				if all or owner == class then
+					for pieceName, piece in pairs(owned) do
+						local entry = byName[pieceName]
+						if not entry then
+							entry = { drop = true, name = pieceName, base = pieceName, piece = piece, classes = {},
+								count = 0, boss = name, zone = zone, bossSlot = slot }
+							byName[pieceName] = entry
+							table.insert(pieces, entry)
+						elseif piece.icon and not entry.piece.icon then
+							entry.piece = piece
+						end
+						entry.classes[owner] = true
+						entry.count = entry.count + (piece.count or 0)
+					end
+				end
+			end
+			table.sort(pieces, function(a, b)
+				local ra, rb = Rarity(a.piece.hex), Rarity(b.piece.hex)
+				if ra ~= rb then
+					return ra > rb
+				end
+				return a.name < b.name
+			end)
+			table.insert(list, { bossRow = true, name = name, zone = zone, slot = slot, pieces = table.getn(pieces) })
+			for index = 1, table.getn(pieces) do
+				table.insert(list, pieces[index])
+			end
+		end
+	end
+	return list
+end
+
 local function Entries(kind)
 	if kind == ABILITY then
 		return AbilityList()
+	elseif kind == DROPS then
+		return DropList()
 	end
 	return Pieces(kind)
+end
+
+-- A bookmark's count: the pieces on its page, not the zones' and bosses' lines.
+local function Count(kind)
+	local entries = Entries(kind)
+	if kind ~= DROPS then
+		return table.getn(entries)
+	end
+	local count = 0
+	for index = 1, table.getn(entries) do
+		if entries[index].drop then
+			count = count + 1
+		end
+	end
+	return count
 end
 
 ------------------------------------------------------------------------------
@@ -769,6 +1031,8 @@ close:SetPoint("TOPRIGHT", book, "TOPRIGHT", -8, -8)
 close:SetScript("OnClick", function() book:Hide() end)
 
 local Draw
+local chosen = KINDS[1].kind
+local pageNumber = 1
 
 -- The class filter, left of the close button: every piece, or only the ones
 -- this class has worn (or is kept to).
@@ -777,13 +1041,21 @@ filter:SetWidth(110)
 filter:SetHeight(20)
 filter:SetPoint("RIGHT", close, "LEFT", -6, 0)
 filter:SetScript("OnClick", function()
-	Settings().codexClassOnly = not ClassOnly()
+	if chosen == DROPS then
+		Settings().codexDropsAll = not DropsForAll()
+	else
+		Settings().codexClassOnly = not ClassOnly()
+	end
 	Draw()
 end)
 filter:SetScript("OnEnter", function()
 	GameTooltip:SetOwner(this, "ANCHOR_BOTTOM")
 	GameTooltip:SetText("Class filter", 1, 1, 1)
-	GameTooltip:AddLine("Show every piece, or only those your "..ClassName().." has worn or is kept to. Pieces from before the Codex kept classes show only under every class.", 0.7, 0.7, 0.7, 1)
+	if chosen == DROPS then
+		GameTooltip:AddLine("Show the pieces each boss dropped for your "..ClassName()..", or for every class.", 0.7, 0.7, 0.7, 1)
+	else
+		GameTooltip:AddLine("Show every piece, or only those your "..ClassName().." has worn or is kept to. Pieces from before the Codex kept classes show only under every class.", 0.7, 0.7, 0.7, 1)
+	end
 	GameTooltip:Show()
 end)
 filter:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -810,9 +1082,6 @@ page.empty:SetFont(FONT, 12 + FONT_BUMP)
 page.empty:SetPoint("CENTER", page, "CENTER", 0, 10)
 page.empty:SetWidth(260)
 page.empty:SetTextColor(0.55, 0.5, 0.45)
-
-local chosen = KINDS[1].kind
-local pageNumber = 1
 
 ------------------------------------------------------------------------------
 -- The bookmarks down the left edge. Hovered, a bookmark's words fade to white
@@ -962,6 +1231,20 @@ local function UnseenTooltip(piece)
 	GameTooltip:AddLine("Not worn yet: from the game's item details.", 0.45, 0.45, 0.45, 1)
 end
 
+-- Lines kept from a worn piece's tooltip, titled with this name.
+local function KeptLines(lines, title)
+	for index = 1, table.getn(lines) do
+		local line = lines[index]
+		if index == 1 then
+			GameTooltip:SetText(title, line[2], line[3], line[4])
+		elseif line[5] then
+			GameTooltip:AddDoubleLine(line[1], line[5], line[2], line[3], line[4], line[2], line[3], line[4])
+		else
+			GameTooltip:AddLine(line[1], line[2], line[3], line[4], 1)
+		end
+	end
+end
+
 local function PieceTooltip(owner, piece)
 	GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
 	if piece.unseen then
@@ -973,16 +1256,7 @@ local function PieceTooltip(owner, piece)
 	-- worn, the game's own tooltip of it; else its item; else its name.
 	local slot = WornSlot(piece)
 	if Whole(piece.lines) then
-		for index = 1, table.getn(piece.lines) do
-			local line = piece.lines[index]
-			if index == 1 then
-				GameTooltip:SetText(piece.base, line[2], line[3], line[4])
-			elseif line[5] then
-				GameTooltip:AddDoubleLine(line[1], line[5], line[2], line[3], line[4], line[2], line[3], line[4])
-			else
-				GameTooltip:AddLine(line[1], line[2], line[3], line[4], 1)
-			end
-		end
+		KeptLines(piece.lines, piece.base)
 	elseif slot then
 		GameTooltip:SetInventoryItem("player", slot)
 	elseif piece.link then
@@ -1006,6 +1280,51 @@ local function PieceTooltip(owner, piece)
 		GameTooltip:AddLine(" ")
 		AddDetails(piece, RarityName(piece.hex))
 	end
+	GameTooltip:Show()
+end
+
+-- A boss's piece: the game's tooltip while worn, else the one kept when it
+-- was, else its link, else its name; then where it drops and how often.
+local function DropTooltip(owner, entry)
+	GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
+	local piece = entry.piece
+	local slot = WornDrop(entry.name)
+	if slot then
+		GameTooltip:SetInventoryItem("player", slot)
+	elseif Whole(piece.lines) then
+		KeptLines(piece.lines, entry.name)
+	elseif piece.link then
+		GameTooltip:SetHyperlink(piece.link)
+	else
+		local color = HexColor(piece.hex)
+		GameTooltip:SetText(entry.name, color[1], color[2], color[3])
+		GameTooltip:AddLine("Wear it once for its details.", 0.6, 0.6, 0.6, 1)
+	end
+	GameTooltip:AddLine(" ")
+	GameTooltip:AddDoubleLine("Drops from", entry.boss, 0.7, 0.7, 0.7, 1, 1, 1)
+	if piece.slot then
+		GameTooltip:AddDoubleLine("Slot", piece.slot, 0.7, 0.7, 0.7, 1, 1, 1)
+	elseif entry.bossSlot then
+		GameTooltip:AddDoubleLine("Slot", entry.bossSlot.." |cff8a8a8a(the boss's)|r", 0.7, 0.7, 0.7, 1, 1, 1)
+	end
+	GameTooltip:AddDoubleLine("Looted", entry.count..(entry.count == 1 and " time" or " times"), 0.7, 0.7, 0.7, 1, 1, 1)
+	local classes = {}
+	for class in pairs(entry.classes) do
+		table.insert(classes, ClassText(class))
+	end
+	if DropsForAll() and table.getn(classes) > 0 then
+		table.sort(classes)
+		GameTooltip:AddLine("Looted as: "..table.concat(classes, ", "), 0.7, 0.7, 0.7, 1)
+	end
+	GameTooltip:Show()
+end
+
+local function BossTooltip(owner, entry)
+	GameTooltip:SetOwner(owner, "ANCHOR_RIGHT")
+	GameTooltip:SetText(entry.name, 1, 0.82, 0)
+	GameTooltip:AddLine(entry.zone, 0.7, 0.7, 0.7)
+	GameTooltip:AddDoubleLine("Slot", entry.slot or "not known yet", 0.7, 0.7, 0.7, 1, 1, 1)
+	GameTooltip:AddLine("Every class gets its own piece for this slot. A piece seen in another slot shows that slot beside it, in orange. A piece's slot is learned once it is worn.", 0.45, 0.45, 0.45, 1)
 	GameTooltip:Show()
 end
 
@@ -1132,7 +1451,11 @@ local function Row(index)
 		end
 		if entry.ability then
 			AbilityTooltip(this, entry)
-		else
+		elseif entry.drop then
+			DropTooltip(this, entry)
+		elseif entry.bossRow then
+			BossTooltip(this, entry)
+		elseif not entry.header then
 			PieceTooltip(this, entry)
 		end
 	end)
@@ -1262,12 +1585,67 @@ local function FillAbility(row, ability)
 	end
 end
 
+-- A zone's name over its bosses: gold, on the bare page.
+local function FillHeader(row, entry)
+	ShowClassIcons(row, {})
+	row:SetBackdropColor(0, 0, 0, 0)
+	row:SetBackdropBorderColor(0, 0, 0, 0)
+	row.icon:Hide()
+	row.name:SetText(entry.name)
+	row.name:SetTextColor(GOLD_TEXT[1], GOLD_TEXT[2], GOLD_TEXT[3])
+	row.rank:SetText("")
+	row.classes:SetText("")
+end
+
+-- A boss: its name, and the slot it drops on the right.
+local function FillBoss(row, entry)
+	ShowClassIcons(row, {})
+	row:SetBackdropColor(0.12, 0.10, 0.08, 0.9)
+	row.icon:Hide()
+	row.name:SetText(entry.name)
+	row.name:SetTextColor(0.95, 0.9, 0.8)
+	row.rank:SetText(entry.slot or "|cff6a6a6aslot ?|r")
+	row.classes:SetText(entry.pieces == 0 and "|cff6a6a6anothing yet|r" or "")
+end
+
+-- A boss's piece: as a worn piece is, the times looted on the right, and its
+-- slot in orange where it is not the boss's.
+local function FillDrop(row, entry)
+	local piece = entry.piece
+	local color = HexColor(piece.hex)
+	row:SetBackdropColor(color[1] * 0.18, color[2] * 0.18, color[3] * 0.18, 0.9)
+	row.name:SetText(entry.name)
+	row.name:SetTextColor(color[1], color[2], color[3])
+	row.rank:SetText(entry.count > 1 and "x"..entry.count or "")
+	if piece.slot and entry.bossSlot and piece.slot ~= entry.bossSlot then
+		row.classes:SetText("|cffff9a40"..piece.slot.."|r")
+	else
+		row.classes:SetText("")
+	end
+	ShowClassIcons(row, DropsForAll() and ClassTags(entry) or {})
+	if piece.icon then
+		row.icon:SetTexture(piece.icon)
+		row.icon:SetVertexColor(1, 1, 1)
+	else
+		row.icon:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
+		row.icon:SetVertexColor(0.6, 0.6, 0.6)
+	end
+end
+
 local RANK_COLUMN = 80          -- the room kept for a row's rank text ("112.6k avg")
 
 local function FillRow(row, entry)
 	row.entry = entry
+	row:SetBackdropBorderColor(0, 0, 0, 1)
+	row.icon:Show()
 	if entry.ability then
 		FillAbility(row, entry)
+	elseif entry.header then
+		FillHeader(row, entry)
+	elseif entry.bossRow then
+		FillBoss(row, entry)
+	elseif entry.drop then
+		FillDrop(row, entry)
 	else
 		FillPiece(row, entry)
 	end
@@ -1294,7 +1672,7 @@ local function FillRow(row, entry)
 	end
 	tags = tags + (row.iconsWidth or 0)
 	row.name:ClearAllPoints()
-	row.name:SetPoint("LEFT", row, "LEFT", ROW_HEIGHT + 4, 0)
+	row.name:SetPoint("LEFT", row, "LEFT", row.icon:IsShown() and ROW_HEIGHT + 4 or 8, 0)
 	row.name:SetPoint("RIGHT", row, "RIGHT", tags > 0 and -(RIGHT_PAD + tags + TAG_GAP) or -RIGHT_PAD, 0)
 	row:Show()
 end
@@ -1343,7 +1721,7 @@ Draw = function()
 	local chosenShown = false
 	for index = 1, table.getn(KINDS) do
 		local entry = KINDS[index]
-		local count = table.getn(Entries(entry.kind))
+		local count = Count(entry.kind)
 		local tab = Tab(index)
 		if count > 0 or entry.always then
 			tab.kind = entry.kind
@@ -1368,6 +1746,12 @@ Draw = function()
 		book.note:SetText("Your "..ClassName().." abilities and their best average cast")
 		page.empty:SetText("No abilities seen yet: open your spellbook once, or play a run.")
 		filter:Hide()
+	elseif chosen == DROPS then
+		book.note:SetText(DropsForAll() and "What each boss dropped, for every class"
+			or "What each boss dropped for your "..ClassName())
+		page.empty:SetText("No boss loot seen yet: it is learned as bosses drop it.")
+		filter.text:SetText(DropsForAll() and "Every class" or ClassName().." only")
+		filter:Show()
 	else
 		book.note:SetText("Gear you have worn, in any run")
 		local byClass = CLASS_KINDS[chosen] and ClassOnly()
@@ -1495,7 +1879,7 @@ if build then
 	open:SetScript("OnEnter", function()
 		GameTooltip:SetOwner(this, "ANCHOR_LEFT")
 		GameTooltip:SetText("Codex", 1, 1, 1)
-		GameTooltip:AddLine("Every piece of gear you have worn, in any run, by kind, and your abilities with their best average cast (/sui codex).", 0.7, 0.7, 0.7, 1)
+		GameTooltip:AddLine("Every piece of gear you have worn, in any run, by kind, your abilities with their best average cast, and what each boss dropped (/sui codex).", 0.7, 0.7, 0.7, 1)
 		GameTooltip:Show()
 	end)
 	open:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -1519,6 +1903,7 @@ learner:SetScript("OnEvent", function()
 		SurvivorUI_ForgetWornTooltips()
 	end
 	Learn()
+	LearnDropSlots()
 	if book:IsShown() then
 		Draw()
 	end
@@ -1533,6 +1918,7 @@ learner:SetScript("OnUpdate", function()
 	end
 	learned = 0
 	LearnRun()
+	WatchBosses()
 	-- Worn jewelry whose tooltip the game had not yet sent in full is read again.
 	Learn()
 end)

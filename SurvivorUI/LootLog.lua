@@ -217,6 +217,9 @@ local function Add(message)
 		new = string.find(rest, "New in your collection", 1, true) ~= nil,
 		at = RunSeconds(),
 	})
+	if SurvivorUI_CodexLoot then
+		SurvivorUI_CodexLoot(name, color, item)
+	end
 	while table.getn(entries) > 30 do
 		table.remove(entries)
 	end
@@ -226,9 +229,10 @@ end
 local lastSeconds
 
 -- Two ways in, whichever the game's line takes: the chat events, and every
--- line the main chat window shows.
+-- line the main chat window shows. Read with the log hidden too: the Codex
+-- learns the bosses' drops from it.
 local function Seen(text)
-	if not (text and Settings().lootLog) then
+	if not text then
 		return
 	end
 	-- "<hero> enters <zone>. Move to begin.": a new run, an empty list.
